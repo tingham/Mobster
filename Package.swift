@@ -13,6 +13,7 @@ let package = Package(
     targets: [
         .target(
             name: "Mobster",
+            resources: [.process("Resources")],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(name: "MobsterTests", dependencies: ["Mobster"]),
