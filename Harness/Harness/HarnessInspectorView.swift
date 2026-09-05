@@ -18,9 +18,17 @@ struct HarnessInspectorView: View {
             Section("Fixture") {
                 FixtureParameterView(parameters: $model.fixture)
             }
+            Section("Motion") {
+                MotionParameterView(model: model)
+            }
+            Section("Transport") {
+                TransportControlView(model: model)
+                SettlementReadoutView(settled: model.motion.settled)
+            }
             Section("Timing") {
                 TimingReadoutView(plot: model.plot)
                 BakeTimingReadoutView(plot: model.field)
+                PlayTimingReadoutView(plot: model.motion)
             }
         }
         .formStyle(.grouped)
