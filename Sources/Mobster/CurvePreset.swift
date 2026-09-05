@@ -12,17 +12,19 @@ public struct CurvePreset: Hashable, Sendable {
     public let control: SIMD2<Float>
     /// Segments the curve is sampled into.
     public let resolution: Int
+    public let mode: PresetPlotMode
 
-    public init(center: SIMD2<Float>, firstDegree: Float, secondDegree: Float, distance: Float, control: SIMD2<Float>, resolution: Int) {
+    public init(center: SIMD2<Float>, firstDegree: Float, secondDegree: Float, distance: Float, control: SIMD2<Float>, resolution: Int, mode: PresetPlotMode = .aspect) {
         self.center = center
         self.firstDegree = firstDegree
         self.secondDegree = secondDegree
         self.distance = distance
         self.control = control
         self.resolution = resolution
+        self.mode = mode
     }
 
-    public func paths(in frame: Frame, mode: PresetPlotMode) -> [[SIMD2<Float>]] {
+    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
         precondition(resolution >= 1, "A curve needs at least one segment")
 
         let projection = PresetProjection(mode: mode, frame: frame, designSize: Self.designSize)

@@ -5,13 +5,15 @@ public struct ColumnsPreset: Hashable, Sendable {
     public let count: Int
     /// A fraction of the design width, which is the Frame width in aspect mode.
     public let gutter: Float
+    public let mode: PresetPlotMode
 
-    public init(count: Int, gutter: Float) {
+    public init(count: Int, gutter: Float, mode: PresetPlotMode = .aspect) {
         self.count = count
         self.gutter = gutter
+        self.mode = mode
     }
 
-    public func paths(in frame: Frame, mode: PresetPlotMode) -> [[SIMD2<Float>]] {
+    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
         let projection = PresetProjection(mode: mode, frame: frame, designSize: Self.designSize)
         let edges = PresetGutter(count: count, gutter: gutter, extent: Self.designSize.x).edges()
 

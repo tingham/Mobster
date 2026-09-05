@@ -2,9 +2,13 @@
 public struct ThirdsPreset: Hashable, Sendable {
     private static let designSize = SIMD2<Float>(1, 1)
 
-    public init() {}
+    public let mode: PresetPlotMode
 
-    public func paths(in frame: Frame, mode: PresetPlotMode) -> [[SIMD2<Float>]] {
+    public init(mode: PresetPlotMode = .aspect) {
+        self.mode = mode
+    }
+
+    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
         let projection = PresetProjection(mode: mode, frame: frame, designSize: Self.designSize)
         let fractions: [Float] = [1.0 / 3.0, 2.0 / 3.0]
 
