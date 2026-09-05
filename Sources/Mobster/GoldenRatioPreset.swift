@@ -6,7 +6,8 @@ public struct GoldenRatioPreset: Hashable, Sendable {
 
     public let focus: PresetFocus
 
-    public init(focus: PresetFocus) {
+    /// The default repeats the stored focus as a literal because a private member cannot serve as a public default argument.
+    public init(focus: PresetFocus = .maxXMinY) {
         self.focus = focus
     }
 
