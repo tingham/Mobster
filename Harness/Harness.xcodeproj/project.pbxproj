@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AA00000000000000000000A1 /* Mobster in Frameworks */ = {isa = PBXBuildFile; productRef = AA00000000000000000000A2 /* Mobster */; };
+		AA00000000000000000000A4 /* MobsterFixture in Frameworks */ = {isa = PBXBuildFile; productRef = AA00000000000000000000A5 /* MobsterFixture */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA00000000000000000000A1 /* Mobster in Frameworks */,
+				AA00000000000000000000A4 /* MobsterFixture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +69,7 @@
 			name = Harness;
 			packageProductDependencies = (
 				AA00000000000000000000A2 /* Mobster */,
+				AA00000000000000000000A5 /* MobsterFixture */,
 			);
 			productName = Harness;
 			productReference = AA00000000000000000000B0 /* Harness.app */;
@@ -249,6 +252,10 @@
 		AA00000000000000000000A2 /* Mobster */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Mobster;
+		};
+		AA00000000000000000000A5 /* MobsterFixture */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MobsterFixture;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

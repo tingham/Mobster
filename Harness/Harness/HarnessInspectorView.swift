@@ -12,6 +12,9 @@ struct HarnessInspectorView: View {
             Section("Parameters") {
                 ParameterPanelView(model: model)
             }
+            Section("Fixture") {
+                FixtureParameterView(parameters: $model.fixture)
+            }
             Section("Timing") {
                 TimingReadoutView(plot: model.plot)
             }

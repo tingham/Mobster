@@ -1,4 +1,5 @@
 import Mobster
+import MobsterFixture
 import Observation
 
 @Observable
@@ -9,15 +10,24 @@ final class HarnessModel {
     var kind: PresetKind = .columns { didSet { replot() } }
     var mode: PresetPlotMode = .aspect { didSet { replot() } }
     var parameters = PresetParameters() { didSet { replot() } }
+    /// The fixture takes no default of its own, so the opening magnitudes are the harness's and every one of them is a slider.
+    var fixture = FixtureParameters(seed: 1, strokeCount: 24, pointsPerStroke: 48, step: 0.02, turn: 30, margin: 0.1) { didSet { repopulate() } }
 
     /// Held rather than computed so the timing readout reports one generation and not one per redraw.
     private(set) var plot: PresetPlot
+    private(set) var strokes: [Stroke]
 
     init() {
         plot = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, mode: .aspect)
+        strokes = []
+        repopulate()
     }
 
     private func replot() {
         plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, mode: mode)
+    }
+
+    private func repopulate() {
+        strokes = StrokeFixture(parameters: fixture).strokes(in: Self.frame)
     }
 }
