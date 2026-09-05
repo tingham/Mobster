@@ -11,7 +11,10 @@ let package = Package(
         .library(name: "Mobster", targets: ["Mobster"])
     ],
     targets: [
-        .target(name: "Mobster"),
+        .target(
+            name: "Mobster",
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
         .testTarget(name: "MobsterTests", dependencies: ["Mobster"]),
     ]
 )
