@@ -6,12 +6,12 @@ struct RulerPresetTests {
 
     @Test func aLineAndAParallelPairAreProduced() {
         let preset = RulerPreset(center: SIMD2<Float>(0.5, 0.5), firstDegree: 0, secondDegree: 180, distance: 0.1)
-        #expect(preset.paths(in: frame, mode: .aspect).count == 3)
+        #expect(preset.paths(in: frame).count == 3)
     }
 
     @Test func theLineCrossesTheFrame() {
         let preset = RulerPreset(center: SIMD2<Float>(0.5, 0.5), firstDegree: 0, secondDegree: 180, distance: 0)
-        let line = preset.paths(in: frame, mode: .aspect)[0]
+        let line = preset.paths(in: frame)[0]
 
         #expect(abs(line[0].x - 100) < 0.001)
         #expect(abs(line[1].x - 0) < 0.001)
@@ -21,7 +21,7 @@ struct RulerPresetTests {
 
     @Test func thePairIsOffsetEitherSideOfTheLine() {
         let preset = RulerPreset(center: SIMD2<Float>(0.5, 0.5), firstDegree: 0, secondDegree: 180, distance: 0.1)
-        let paths = preset.paths(in: frame, mode: .aspect)
+        let paths = preset.paths(in: frame)
         let base = paths[0][0].y
         let leading = paths[1][0].y
         let trailing = paths[2][0].y
@@ -34,7 +34,7 @@ struct RulerPresetTests {
     @Test func eachParallelCrossesTheFrame() {
         let preset = RulerPreset(center: SIMD2<Float>(0.5, 0.5), firstDegree: 0, secondDegree: 90, distance: 0.1)
 
-        for path in preset.paths(in: frame, mode: .aspect) {
+        for path in preset.paths(in: frame) {
             for location in path {
                 #expect(onEdge(location))
             }
@@ -43,7 +43,7 @@ struct RulerPresetTests {
 
     @Test func aZeroDistanceCollapsesThePairOntoTheLine() {
         let preset = RulerPreset(center: SIMD2<Float>(0.5, 0.5), firstDegree: 30, secondDegree: 200, distance: 0)
-        let paths = preset.paths(in: frame, mode: .aspect)
+        let paths = preset.paths(in: frame)
 
         #expect(paths[0] == paths[1])
         #expect(paths[0] == paths[2])
@@ -51,7 +51,7 @@ struct RulerPresetTests {
 
     @Test func degreesSweepTheLineAboutTheCenter() {
         let vertical = RulerPreset(center: SIMD2<Float>(0.5, 0.5), firstDegree: 90, secondDegree: 270, distance: 0)
-        let line = vertical.paths(in: frame, mode: .aspect)[0]
+        let line = vertical.paths(in: frame)[0]
 
         #expect(abs(line[0].y - 100) < 0.001)
         #expect(abs(line[1].y - 0) < 0.001)

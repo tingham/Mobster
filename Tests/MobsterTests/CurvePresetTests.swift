@@ -9,38 +9,38 @@ struct CurvePresetTests {
     }
 
     @Test func aCurveAndAParallelPairAreProduced() {
-        #expect(preset(control: SIMD2<Float>(0.5, 0.8), distance: 0.1, resolution: 8).paths(in: frame, mode: .aspect).count == 3)
+        #expect(preset(control: SIMD2<Float>(0.5, 0.8), distance: 0.1, resolution: 8).paths(in: frame).count == 3)
     }
 
     @Test func resolutionSetsTheSampleCount() {
         for resolution in [1, 4, 32] {
-            let paths = preset(control: SIMD2<Float>(0.5, 0.8), distance: 0.1, resolution: resolution).paths(in: frame, mode: .aspect)
+            let paths = preset(control: SIMD2<Float>(0.5, 0.8), distance: 0.1, resolution: resolution).paths(in: frame)
             #expect(paths.allSatisfy { $0.count == resolution + 1 })
         }
     }
 
     @Test func aControlOnTheChordYieldsAStraightRun() {
-        let paths = preset(control: SIMD2<Float>(0.5, 0.5), distance: 0, resolution: 8).paths(in: frame, mode: .aspect)
+        let paths = preset(control: SIMD2<Float>(0.5, 0.5), distance: 0, resolution: 8).paths(in: frame)
 
         #expect(paths[0].allSatisfy { abs($0.y - 50) < 0.01 })
     }
 
     @Test func aControlOffTheChordBowsTheRun() {
-        let paths = preset(control: SIMD2<Float>(0.5, 1.0), distance: 0, resolution: 8).paths(in: frame, mode: .aspect)
+        let paths = preset(control: SIMD2<Float>(0.5, 1.0), distance: 0, resolution: 8).paths(in: frame)
         let midpoint = paths[0][4]
 
         #expect(midpoint.y > 60)
     }
 
     @Test func theCurveStartsAndEndsOnTheChord() {
-        let paths = preset(control: SIMD2<Float>(0.5, 1.0), distance: 0, resolution: 8).paths(in: frame, mode: .aspect)
+        let paths = preset(control: SIMD2<Float>(0.5, 1.0), distance: 0, resolution: 8).paths(in: frame)
 
         #expect(abs(paths[0].first!.x - 100) < 0.001)
         #expect(abs(paths[0].last!.x - 0) < 0.001)
     }
 
     @Test func thePairIsOffsetEitherSideOfTheCurve() {
-        let paths = preset(control: SIMD2<Float>(0.5, 0.8), distance: 0.1, resolution: 8).paths(in: frame, mode: .aspect)
+        let paths = preset(control: SIMD2<Float>(0.5, 0.8), distance: 0.1, resolution: 8).paths(in: frame)
         let base = paths[0][4].y
 
         #expect(abs(abs(paths[1][4].y - base) - 10) < 0.01)

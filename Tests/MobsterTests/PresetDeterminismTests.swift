@@ -2,14 +2,22 @@ import Testing
 @testable import Mobster
 
 struct PresetDeterminismTests {
-    static let plotters: [@Sendable (Frame, PresetPlotMode) -> [[SIMD2<Float>]]] = [
-        { frame, mode in GoldenRatioPreset().paths(in: frame, mode: mode) },
-        { frame, mode in ThirdsPreset().paths(in: frame, mode: mode) },
-        { frame, mode in ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame, mode: mode) },
-        { frame, mode in RowsPreset(count: 3, gutter: 0.02).paths(in: frame, mode: mode) },
-        { frame, mode in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08).paths(in: frame, mode: mode) },
-        { frame, mode in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame, mode: mode) },
+    static let plotters: [@Sendable (Frame) -> [[SIMD2<Float>]]] = [
+        { frame in GoldenRatioPreset(focus: .maxXMinY).paths(in: frame) },
+        { frame in ThirdsPreset().paths(in: frame) },
+        { frame in ThirdsPreset(mode: .bounds).paths(in: frame) },
+        { frame in ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame) },
+        { frame in ColumnsPreset(count: 4, gutter: 0.05, mode: .bounds).paths(in: frame) },
+        { frame in RowsPreset(count: 3, gutter: 0.02).paths(in: frame) },
+        { frame in RowsPreset(count: 3, gutter: 0.02, mode: .bounds).paths(in: frame) },
+        { frame in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08).paths(in: frame) },
+        { frame in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, mode: .bounds).paths(in: frame) },
+        { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame) },
+        { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16, mode: .bounds).paths(in: frame) },
     ]
+
+    /// Indices in plotters whose immediate successor is the same preset in bounds mode.
+    static let aspectPlotters = [1, 3, 5, 7, 9]
 
     /// The Frame the recorded sequences below were taken against. Its origin is off zero so a sequence recorded from a preset that ignored the origin would not match.
     private let frame = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(640, 480))
@@ -34,36 +42,42 @@ struct PresetDeterminismTests {
 
     @Test func goldenRatioMatchesItsRecordedSequence() {
         let indices = [0, 72, 144, 216, 288]
-        let aspect = GoldenRatioPreset().paths(in: frame, mode: .aspect)
-        let bounds = GoldenRatioPreset().paths(in: frame, mode: .bounds)
+        let stored = GoldenRatioPreset(focus: .maxXMinY).paths(in: frame)
+        let mirrored = GoldenRatioPreset(focus: .minXMaxY).paths(in: frame)
 
-        #expect(aspect.count == 1)
-        #expect(aspect[0].count == 289)
-        #expect(bounds[0].count == 289)
-        #expect(matches(sampled(aspect[0], at: indices), [[
-            SIMD2<Float>(-30.0, 15.0),
-            SIMD2<Float>(458.9165, 15.0),
-            SIMD2<Float>(458.9165, 155.0621),
-            SIMD2<Float>(431.6701, 155.0621),
-            SIMD2<Float>(431.6701, 147.25673),
-        ]]))
-        #expect(matches(sampled(bounds[0], at: indices), [[
+        #expect(stored.count == 13)
+        #expect(stored.map(\.count) == [289, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5])
+        #expect(matches(sampled(stored[0], at: indices), [[
             SIMD2<Float>(-98.328156, 15.0),
             SIMD2<Float>(494.98447, 15.0),
             SIMD2<Float>(494.98447, 155.0621),
             SIMD2<Float>(461.92026, 155.0621),
             SIMD2<Float>(461.92026, 147.25673),
         ]]))
+        #expect(matches([stored[1]], [[
+            SIMD2<Float>(-98.328156, 15.0),
+            SIMD2<Float>(678.3281, 15.0),
+            SIMD2<Float>(678.3281, 495.0),
+            SIMD2<Float>(-98.328156, 495.0),
+            SIMD2<Float>(-98.328156, 15.0),
+        ]]))
+        #expect(matches(sampled(mirrored[0], at: indices), [[
+            SIMD2<Float>(678.3281, 495.0),
+            SIMD2<Float>(85.01552, 495.0),
+            SIMD2<Float>(85.01552, 354.93787),
+            SIMD2<Float>(118.07974, 354.93787),
+            SIMD2<Float>(118.07974, 362.74326),
+        ]]))
     }
 
     @Test func thirdsMatchesItsRecordedSequence() {
-        #expect(matches(ThirdsPreset().paths(in: frame, mode: .aspect), [
+        #expect(matches(ThirdsPreset().paths(in: frame), [
             [SIMD2<Float>(183.33334, 15.0), SIMD2<Float>(183.33334, 495.0)],
             [SIMD2<Float>(396.6667, 15.0), SIMD2<Float>(396.6667, 495.0)],
             [SIMD2<Float>(-30.0, 175.0), SIMD2<Float>(610.0, 175.0)],
             [SIMD2<Float>(-30.0, 335.0), SIMD2<Float>(610.0, 335.0)],
         ]))
-        #expect(matches(ThirdsPreset().paths(in: frame, mode: .bounds), [
+        #expect(matches(ThirdsPreset(mode: .bounds).paths(in: frame), [
             [SIMD2<Float>(183.33334, -65.0), SIMD2<Float>(183.33334, 575.0)],
             [SIMD2<Float>(396.6667, -65.0), SIMD2<Float>(396.6667, 575.0)],
             [SIMD2<Float>(-30.0, 148.33334), SIMD2<Float>(610.0, 148.33334)],
@@ -72,7 +86,7 @@ struct PresetDeterminismTests {
     }
 
     @Test func columnsMatchesItsRecordedSequence() {
-        #expect(matches(ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame, mode: .aspect), [
+        #expect(matches(ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame), [
             [SIMD2<Float>(106.0, 15.0), SIMD2<Float>(106.0, 495.0)],
             [SIMD2<Float>(138.0, 15.0), SIMD2<Float>(138.0, 495.0)],
             [SIMD2<Float>(274.0, 15.0), SIMD2<Float>(274.0, 495.0)],
@@ -80,7 +94,7 @@ struct PresetDeterminismTests {
             [SIMD2<Float>(442.0, 15.0), SIMD2<Float>(442.0, 495.0)],
             [SIMD2<Float>(474.0, 15.0), SIMD2<Float>(474.0, 495.0)],
         ]))
-        #expect(matches(ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame, mode: .bounds), [
+        #expect(matches(ColumnsPreset(count: 4, gutter: 0.05, mode: .bounds).paths(in: frame), [
             [SIMD2<Float>(106.0, -65.0), SIMD2<Float>(106.0, 575.0)],
             [SIMD2<Float>(138.0, -65.0), SIMD2<Float>(138.0, 575.0)],
             [SIMD2<Float>(274.0, -65.0), SIMD2<Float>(274.0, 575.0)],
@@ -91,13 +105,13 @@ struct PresetDeterminismTests {
     }
 
     @Test func rowsMatchesItsRecordedSequence() {
-        #expect(matches(RowsPreset(count: 3, gutter: 0.02).paths(in: frame, mode: .aspect), [
+        #expect(matches(RowsPreset(count: 3, gutter: 0.02).paths(in: frame), [
             [SIMD2<Float>(-30.0, 168.6), SIMD2<Float>(610.0, 168.6)],
             [SIMD2<Float>(-30.0, 178.2), SIMD2<Float>(610.0, 178.2)],
             [SIMD2<Float>(-30.0, 331.8), SIMD2<Float>(610.0, 331.8)],
             [SIMD2<Float>(-30.0, 341.4), SIMD2<Float>(610.0, 341.4)],
         ]))
-        #expect(matches(RowsPreset(count: 3, gutter: 0.02).paths(in: frame, mode: .bounds), [
+        #expect(matches(RowsPreset(count: 3, gutter: 0.02, mode: .bounds).paths(in: frame), [
             [SIMD2<Float>(-30.0, 139.8), SIMD2<Float>(610.0, 139.8)],
             [SIMD2<Float>(-30.0, 152.6), SIMD2<Float>(610.0, 152.6)],
             [SIMD2<Float>(-30.0, 357.4), SIMD2<Float>(610.0, 357.4)],
@@ -106,14 +120,15 @@ struct PresetDeterminismTests {
     }
 
     @Test func rulerMatchesItsRecordedSequence() {
-        let preset = RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08)
+        let aspect = RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08)
+        let bounds = RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, mode: .bounds)
 
-        #expect(matches(preset.paths(in: frame, mode: .aspect), [
+        #expect(matches(aspect.paths(in: frame), [
             [SIMD2<Float>(610.0, 391.05045), SIMD2<Float>(-30.0, 183.0251)],
             [SIMD2<Float>(610.0, 349.19934), SIMD2<Float>(-30.0, 141.17398)],
             [SIMD2<Float>(610.0, 432.90155), SIMD2<Float>(-30.0, 224.87624)],
         ]))
-        #expect(matches(preset.paths(in: frame, mode: .bounds), [
+        #expect(matches(bounds.paths(in: frame), [
             [SIMD2<Float>(610.0, 436.4006), SIMD2<Float>(-30.0, 159.03348)],
             [SIMD2<Float>(610.0, 380.59912), SIMD2<Float>(-30.0, 103.23198)],
             [SIMD2<Float>(610.0, 492.2021), SIMD2<Float>(-30.0, 214.83496)],
@@ -121,10 +136,9 @@ struct PresetDeterminismTests {
     }
 
     @Test func curveMatchesItsRecordedSequence() {
-        let preset = CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16)
         let indices = [0, 8, 16]
-        let aspect = preset.paths(in: frame, mode: .aspect)
-        let bounds = preset.paths(in: frame, mode: .bounds)
+        let aspect = CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame)
+        let bounds = CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16, mode: .bounds).paths(in: frame)
 
         #expect(aspect.allSatisfy { $0.count == 17 })
         #expect(bounds.allSatisfy { $0.count == 17 })
@@ -140,11 +154,10 @@ struct PresetDeterminismTests {
         ]))
     }
 
-    @Test(arguments: 0 ..< PresetDeterminismTests.plotters.count)
+    @Test(arguments: PresetDeterminismTests.aspectPlotters)
     func theTwoPlotModesDiffer(index: Int) {
         let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(640, 480))
-        let plot = Self.plotters[index]
 
-        #expect(plot(square, .aspect) != plot(square, .bounds))
+        #expect(Self.plotters[index](square) != Self.plotters[index + 1](square))
     }
 }
