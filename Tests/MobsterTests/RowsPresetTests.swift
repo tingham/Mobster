@@ -18,6 +18,17 @@ struct RowsPresetTests {
         }
     }
 
+    @Test func edgesSitAtTheirDerivedPositions() {
+        let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(100, 100))
+        let paths = RowsPreset(count: 4, gutter: 0.05).paths(in: square, mode: .aspect)
+        let derived: [Float] = [21.25, 26.25, 47.5, 52.5, 73.75, 78.75]
+
+        #expect(paths.count == derived.count)
+        for (path, expected) in zip(paths, derived) {
+            #expect(abs(path[0].y - expected) < 0.001)
+        }
+    }
+
     @Test func edgesAscendAcrossTheFrame() {
         let paths = RowsPreset(count: 4, gutter: 0.05).paths(in: frame, mode: .aspect)
         let positions = paths.map { $0[0].y }

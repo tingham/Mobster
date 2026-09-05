@@ -14,14 +14,14 @@ struct PresetGutterTests {
         #expect(abs(edges[1] - 0.6) < 0.0001)
     }
 
-    @Test func divisionsAndGuttersFillTheExtent() {
-        let count = 5
-        let gutter: Float = 0.04
-        let edges = PresetGutter(count: count, gutter: gutter, extent: 1).edges()
-        let division = (1 - Float(count - 1) * gutter) / Float(count)
+    @Test func edgesSitAtTheirDerivedPositions() {
+        let edges = PresetGutter(count: 5, gutter: 0.04, extent: 1).edges()
+        let derived: [Float] = [0.168, 0.208, 0.376, 0.416, 0.584, 0.624, 0.792, 0.832]
 
-        #expect(abs(edges.first! - division) < 0.0001)
-        #expect(abs(edges.last! - (1 - division)) < 0.0001)
+        #expect(edges.count == derived.count)
+        for (edge, expected) in zip(edges, derived) {
+            #expect(abs(edge - expected) < 0.0001)
+        }
     }
 
     @Test func fewerThanTwoDivisionsHaveNoGutter() {
