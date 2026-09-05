@@ -8,7 +8,8 @@ let package = Package(
         .macOS(.v15),
     ],
     products: [
-        .library(name: "Mobster", targets: ["Mobster"])
+        .library(name: "Mobster", targets: ["Mobster"]),
+        .library(name: "MobsterFixture", targets: ["MobsterFixture"]),
     ],
     targets: [
         .target(
@@ -16,6 +17,13 @@ let package = Package(
             resources: [.process("Resources")],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
+        // The fixture mints identifiers, which Mobster is forbidden to do, so it sits in its own target rather than inside the library.
+        .target(
+            name: "MobsterFixture",
+            dependencies: ["Mobster"],
+            swiftSettings: [.swiftLanguageMode(.v6)]
+        ),
         .testTarget(name: "MobsterTests", dependencies: ["Mobster"]),
+        .testTarget(name: "MobsterFixtureTests", dependencies: ["MobsterFixture"]),
     ]
 )
