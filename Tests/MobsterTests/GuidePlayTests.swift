@@ -9,7 +9,7 @@ struct GuidePlayTests {
     }
 
     private func guide() -> Guide {
-        let guide = Guide(adherence: Adherence(reach: .infinity), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
             Sample(identifier: PointIdentifier(2), location: SIMD2<Float>(54.5, 64.5)),
@@ -44,7 +44,7 @@ struct GuidePlayTests {
     }
 
     @Test func pointAtAPathLocationDoesNotMove() {
-        let guide = Guide(adherence: Adherence(reach: .infinity), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(64.5, 64.5)),
         ])

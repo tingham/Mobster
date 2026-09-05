@@ -9,7 +9,7 @@ struct GuideAbsoluteTimeTests {
     }
 
     private func guide(at x: Float) -> Guide {
-        let guide = Guide(adherence: Adherence(reach: .infinity), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(x, 64.5)),
         ])
@@ -53,7 +53,7 @@ struct GuideAbsoluteTimeTests {
     }
 
     @Test func tokenizationAndAFieldChangeWriteTheOrigin() {
-        let guide = Guide(adherence: Adherence(reach: .infinity), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
@@ -65,7 +65,7 @@ struct GuideAbsoluteTimeTests {
     }
 
     @Test func theEndTimeSettlesEveryTokenFromAnyState() {
-        let guide = Guide(adherence: Adherence(reach: .infinity), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(0.5, 64.5)),
         ])
@@ -81,8 +81,8 @@ struct GuideAbsoluteTimeTests {
     }
 
     @Test func aSteppedRunAndADirectRunAgreeAcrossAFieldChange() {
-        let stepped = Guide(adherence: Adherence(reach: 40), settleEpsilon: 1)
-        let direct = Guide(adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let stepped = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let direct = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])

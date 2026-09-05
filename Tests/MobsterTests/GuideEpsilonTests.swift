@@ -10,7 +10,7 @@ struct GuideEpsilonTests {
 
     /// The point starts forty units from the path and a reach of forty carries it half way, so it targets 44.5 and the play stops it short of that by the gap asked for.
     private func fires(stoppingShortBy gap: Double, epsilon: Float) -> Int {
-        let guide = Guide(adherence: Adherence(reach: 40), settleEpsilon: epsilon)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: epsilon)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])

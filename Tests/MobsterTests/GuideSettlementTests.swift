@@ -9,7 +9,7 @@ struct GuideSettlementTests {
     }
 
     private func guide() -> Guide {
-        let guide = Guide(adherence: Adherence(reach: .infinity), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
             Sample(identifier: PointIdentifier(2), location: SIMD2<Float>(54.5, 64.5)),
@@ -55,7 +55,7 @@ struct GuideSettlementTests {
     }
 
     @Test func settlementFiresForAMembershipAlreadyAtItsTargets() {
-        let guide = Guide(adherence: Adherence(reach: 0), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 0), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
@@ -71,7 +71,7 @@ struct GuideSettlementTests {
     }
 
     @Test func settlementFiresForAnEmptyMembership() {
-        let guide = Guide(adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         guide.initialize(frame: frame)
 
         let count = SettleCount()
@@ -80,7 +80,7 @@ struct GuideSettlementTests {
     }
 
     @Test func settlementFiresForAMembershipWithNoFieldToChase() {
-        let guide = Guide(adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
@@ -92,7 +92,7 @@ struct GuideSettlementTests {
     }
 
     @Test func aPointOneEpsilonOutSettlesOnThePlayThatCarriesIt() {
-        let guide = Guide(adherence: Adherence(reach: .infinity), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(63.5, 64.5)),
         ])
@@ -123,7 +123,7 @@ struct GuideSettlementTests {
     }
 
     @Test func aListenerAttachedBeforeTheMembershipHearsItsFirstSettlement() {
-        let guide = Guide(adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         let count = SettleCount()
         guide.addSettleListener { count.value += 1 }
         #expect(count.value == 0)

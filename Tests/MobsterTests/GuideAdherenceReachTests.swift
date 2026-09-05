@@ -8,7 +8,7 @@ struct GuideAdherenceReachTests {
     private let far = SIMD2<Float>(127.5, 127.5)
 
     private func guide(reach: Float, epsilon: Float = 1) -> Guide {
-        let guide = Guide(adherence: Adherence(reach: reach), settleEpsilon: epsilon)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: reach), settleEpsilon: epsilon)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: far),
         ])
@@ -25,39 +25,33 @@ struct GuideAdherenceReachTests {
     }
 
     @Test func theFullAdherenceReachFollowsFromTheFrameAndTheEpsilon() {
-        let guide = Guide(adherence: Adherence(reach: 0), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 0), settleEpsilon: 1)
         guide.initialize(frame: frame)
 
         // The diagonal of the Frame is 181.01933, and 181.01933 times the square root of 180.01933.
-        #expect(abs((guide.fullAdherenceReach ?? 0) - 2428.7598) < 1e-2)
+        #expect(abs(guide.fullAdherenceReach - 2428.7598) < 1e-2)
     }
 
     @Test func theFullAdherenceReachFollowsTheEpsilonSupplied() {
-        let guide = Guide(adherence: Adherence(reach: 0), settleEpsilon: 4)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 0), settleEpsilon: 4)
         guide.initialize(frame: frame)
 
-        #expect(abs((guide.fullAdherenceReach ?? 0) - 1204.2185) < 1e-2)
+        #expect(abs(guide.fullAdherenceReach - 1204.2185) < 1e-2)
     }
 
     @Test func theFullAdherenceReachGrowsFasterThanTheFrame() {
-        let small = Guide(adherence: Adherence(reach: 0), settleEpsilon: 1)
+        let small = Guide(frame: frame, adherence: Adherence(reach: 0), settleEpsilon: 1)
         small.initialize(frame: frame)
-        let large = Guide(adherence: Adherence(reach: 0), settleEpsilon: 1)
+        let large = Guide(frame: frame, adherence: Adherence(reach: 0), settleEpsilon: 1)
         large.initialize(frame: Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(256, 256)))
 
-        #expect(abs((large.fullAdherenceReach ?? 0) - 6879.1025) < 1e-1)
+        #expect(abs(large.fullAdherenceReach - 6879.1025) < 1e-1)
         // Twice the Frame, two and five sixths the reach.
-        #expect((large.fullAdherenceReach ?? 0) / (small.fullAdherenceReach ?? 1) > 2.8)
-    }
-
-    @Test func theFullAdherenceReachIsUnknownUntilTheFrameIs() {
-        let guide = Guide(adherence: Adherence(reach: 0), settleEpsilon: 1)
-
-        #expect(guide.fullAdherenceReach == nil)
+        #expect(large.fullAdherenceReach / small.fullAdherenceReach > 2.8)
     }
 
     @Test func theWorstCasePointSettlesAtTheFullAdherenceReach() {
-        let vending = Guide(adherence: Adherence(reach: 0), settleEpsilon: 1)
+        let vending = Guide(frame: frame, adherence: Adherence(reach: 0), settleEpsilon: 1)
         vending.initialize(frame: frame)
         let reach = vending.fullAdherenceReach ?? 0
 

@@ -9,7 +9,7 @@ struct TokenTests {
     }
 
     @Test func tokenIsCreatedForEveryPointInTheMembership() {
-        let guide = Guide(adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         let strokes = [
             Stroke(identifier: StrokeIdentifier(1), samples: [
                 Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
@@ -26,7 +26,7 @@ struct TokenTests {
     }
 
     @Test func tokenCarriesBothIdentifiersAndTheLocation() {
-        let guide = Guide(adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(7), samples: [
             Sample(identifier: PointIdentifier(11), location: SIMD2<Float>(24.5, 64.5)),
         ])
@@ -40,7 +40,7 @@ struct TokenTests {
     }
 
     @Test func existingTokenIsReused() {
-        let guide = Guide(adherence: Adherence(reach: .infinity), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
@@ -59,7 +59,7 @@ struct TokenTests {
     }
 
     @Test func newPointJoinsTheMembershipWithoutDisturbingTheRest() {
-        let guide = Guide(adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
@@ -77,7 +77,7 @@ struct TokenTests {
     }
 
     @Test func aTokenizedPointResolvesItsTargetAgainstThePresentField() {
-        let guide = Guide(adherence: Adherence(reach: 30), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 30), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
@@ -95,7 +95,7 @@ struct TokenTests {
     }
 
     @Test func aStrokeRedeliveredWithoutAPointKeepsEveryToken() {
-        let guide = Guide(adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
             Sample(identifier: PointIdentifier(2), location: SIMD2<Float>(24.5, 32.5)),

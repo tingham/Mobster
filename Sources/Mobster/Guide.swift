@@ -1,6 +1,6 @@
 public final class Guide {
-    /// Nil until initialize is called; no workload runs before that.
-    public private(set) var frame: Frame?
+    /// Supplied at construction, so there is no window in which a workload precedes it.
+    public private(set) var frame: Frame
     private(set) var field: Field?
     private(set) var tokens: [PointIdentifier: Token] = [:]
     /// Membership order, so what a play returns does not follow the hashing of the identifiers.
@@ -12,7 +12,8 @@ public final class Guide {
     /// How many tokens the pass before this one found short of their targets, and nil where no pass has been taken. It records what was observed, not what any token is.
     private var short: Int?
 
-    public init(adherence: Adherence, settleEpsilon: Float) {
+    public init(frame: Frame, adherence: Adherence, settleEpsilon: Float) {
+        self.frame = frame
         self.adherence = adherence
         self.settleEpsilon = settleEpsilon
     }
@@ -26,14 +27,12 @@ public final class Guide {
     }
 
     /// The reach at which every point in the Frame settles within the epsilon. The worst case is the diagonal, a point in one corner of the Frame whose nearest path location is the far corner.
-    public var fullAdherenceReach: Float? {
-        guard let frame else { return nil }
-        return Adherence.reach(settling: length(frame.size), within: settleEpsilon)
+    public var fullAdherenceReach: Float {
+        Adherence.reach(settling: length(frame.size), within: settleEpsilon)
     }
 
     /// A point already carrying a token keeps it, so a stroke redelivered whole does not restart the segments of the points it already had.
     public func tokenize(membership strokes: [Stroke], time: Double) {
-        guard frame != nil else { return }
         let observed = short
         var pending = observed ?? 0
 
@@ -58,26 +57,22 @@ public final class Guide {
 
     /// The segment in flight ends here and the next one starts from wherever the point actually is, rather than from where it set out.
     public func update(field: Field, time: Double) {
-        guard frame != nil else { return }
         self.field = field
         resolve(time: time)
     }
 
     /// Baking here is what a stroke event on the source layer lands on, since paths are what such an event yields and a caller with no field of its own has nothing else to hand over.
     public func update(paths: [[SIMD2<Float>]], resolution: Int, time: Double) {
-        guard let frame else { return }
         update(field: FieldBake(paths: paths, frame: frame, resolution: resolution).field(), time: time)
     }
 
     /// The dial moved every target, so it ends the segment in flight exactly as a field change does.
     public func update(adherence: Adherence, time: Double) {
-        guard frame != nil else { return }
         self.adherence = adherence
         resolve(time: time)
     }
 
     public func play(speed: Float, time: Double) -> GuideAdvance {
-        guard frame != nil else { return GuideAdvance(displacements: []) }
         let observed = short
         var displacements: [GuideDisplacement] = []
         var pending = 0

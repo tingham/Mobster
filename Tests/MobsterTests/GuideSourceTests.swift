@@ -6,7 +6,7 @@ struct GuideSourceTests {
     private let path = [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]]
 
     private func guide() -> Guide {
-        let guide = Guide(adherence: Adherence(reach: 30), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 30), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
