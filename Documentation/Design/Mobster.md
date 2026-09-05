@@ -204,7 +204,10 @@ Adherence controls the reach of an inverse distance squared falloff against the 
 At an adherence of one every point in the Frame settles within the settle epsilon of its nearest path location. The reach achieving this follows from the Frame extent and the epsilon. A reach merely equal to the Frame extent does not achieve it, because the falloff yields a weight below one for every finite reach.
 
 **guide.adherence.reach.least**
-At the least adherence the reach collapses and only a point already at a path location is displaced.
+At the least adherence the reach collapses and no point is displaced.
+
+**guide.adherence.reach.half**
+The reach is the distance at which a point is displaced half the way to its nearest path location. A point nearer than the reach is carried most of the way, a point further is barely carried at all.
 
 **guide.adherence.falloff**
 The falloff yields a weight of one over one plus the square of distance over reach.
@@ -217,6 +220,9 @@ A point far from every path settles short of the path rather than arriving at it
 
 **guide.adherence.reach.full.derive**
 The reach satisfying full adherence follows from the worst case distance in the Frame and the settle epsilon. Mobster vends it. It grows faster than the Frame does, so a fixed multiple of the Frame extent does not serve.
+
+**guide.adherence.change**
+Changing adherence resolves every target again from each point's current location, and ends the segment in flight as a field change does.
 
 **guide.adherence.curve**
 The mapping from the adherence dial to a reach is derived in the harness, between zero and the reach that satisfies full adherence.
@@ -288,7 +294,7 @@ Advancement returns rectangles in scene coordinates covering advanced points, in
 ## Settlement
 
 **guide.settle.epsilon**
-A point has settled when it is within one pixel of its target.
+A point has settled when it is within the settle epsilon of its target. The epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth.
 
 **guide.settle.notify**
 A Guide notifies its listeners when every point has settled.
