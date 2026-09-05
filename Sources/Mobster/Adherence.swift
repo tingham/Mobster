@@ -1,10 +1,16 @@
 /// The inverse distance squared falloff a Guide resolves a target through.
 public struct Adherence: Hashable, Sendable {
-    /// Scene units. The mapping from an adherence dial to a reach is derived in the harness, so there is no default here.
+    /// Scene units, the distance at which a point is carried half the way to its nearest path location. The dial to reach mapping is derived in the harness, so there is no default here.
     public let reach: Float
 
     public init(reach: Float) {
         self.reach = reach
+    }
+
+    /// The residual the falloff leaves is distance cubed over reach squared plus distance squared, solved here for the reach the epsilon demands. Zero where the worst case is already inside it.
+    public static func reach(settling distance: Float, within epsilon: Float) -> Float {
+        guard epsilon > 0, distance > epsilon else { return 0 }
+        return distance * (distance / epsilon - 1).squareRoot()
     }
 
     /// One over one plus the square of distance over reach. A collapsed reach yields no weight at any distance, which leaves every displacement zero.

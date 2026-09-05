@@ -9,7 +9,7 @@ struct GuidePlayTests {
     }
 
     private func guide() -> Guide {
-        let guide = Guide(adherence: Adherence(reach: .infinity))
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
             Sample(identifier: PointIdentifier(2), location: SIMD2<Float>(54.5, 64.5)),
@@ -44,7 +44,7 @@ struct GuidePlayTests {
     }
 
     @Test func pointAtAPathLocationDoesNotMove() {
-        let guide = Guide(adherence: Adherence(reach: .infinity))
+        let guide = Guide(frame: frame, adherence: Adherence(reach: .infinity), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(64.5, 64.5)),
         ])
@@ -76,12 +76,13 @@ struct GuidePlayTests {
         #expect(advance.displacements.first?.location == SIMD2<Float>(34.5, 64.5))
     }
 
-    @Test func timeBeforeTheOriginAdvancesNothing() {
+    @Test func aTimeBeforeTheOriginPutsThePointBackWhereItsSegmentBegan() {
         let guide = guide()
         _ = guide.play(speed: 10, time: 1)
-        let advance = guide.play(speed: 10, time: 0)
+        let advance = guide.play(speed: 10, time: -5)
 
-        #expect(guide.tokens[PointIdentifier(1)]?.location == SIMD2<Float>(34.5, 64.5))
-        #expect(advance.displacements.isEmpty)
+        #expect(guide.tokens[PointIdentifier(1)]?.location == SIMD2<Float>(24.5, 64.5))
+        #expect(guide.tokens[PointIdentifier(2)]?.location == SIMD2<Float>(54.5, 64.5))
+        #expect(advance.displacements.count == 2)
     }
 }

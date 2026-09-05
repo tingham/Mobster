@@ -7,6 +7,7 @@ final class MotionEngine {
     private var strokes: [Stroke]
     private var reach: Float
     private var speed: Float
+    private var epsilon: Float
     private var guide: Guide
     private var locations: [PointIdentifier: SIMD2<Float>] = [:]
     private var rects: [GuideRect] = []
@@ -14,13 +15,14 @@ final class MotionEngine {
     private var duration: Duration = .zero
     private var time: Double = 0
 
-    init(frame: Frame, field: Field, strokes: [Stroke], reach: Float, speed: Float) {
+    init(frame: Frame, field: Field, strokes: [Stroke], reach: Float, speed: Float, epsilon: Float) {
         self.frame = frame
         self.field = field
         self.strokes = strokes
         self.reach = reach
         self.speed = speed
-        guide = Guide(adherence: Adherence(reach: reach))
+        self.epsilon = epsilon
+        guide = Guide(frame: frame, adherence: Adherence(reach: reach), settleEpsilon: epsilon)
         build()
     }
 
@@ -34,14 +36,15 @@ final class MotionEngine {
         rebuild()
     }
 
-    /// Reach rebuilds because it changes where every point was always going; speed is an argument to the play and changes nothing a token holds.
-    func tune(reach: Float, speed: Float) {
+    /// Reach rebuilds because it changes where every point was always going, and the epsilon because a Guide reports settlement on entry alone. Speed is an argument to the play.
+    func tune(reach: Float, speed: Float, epsilon: Float) {
         self.speed = speed
-        guard reach != self.reach else {
+        guard reach != self.reach || epsilon != self.epsilon else {
             play(at: time)
             return
         }
         self.reach = reach
+        self.epsilon = epsilon
         rebuild()
     }
 
@@ -58,7 +61,7 @@ final class MotionEngine {
 
     /// A fresh Guide rather than a reinitialized one, because initialize discards tokens and leaves the settle listeners in place.
     private func build() {
-        guide = Guide(adherence: Adherence(reach: reach))
+        guide = Guide(frame: frame, adherence: Adherence(reach: reach), settleEpsilon: epsilon)
         settled = false
         // Registered ahead of the tokenization so a membership settled the moment it exists is caught.
         guide.addSettleListener { [weak self] in self?.settled = true }

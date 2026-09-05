@@ -9,7 +9,7 @@ struct GuideSegmentTests {
     }
 
     @Test func fieldChangeReanchorsTheSegmentAtTheCurrentLocation() {
-        let guide = Guide(adherence: Adherence(reach: 40))
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
@@ -30,7 +30,7 @@ struct GuideSegmentTests {
     }
 
     @Test func theNextSegmentRunsFromTheReanchoredLocation() {
-        let guide = Guide(adherence: Adherence(reach: 40))
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
@@ -42,5 +42,39 @@ struct GuideSegmentTests {
 
         // A segment still dated from the play would have run five times as far and arrived.
         #expect(guide.tokens[PointIdentifier(1)]?.location == SIMD2<Float>(29.5, 64.5))
+    }
+
+    @Test func anAdherenceChangeReanchorsTheSegmentAsAFieldChangeDoes() {
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
+            Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
+        ])
+        guide.initialize(frame: frame, membership: [stroke])
+        guide.update(field: field(at: 64.5), time: 0)
+        _ = guide.play(speed: 10, time: 1)
+
+        guide.update(adherence: Adherence(reach: 20), time: 3)
+        let token = guide.tokens[PointIdentifier(1)]
+
+        #expect(guide.adherence.reach == 20)
+        #expect(token?.location == SIMD2<Float>(34.5, 64.5))
+        #expect(token?.origin == 3)
+        // Thirty units out at a reach of twenty, so four thirteenths of the distance: 34.5 + 9.230769.
+        #expect(abs((token?.target.x ?? 0) - 43.73077) < 1e-3)
+    }
+
+    @Test func theSegmentAfterAnAdherenceChangeRunsFromTheChange() {
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 40), settleEpsilon: 1)
+        let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
+            Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
+        ])
+        guide.initialize(frame: frame, membership: [stroke])
+        guide.update(field: field(at: 64.5), time: 0)
+        _ = guide.play(speed: 10, time: 1)
+        guide.update(adherence: Adherence(reach: 20), time: 3)
+        _ = guide.play(speed: 5, time: 4)
+
+        // A segment still dated from the play would have run three times as far and arrived.
+        #expect(guide.tokens[PointIdentifier(1)]?.location == SIMD2<Float>(39.5, 64.5))
     }
 }

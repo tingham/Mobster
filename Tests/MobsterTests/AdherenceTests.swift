@@ -54,4 +54,19 @@ struct AdherenceTests {
 
         #expect(Adherence(reach: 40).target(for: point, in: empty) == point)
     }
+
+    @Test func theReachIsTheDistanceCarryingAPointHalfWay() {
+        #expect(abs(Adherence(reach: 40).weight(distance: 40) - 0.5) < 1e-6)
+        #expect(near(Adherence(reach: 40).target(for: point, in: field()), SIMD2<Float>(44.5, 64.5)))
+        // Nearer than the reach carries most of the way, further carries barely at all.
+        #expect(Adherence(reach: 120).weight(distance: 40) > 0.85)
+        #expect(Adherence(reach: 4).weight(distance: 40) < 0.01)
+    }
+
+    @Test func theReachSettlingTheWorstCaseFollowsFromItAndTheEpsilon() {
+        #expect(abs(Adherence.reach(settling: 181.01933, within: 1) - 2428.7598) < 1e-2)
+        #expect(abs(Adherence.reach(settling: 181.01933, within: 4) - 1204.2185) < 1e-2)
+        // Nothing is owed a displacement where the worst case is already inside the epsilon.
+        #expect(Adherence.reach(settling: 0.5, within: 1) == 0)
+    }
 }

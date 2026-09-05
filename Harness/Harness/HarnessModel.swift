@@ -13,6 +13,8 @@ final class HarnessModel {
     static let openingReach: Float = 200
     /// Scene units per second.
     static let openingSpeed: Float = 100
+    /// Scene units, against a Frame six hundred by four hundred. What a pixel is worth here is the question the slider exists to answer.
+    static let openingEpsilon: Float = 1
 
     var kind: PresetKind = .columns { didSet { replot() } }
     var mode: PresetPlotMode = .aspect { didSet { replot() } }
@@ -23,6 +25,7 @@ final class HarnessModel {
     var fixture = HarnessModel.openingFixture { didSet { repopulate() } }
     var reach = HarnessModel.openingReach { didSet { retune() } }
     var speed = HarnessModel.openingSpeed { didSet { retune() } }
+    var settleEpsilon = HarnessModel.openingEpsilon { didSet { retune() } }
     var dirtyVisible = false
     let transport = Transport()
 
@@ -47,7 +50,7 @@ final class HarnessModel {
         let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, mode: .aspect, focus: .maxXMinY)
         let baked = FieldPlot(paths: opening.paths, frame: Self.frame, resolution: Self.openingResolution)
         let population = StrokeFixture(parameters: Self.openingFixture).strokes(in: Self.frame)
-        let running = MotionEngine(frame: Self.frame, field: baked.field, strokes: population, reach: Self.openingReach, speed: Self.openingSpeed)
+        let running = MotionEngine(frame: Self.frame, field: baked.field, strokes: population, reach: Self.openingReach, speed: Self.openingSpeed, epsilon: Self.openingEpsilon)
         plot = opening
         field = baked
         strokes = population
@@ -88,7 +91,7 @@ final class HarnessModel {
     }
 
     private func retune() {
-        engine.tune(reach: reach, speed: speed)
+        engine.tune(reach: reach, speed: speed, epsilon: settleEpsilon)
         motion = engine.plot
     }
 
