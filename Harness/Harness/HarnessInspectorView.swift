@@ -7,16 +7,20 @@ struct HarnessInspectorView: View {
         Form {
             Section("Preset") {
                 PresetPickerView(kind: $model.kind)
-                PlotModePickerView(mode: $model.mode)
+                PlotControlView(model: model)
             }
             Section("Parameters") {
                 ParameterPanelView(model: model)
+            }
+            Section("Field") {
+                FieldParameterView(model: model)
             }
             Section("Fixture") {
                 FixtureParameterView(parameters: $model.fixture)
             }
             Section("Timing") {
                 TimingReadoutView(plot: model.plot)
+                BakeTimingReadoutView(plot: model.field)
             }
         }
         .formStyle(.grouped)
