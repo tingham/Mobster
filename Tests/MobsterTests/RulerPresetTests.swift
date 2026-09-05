@@ -31,6 +31,16 @@ struct RulerPresetTests {
         #expect((leading - base) * (trailing - base) < 0)
     }
 
+    @Test func eachParallelCrossesTheFrame() {
+        let preset = RulerPreset(center: SIMD2<Float>(0.5, 0.5), firstDegree: 0, secondDegree: 90, distance: 0.1)
+
+        for path in preset.paths(in: frame, mode: .aspect) {
+            for location in path {
+                #expect(onEdge(location))
+            }
+        }
+    }
+
     @Test func aZeroDistanceCollapsesThePairOntoTheLine() {
         let preset = RulerPreset(center: SIMD2<Float>(0.5, 0.5), firstDegree: 30, secondDegree: 200, distance: 0)
         let paths = preset.paths(in: frame, mode: .aspect)
@@ -46,5 +56,13 @@ struct RulerPresetTests {
         #expect(abs(line[0].y - 100) < 0.001)
         #expect(abs(line[1].y - 0) < 0.001)
         #expect(abs(line[0].x - 50) < 0.01)
+    }
+
+    private func onEdge(_ location: SIMD2<Float>) -> Bool {
+        let low = frame.origin
+        let high = frame.origin + frame.size
+        let inside = location.x >= low.x - 0.01 && location.x <= high.x + 0.01 && location.y >= low.y - 0.01 && location.y <= high.y + 0.01
+        let touching = abs(location.x - low.x) < 0.01 || abs(location.x - high.x) < 0.01 || abs(location.y - low.y) < 0.01 || abs(location.y - high.y) < 0.01
+        return inside && touching
     }
 }
