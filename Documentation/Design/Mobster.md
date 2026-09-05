@@ -1,124 +1,334 @@
 # Mobster
 *Because he pushes things around*
 
-## Overview
+Design requirements. Narrative background lives in the principal issue.
 
-Drawing is hard. Drawing on an iPad or Wacom tablet is harder. Mobster provides modifiers that, allow guidance for user gestures that produce consistent results, and generate additional points when points are made based on a common set of rules.
+## Package
 
-## Workflow
+**mobster.model.none**
+Mobster declares no document model and imports none.
 
-This project will utilize the following process for implementation.
+**mobster.import.permitted**
+Imports other than a document model are permitted where they earn their cost.
 
-- Discussion with principal regarding requirements and changes should result in an update to the requirements document (this file.)
-- Tasks to produce source based on those requirements will be itemized as Github issues via the `gh` command.
-- Coding agents will be managed and dispatched by the "chat host" agent using the material of those tasks in combination with this requirements document where necessary.
-    - Agents will be segregated using `cycleworktree`
-    - Agents will deliver code to the "chat host" agent, the "chat host" agent will dispatch a `requirements-analyst` to provide whole changeset reconciliation against the dispatch for that work.
-    - Implementation agents should be kept open and accessible for re-tasking on an open task until it is accepted by the "chat host" as the result of a favorable reading from the `requirements-analyst`. New github issues are not required for this task compliance work.
-    - Accepted code will be merged into a `develop` branch by the "chat host" agent and the principal will be notified of changes - and if UAT is required, a summary of the work that needs to be reviewed and / or tested.
-    - Issues will be closed and `cycleworktree` will be used to clean up completed worktree branches
-- The results of UAT that require fixing, omission recovery, or change orders from the principal will be submitted as new github issues against the original issue (where applicable)
-- When a substantial amount of work is complete (user's discretion) develop will be submitted for PR merge to `main` and the "chat host" agent will issue a release tag with change notes and any updated documentation for downstream consumers.
+**mobster.identity.opaque**
+A point identifier and a stroke identifier each cross the boundary as an opaque unsigned integer.
 
-## Prose (To be moved to pricinpal issue in github prior to task planning.)
+**mobster.identity.opaque.read**
+Mobster does not dereference an identifier. An identifier is a key and nothing else.
 
-### Test Harness
+**mobster.identity.mint.never**
+Mobster does not mint an identifier.
 
-Similar to Jerome, Tempest, and Muslin (~/Source/Repos) this project will include a nominally complex dataset as "fixture", a method to present a preview to the screen, basic performance timing output, and any necessary parameter drivers as sliders via an Xcode project targeting macOS.
+**mobster.implementation.swift**
+Work is implemented in Swift through the sub 1.0 versions. A kernel is written only where Swift cannot serve.
 
-Data structures may be capitalized from any of those sources as hard copies only, and not linked or referenced by path to their origins.
+**mobster.transfer.value**
+Data crosses the boundary as value types.
 
+**mobster.transfer.event**
+Bulk transfer occurs on membership change and on field change. Advancement carries a time and returns displaced locations with rectangles.
 
-### A Modifier
+## Space
 
-Modifiers exist as one (currently, with more planned.) distinct sub-types:
+**guide.initialize**
+A Guide receives the Frame it operates within before any other workload is invoked.
 
-- Guide
+**guide.frame.region**
+The Frame is a region in scene space.
 
-#### What are Guides?
+**guide.frame.position**
+The Frame carries a position within scene space.
 
-A layer may associate one or more Guides to itself. Guides consist of two primary attributes and a few secondary parameters.
+**guide.initialize.reset**
+Initialize discards every existing token and rebuilds the membership. There is no incremental token removal.
 
-##### Target
+**guide.space.scene**
+Locations, targets and returned rectangles are expressed in scene coordinates.
 
-This is the layer to which the Guide is applied. Points inside Strokes on this layer are affected by the guide.
+**guide.space.normalize**
+Normalization to a zero to one identity is applied only where a calculation requires it, and is reversed before storage.
 
-##### Sources
+## Sources
 
-**Layer Source**
+**guide.target**
+A Guide names the layer it applies to. Points inside strokes on that layer are its membership.
 
-Much like a layer Mask, the user is asked to select a layer from among those containing strokes in the current document. When the source is selected the stroke data from that layer is reinterpreted within the Guide as simple paths with curvature. These paths in the guide are then utilized as a `field`.
+**guide.source.layer**
+A Guide may name a layer as its source. Stroke data from that layer is interpreted by Mobster into paths.
 
-Using a Layer as a source may have a frame that differs from the target. In this event we may wish to display a warning to the user (consumer concern) - but Mobster will map absolutely and not make an attempt to fit the source layer's bounds to the target's. What the user sees visually will match their intent.
+**guide.source.preset**
+A Guide may name a preset as its source. The preset plots paths against the Frame the Guide operates within.
 
-**Preset Source**
+**guide.source.map.absolute**
+A source Frame differing from the target Frame maps absolutely. Mobster does not fit source bounds to target bounds.
 
-Unlike layer Masks, guides provide a collection of region frame responsive prototypes that plot paths either consistent to the aspect ratio of the nearest Frame, or scaled to a minimum bounds to encompass the nearest Frame. Selecting a preset then utilizes the scaled (and potentially distorted) paths as a `field`.
+## Paths
 
-* Golden Ratio: A spiral that populates the standard ratio frame
-* Thirds: Three columns, three rows, conforms to aspect ratio of frame
-* Columns: Parameterized columnar dividers spread evenly across region frame with parameterized gutter
-* Rows: Parameterized row lines spread evenly across region frame with parameterized gutter
-* Ruler: Parameters for two circular degrees create a line across the region frame between two points derived from those degrees. A "distance" parameter creates paired parallel lines at the specific offset from the originating line. A parameter for the "center" is specified in x,y coordinates.
-* Curve: Identical in structure to the ruler, the curve includes a position for the mid-point between the start and end for controlling the tension of the interpreted spline.
+**path.interpret**
+Source locations are interpreted into paths with curvature. The interpretation is Mobster's own and does not reproduce the source representation.
 
-##### Parameters
+**path.decimate**
+Interpreted paths are decimated before they are baked.
 
-**Adherence**
-Point locations are normalized across the target's Frame. Then, by an inverse distance squared falloff using adherence as the master control, points are modulated transiently to "move toward" the nearest guide point in the field.
+**path.complexity.cap**
+A path exceeding the complexity cap is reduced by removing entries until it conforms. It is neither truncated nor rejected. The cap is derived in the harness.
 
-The total number of "steps" for a given point to reach its destination (ids * (1- adherence)) is calculated when the point's token is created.
+**path.vend**
+Interpreted paths are vended to the consumer on demand.
 
-**???**
-Presets may include additional parameters.
+**path.role**
+A vended path carries what it is. A consumer can distinguish a ruler's base line from its parallels, and a spiral from the rectangles it was derived from, without relying on the order they arrive in.
 
-##### Fields
+## Presets
 
-Points on the layer with the Guide applied are submitted through the Guide modifier prior to being delivered to the gpu for rasterization. A token within the guide is created for each point in the unified collection of points from strokes on the layer that references points by identifer and tracks a progressive value. If a token previously exists for a given point it is reused, otherwise a token is created (for example on a new stroke's first point).
+**preset.storage.static**
+A preset whose paths are fixed is stored as a JSON resource.
 
-##### Point Token
+**preset.storage.generated**
+A preset whose paths are computed from parameters is a code function.
 
-The point token contains fields for:
+**preset.frame.mode**
+A preset holds its plot mode. The mode is set when the preset is constructed and is not a parameter of the request.
 
-- Stroke Identifier  
-Maintained as a qualifier for points such that advancing a point within a stroke during a `skip-take` (extemporaneous event) can accomodate advancing all points in the stroke, or all points proportionally against the point under advancement.
-- Point Identifier  
-This is the link to the point as provided from the query store to be sent to the rasterizer for display.
-- Point Progress: simd3  
-Where the point has been displaced to since the last reset
-- Point Target: simd3
-Where the point will "land"
+**preset.frame.aspect**
+A preset plotting in aspect mode plots paths consistent to the aspect ratio of the Frame. The Frame is its design rectangle, so a quantity the preset expresses relative to the Frame resolves against the Frame.
 
-##### Modifier Workload
+**preset.frame.bounds**
+A preset plotting in bounds mode plots paths scaled to a minimum bounds encompassing the Frame, preserving its own proportions.
 
-**Skip Takes**
+**preset.frame.bounds.center**
+A preset scaled to a minimum bounds is centered within the Frame.
 
-Modifiers respond to stroke events from either the Source Layer (if specified) or the Target Layer and apply either an update to its field; or an update to its membership. During any of these events, regardless of the object under inspection, Mobster may advance the modulation step on any number of points within its membership.
+**preset.frame.mode.default**
+Thirds, Columns, Rows, Ruler and Curve construct in aspect mode. Each is defined relative to the Frame and a Frame relative quantity resolves against the Frame only in that mode.
 
-During this workload, rectangles must be returned in scene coordinates for any advanced points or unions of advanced points. The consumer may then decide whether to include those updates as a function of its own rendering pipeline.
+**preset.goldenRatio**
+A spiral populating the standard ratio frame.
 
-**At a Minimum:**
+**preset.goldenRatio.proportion**
+Golden Ratio preserves its own proportions. It constructs in bounds mode and does not plot in aspect mode, because a distorted spiral is not the golden ratio.
 
-If a Source Layer is modified to have new data added; the target for all point tokens will be updated based on the new field state.
+**preset.goldenRatio.quadlines**
+Golden Ratio plots the nested rectangles the spiral is derived from alongside the spiral.
 
-If the Target is updated to include new data, new points are tokenized and evaluated against the field.
+**preset.goldenRatio.focus**
+The corner the spiral converges toward is selectable.
 
-These are the standard lifecycle events that Guide modifiers traffic in.
+**preset.thirds**
+Three columns and three rows conforming to the aspect ratio of the Frame.
 
-**Advancement**
+**preset.columns**
+Columnar dividers spread evenly across the Frame with a parameterized gutter.
 
-The consumer application may, at its discretion (after a period of inactivity from the user) invoke an `.advance` method on a Guide. The advance method allows for the delivery of a "speed multiplier" to influence the advancement of all points in the Guide along their path to each points target.
+**preset.rows**
+Row lines spread evenly across the Frame with a parameterized gutter.
 
-**Settlement**
+**preset.gutter.band**
+A gutter is a band with two edges. A count of four columns with one gutter width yields six lines.
 
-When all points have achieved their targets (within epsilon equivalent to one half pixel) a `.settled` notification is sent from the Guide to any listeners. Settled state is not tracked inside of the Guide. It is the responsibility of the Consumer application to cease invocation of advancement based on this notification, rather than an internally tracked boolean state that might disagree with the facts; or a dynamic getter that must walk all points for epsilon equality on a value that is already resolved.
+**preset.gutter.fraction**
+A gutter width is a fraction of the Frame extent along the axis it divides. Its meaning does not change with plot mode.
 
-##### Guide Display
+**preset.ruler**
+Two circular degrees derive two locations on the edge of the Frame.
 
-**Field**
+**preset.ruler.center**
+The center the degrees are cast from is specified in x and y.
 
-Mobster provides a nominal dataset.  Whether or not this is visible for a given guide is of no consequence to Mobster. It provides a rasterized 8 bit map of its `field` on demand.  
+**preset.ruler.degrees**
+A degree of zero points along positive x within the Frame. Increasing degrees rotate toward positive y.
 
-**Path**
+**preset.ruler.line**
+A line crosses the Frame between the two derived locations.
 
-Mobster receives point input from Layer Sources or point data from presets. It may then vend this data to a consumer for purposes that fall outside the scope of this module's concern.
+**preset.ruler.pair**
+A distance parameter creates a parallel line at that offset on each side of the line.
+
+**preset.ruler.pair.cross**
+A parallel line crosses the Frame. It is cast to the edge of the Frame rather than translated as a fixed length.
+
+**preset.curve**
+Identical in structure to the ruler, with a location between the start and the end controlling the tension of the interpreted spline.
+
+## Field
+
+**field.bake**
+The field is baked from the interpreted paths in Swift on the host.
+
+**field.bake.exterior**
+A path location outside the Frame participates in the field. A query inside the Frame resolves to the true nearest path location whether that location lies inside the Frame or not.
+
+**field.store.location**
+The field stores the nearest path location per texel. It does not store a distance.
+
+**field.store.location.exact**
+The stored location is the nearest path location. It is not an approximation of one. A location bound is discontinuous in the distance error near a medial line, so an approximate bake cannot be licensed by stating a tolerance on the location.
+
+**field.read.distance**
+Distance at a location is the length from that location to the nearest path location the field holds.
+
+**field.read.direction**
+Direction at a location is the normalized vector from that location toward the nearest path location the field holds.
+
+**field.gradient.never**
+Direction is not derived from a gradient of the field.
+
+**field.unsigned**
+The field is unsigned. A guide path is open and has no interior.
+
+**field.tiebreak.center**
+Where two path locations are equidistant the field resolves toward the center of the Frame.
+
+**field.tiebreak.stable**
+Where neither candidate is nearer the center of the Frame, the field resolves to the candidate with the lesser x, and to the lesser y where x is equal. The rule is stated so that it survives a change to the order the bake sweeps in.
+
+**field.extent**
+A field's texel counts follow from the Frame and the resolution. They do not vary with whether the bake found a path.
+
+**field.frame.degenerate**
+A Frame with a zero extent on either axis bakes an empty field. It does not trap.
+
+**field.empty**
+A field holding no path location reports that it holds none. It does not vend a grayscale, because a raster of uniform maximum distance cannot be told apart from a legitimate one.
+
+**field.vend.grayscale**
+The field is vended as a grayscale rasterization on demand. The rasterization is an approximation and is not the storage format.
+
+## Adherence
+
+**guide.adherence.reach**
+Adherence controls the reach of an inverse distance squared falloff against the field.
+
+**guide.adherence.reach.full**
+At an adherence of one the reach covers the Frame and every point snaps fully onto its nearest path location.
+
+**guide.adherence.reach.least**
+At the least adherence the reach collapses and only a point already at a path location is displaced.
+
+**guide.adherence.falloff**
+The falloff yields a weight of one over one plus the square of distance over reach.
+
+**guide.adherence.target**
+A point's target is its own location displaced toward the nearest path location by the falloff weight of the distance between them.
+
+**guide.adherence.short**
+A point far from every path settles short of the path rather than arriving at it.
+
+**guide.adherence.curve**
+The mapping from the adherence dial to a reach is derived in the harness.
+
+## Token
+
+**token.create**
+A token is created for each point in the membership that does not already have one.
+
+**token.reuse**
+An existing token for a point is reused.
+
+**token.identity.stroke**
+A token carries the identifier of the stroke its point belongs to.
+
+**token.identity.point**
+A token carries the identifier of its point.
+
+**token.progress**
+A token stores the current location of its point.
+
+**token.target**
+A token stores the location its point will land on.
+
+**token.origin**
+A token stores the time origin of the segment in flight.
+
+**token.planar**
+A token carries no depth. A Guide does not displace a point in depth.
+
+**token.segment**
+A field change ends the segment in flight and starts a new one anchored at the current location.
+
+**token.authority.none**
+A token holds no authority over the point it references.
+
+## Advancement
+
+**guide.play**
+A Guide advances by play, receiving a speed and a time.
+
+**guide.play.evaluate**
+Every token in the membership is evaluated at the supplied time.
+
+**guide.play.end**
+Playing to the end time settles every token in one call.
+
+**guide.rate**
+The rate at which a point travels to its target is derived in the harness.
+
+**guide.determinism.pure**
+Evaluation within a segment is a pure function of the token and the time. No wall clock and no drawn random state participate.
+
+**guide.determinism.seed**
+A seed required by the rate is derived from the point identifier.
+
+**guide.pass.single**
+A pass resolves one Guide. Two Guides on a layer are resolved by two passes, sequenced by the consumer.
+
+**guide.rect.dirty**
+Advancement returns rectangles in scene coordinates covering advanced points, individually or as unions.
+
+## Settlement
+
+**guide.settle.epsilon**
+A point has settled when it is within one pixel of its target.
+
+**guide.settle.notify**
+A Guide notifies its listeners when every point has settled.
+
+**guide.settle.track.never**
+A Guide does not track settled state and does not walk its membership to answer for it.
+
+## Skip Takes
+
+**guide.skiptake.source**
+A stroke event on the source layer updates the field.
+
+**guide.skiptake.target**
+A stroke event on the target layer updates the membership.
+
+**guide.skiptake.retarget**
+A field change updates the target of every token.
+
+**guide.skiptake.tokenize**
+New data on the target layer is tokenized and evaluated against the field.
+
+**guide.skiptake.remove**
+Data removed from the target layer is handled by initialize. A Guide does not reconcile a membership against a removal.
+
+**guide.skiptake.advance**
+A skip take may advance the modulation step of any number of points in the membership.
+
+## Destructive Workload
+
+**Not an implementation target. Recorded so it is not rediscovered.**
+
+A Guide applying destructively yields a reduced result the consumer writes back into the live stroke, rather than filtering ahead of rasterization. The internal logic is the same as the live workload, so the consumer can achieve this result with the live workload alone. A committed point is already at its target, so the consumer routes only live strokes to avoid compounding the displacement. A reduced result is a subset of the identifiers supplied. Open: whether the destructive result differs from the settled live result at all.
+
+## Harness
+
+**harness.platform**
+The harness is an Xcode project targeting macOS.
+
+**harness.fixture**
+The harness carries a nominally complex dataset as a fixture.
+
+**harness.preview**
+The harness presents a preview to the screen.
+
+**harness.timing**
+The harness reports performance timing.
+
+**harness.sliders**
+The harness exposes each derived magnitude as a slider.
+
+**harness.copy**
+Data structures taken from Jerome, Tempest or Muslin are hard copies. They are not linked or referenced by path to their origins.
