@@ -32,7 +32,7 @@ Bulk transfer occurs on membership change and on field change. Advancement carri
 ## Space
 
 **guide.initialize**
-A Guide receives the Frame it operates within before any other workload is invoked.
+A Guide receives the Frame it operates within when it is constructed, so that no workload can run before it. Initialize supplies a new Frame and resets.
 
 **guide.frame.region**
 The Frame is a region in scene space.
@@ -294,7 +294,7 @@ Advancement returns rectangles in scene coordinates covering advanced points, in
 ## Settlement
 
 **guide.settle.epsilon**
-A point has settled when it is within the settle epsilon of its target. The epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth.
+A point has settled when it is nearer its target than the settle epsilon. The comparison is strict, so that a point exactly one epsilon out is not already settled before the play that carries it home. The epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth.
 
 **guide.settle.notify**
 A Guide notifies its listeners when every point has settled.
@@ -306,7 +306,7 @@ The notification fires on entering the settled condition, including a membership
 A point's arrival is judged after it moves, not before. A point one epsilon from its target moves onto it and that play is the one that settles it.
 
 **guide.settle.track.never**
-A Guide does not track settled state and does not walk its membership to answer for it.
+A Guide does not track settled state and does not walk its membership to answer for it. It may carry what the last pass counted, since that is a record of a pass already taken rather than a state that can disagree with the points.
 
 ## Skip Takes
 
