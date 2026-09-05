@@ -13,7 +13,7 @@ This project will utilize the following process for implementation.
 - Tasks to produce source based on those requirements will be itemized as Github issues via the `gh` command.
 - Coding agents will be managed and dispatched by the "chat host" agent using the material of those tasks in combination with this requirements document where necessary.
     - Agents will be segregated using `cycleworktree`
-    - Agents will deliver code to the "chat host" agent, the "chat host" agent will dispatch a `requirements-analyst` to provide whole-changeset reconciliation against the dispatch for that work.
+    - Agents will deliver code to the "chat host" agent, the "chat host" agent will dispatch a `requirements-analyst` to provide whole changeset reconciliation against the dispatch for that work.
     - Implementation agents should be kept open and accessible for re-tasking on an open task until it is accepted by the "chat host" as the result of a favorable reading from the `requirements-analyst`. New github issues are not required for this task compliance work.
     - Accepted code will be merged into a `develop` branch by the "chat host" agent and the principal will be notified of changes - and if UAT is required, a summary of the work that needs to be reviewed and / or tested.
     - Issues will be closed and `cycleworktree` will be used to clean up completed worktree branches
@@ -31,10 +31,9 @@ Data structures may be capitalized from any of those sources as hard copies only
 
 ### A Modifier
 
-Modifiers exist as two distinct sub-types:
+Modifiers exist as one (currently, with more planned.) distinct sub-types:
 
 - Guide
-- -Generator- (Parked for later implementation.)
 
 #### What are Guides?
 
@@ -54,7 +53,14 @@ Using a Layer as a source may have a frame that differs from the target. In this
 
 **Preset Source**
 
-Unlike layer Masks, guides provide a collection of region-frame responsive prototypes that plot paths either consistent to the aspect ratio of the nearest Frame, or scaled to a minimum bounds to encompass the nearest Frame. Selecting a preset then utilizes the scaled (and potentially distorted) paths as a `field`.
+Unlike layer Masks, guides provide a collection of region frame responsive prototypes that plot paths either consistent to the aspect ratio of the nearest Frame, or scaled to a minimum bounds to encompass the nearest Frame. Selecting a preset then utilizes the scaled (and potentially distorted) paths as a `field`.
+
+* Golden Ratio: A spiral that populates the standard ratio frame
+* Thirds: Three columns, three rows, conforms to aspect ratio of frame
+* Columns: Parameterized columnar dividers spread evenly across region frame with parameterized gutter
+* Rows: Parameterized row lines spread evenly across region frame with parameterized gutter
+* Ruler: Parameters for two circular degrees create a line across the region frame between two points derived from those degrees. A "distance" parameter creates paired parallel lines at the specific offset from the originating line. A parameter for the "center" is specified in x,y coordinates.
+* Curve: Identical in structure to the ruler, the curve includes a position for the mid-point between the start and end for controlling the tension of the interpreted spline.
 
 ##### Parameters
 
@@ -64,7 +70,7 @@ Point locations are normalized across the target's Frame. Then, by an inverse di
 The total number of "steps" for a given point to reach its destination (ids * (1- adherence)) is calculated when the point's token is created.
 
 **???**
-
+Presets may include additional parameters.
 
 ##### Fields
 
@@ -75,13 +81,13 @@ Points on the layer with the Guide applied are submitted through the Guide modif
 The point token contains fields for:
 
 - Stroke Identifier  
-Maintained as a qualifier for points such that advancing a point within a stroke during a skip-take (extemporaneous event) can accomodate advancing all points in the stroke, or all points proportionally against the point under advancement.
+Maintained as a qualifier for points such that advancing a point within a stroke during a `skip-take` (extemporaneous event) can accomodate advancing all points in the stroke, or all points proportionally against the point under advancement.
 - Point Identifier  
 This is the link to the point as provided from the query store to be sent to the rasterizer for display.
 - Point Progress: simd3  
 Where the point has been displaced to since the last reset
 - Point Target: simd3
-Where the point will eventually "land"
+Where the point will "land"
 
 ##### Modifier Workload
 
@@ -116,18 +122,3 @@ Mobster provides a nominal dataset.  Whether or not this is visible for a given 
 **Path**
 
 Mobster receives point input from Layer Sources or point data from presets. It may then vend this data to a consumer for purposes that fall outside the scope of this module's concern.
-
-#### What are Generators?
-**PARKED FOR VERSION 2.0 TARGETING**
-
-Any time a mark is created in OneBrush, an active generator modifier receives a notification including:
-- The event that caused the creation of the mark
-- The stroke that the mark was created in which includes the list of marks (the last of which, as a value type, is the last one created.)
-
-A Generator does not modify the mark that OneBrush self-created. The task of a Generator is to "do something interesting" in Addition to what OneBrush has done. This is done by contract with OneBrush as a `request` sent back, one request per instance generated. OneBrush may then discard any results received, include them as marks in the self-owned Stroke, or make an entirely new Stroke as a result.
-
-##### Radial Symmetry
-
-##### Scribble
-
-##### 
