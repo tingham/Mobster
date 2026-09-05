@@ -3,7 +3,7 @@ public struct RowsPreset: Hashable, Sendable {
     private static let designSize = SIMD2<Float>(1, 1)
 
     public let count: Int
-    /// A fraction of the design height, so a gutter tracks the Frame under either plot mode.
+    /// A fraction of the design height, which is the Frame height in aspect mode.
     public let gutter: Float
 
     public init(count: Int, gutter: Float) {
