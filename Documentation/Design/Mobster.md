@@ -299,6 +299,9 @@ A point has settled when it is nearer its target than the settle epsilon. The co
 **guide.settle.notify**
 A Guide notifies its listeners when every point has settled.
 
+**guide.settle.epsilon.change**
+Setting the settle epsilon observes settlement again. It does not resolve targets, because the epsilon decides only whether a point has arrived and not where it is going.
+
 **guide.settle.notify.enter**
 The notification fires on entering the settled condition, including a membership that is already settled when it is created. It fires once per settled condition and again only after a change that unsettles the membership.
 
