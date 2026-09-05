@@ -5,37 +5,39 @@ struct PresetPlot {
     let paths: [[SIMD2<Float>]]
     let duration: Duration
 
-    init(kind: PresetKind, parameters: PresetParameters, frame: Frame, mode: PresetPlotMode) {
+    init(kind: PresetKind, parameters: PresetParameters, frame: Frame, mode: PresetPlotMode, focus: PresetFocus) {
         var produced: [[SIMD2<Float>]] = []
         let elapsed = ContinuousClock().measure {
-            produced = Self.generate(kind: kind, parameters: parameters, frame: frame, mode: mode)
+            produced = Self.generate(kind: kind, parameters: parameters, frame: frame, mode: mode, focus: focus)
         }
         paths = produced
         duration = elapsed
     }
 
-    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, mode: PresetPlotMode) -> [[SIMD2<Float>]] {
+    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, mode: PresetPlotMode, focus: PresetFocus) -> [[SIMD2<Float>]] {
         switch kind {
         case .goldenRatio:
-            GoldenRatioPreset().paths(in: frame, mode: mode)
+            GoldenRatioPreset(focus: focus).paths(in: frame)
         case .thirds:
-            ThirdsPreset().paths(in: frame, mode: mode)
+            ThirdsPreset(mode: mode).paths(in: frame)
         case .columns:
-            ColumnsPreset(count: parameters.columnCount, gutter: parameters.columnGutter).paths(in: frame, mode: mode)
+            ColumnsPreset(count: parameters.columnCount, gutter: parameters.columnGutter, mode: mode).paths(in: frame)
         case .rows:
-            RowsPreset(count: parameters.rowCount, gutter: parameters.rowGutter).paths(in: frame, mode: mode)
+            RowsPreset(count: parameters.rowCount, gutter: parameters.rowGutter, mode: mode).paths(in: frame)
         case .ruler:
             RulerPreset(center: parameters.rulerCenter,
                         firstDegree: parameters.rulerFirstDegree,
                         secondDegree: parameters.rulerSecondDegree,
-                        distance: parameters.rulerDistance).paths(in: frame, mode: mode)
+                        distance: parameters.rulerDistance,
+                        mode: mode).paths(in: frame)
         case .curve:
             CurvePreset(center: parameters.curveCenter,
                         firstDegree: parameters.curveFirstDegree,
                         secondDegree: parameters.curveSecondDegree,
                         distance: parameters.curveDistance,
                         control: parameters.curveControl,
-                        resolution: parameters.curveResolution).paths(in: frame, mode: mode)
+                        resolution: parameters.curveResolution,
+                        mode: mode).paths(in: frame)
         }
     }
 }
