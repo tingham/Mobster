@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct BakeTimingReadoutView: View {
-    let plot: FieldPlot?
+    let plot: FieldPlot
 
-    private var milliseconds: Double? {
-        guard let components = plot?.duration.components else { return nil }
+    private var milliseconds: Double {
+        let components = plot.duration.components
         return Double(components.seconds) * 1000 + Double(components.attoseconds) / 1_000_000_000_000_000
     }
 
@@ -12,14 +12,9 @@ struct BakeTimingReadoutView: View {
         HStack {
             Text("Bake")
             Spacer()
-            reading
+            Text("\(milliseconds, format: .number.precision(.fractionLength(3))) ms")
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
         }
-    }
-
-    private var reading: Text {
-        guard let milliseconds else { return Text("Not baked") }
-        return Text("\(milliseconds, format: .number.precision(.fractionLength(3))) ms")
     }
 }
