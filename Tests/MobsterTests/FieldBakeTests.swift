@@ -28,7 +28,7 @@ struct FieldBakeTests {
     }
 
     @Test func theSamePathsAndFrameBakeAnIdenticalField() {
-        let paths = ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame, mode: .aspect)
+        let paths = ColumnsPreset(count: 4, gutter: 0.05, mode: .aspect).paths(in: frame)
         let first = FieldBake(paths: paths, frame: frame, resolution: 64).field()
         let second = FieldBake(paths: paths, frame: frame, resolution: 64).field()
 
