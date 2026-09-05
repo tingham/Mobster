@@ -2,12 +2,13 @@ import Testing
 @testable import Mobster
 
 struct GuideTests {
-    @Test func initializeEstablishesSceneSpace() {
+    @Test func initializeEstablishesTheFrame() {
         let guide = Guide()
         let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(1024, 768))
         guide.initialize(frame: frame)
 
-        #expect(guide.frame == frame)
+        #expect(guide.frame?.origin == frame.origin)
+        #expect(guide.frame?.size == frame.size)
     }
 
     @Test func initializeReplacesPriorFrame() {
@@ -17,6 +18,7 @@ struct GuideTests {
         let replacement = Frame(origin: SIMD2<Float>(-50, -50), size: SIMD2<Float>(200, 200))
         guide.initialize(frame: replacement)
 
-        #expect(guide.frame == replacement)
+        #expect(guide.frame?.origin == replacement.origin)
+        #expect(guide.frame?.size == replacement.size)
     }
 }

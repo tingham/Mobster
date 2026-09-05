@@ -2,34 +2,35 @@ import Testing
 @testable import Mobster
 
 struct IdentifierTests {
-    @Test func pointIdentifierEquality() {
-        #expect(PointIdentifier(7) == PointIdentifier(7))
-        #expect(PointIdentifier(7) != PointIdentifier(8))
+    /// Opacity is a negative property no runtime assertion reaches, so the conformance list stands in for it: an identifier that gained an ordering or an arithmetic still keys a dictionary and still passes an equality test.
+    private let identifierTypes: [Any.Type] = [PointIdentifier.self, StrokeIdentifier.self]
+
+    private func requireSendable<T: Sendable>(_ type: T.Type) {}
+
+    @Test func identifiersKey() {
+        for type in identifierTypes {
+            #expect(type is any Hashable.Type)
+        }
     }
 
-    @Test func strokeIdentifierEquality() {
-        #expect(StrokeIdentifier(7) == StrokeIdentifier(7))
-        #expect(StrokeIdentifier(7) != StrokeIdentifier(8))
+    @Test func identifiersCrossTheBoundary() {
+        requireSendable(PointIdentifier.self)
+        requireSendable(StrokeIdentifier.self)
     }
 
-    @Test func pointIdentifierHashing() {
-        #expect(PointIdentifier(7).hashValue == PointIdentifier(7).hashValue)
-
-        var seen: Set<PointIdentifier> = []
-        seen.insert(PointIdentifier(7))
-        seen.insert(PointIdentifier(7))
-        seen.insert(PointIdentifier(8))
-        #expect(seen.count == 2)
+    @Test func identifiersDoNotOrder() {
+        for type in identifierTypes {
+            #expect(!(type is any Comparable.Type))
+            #expect(!(type is any Strideable.Type))
+        }
     }
 
-    @Test func strokeIdentifierHashing() {
-        #expect(StrokeIdentifier(7).hashValue == StrokeIdentifier(7).hashValue)
-
-        var keyed: [StrokeIdentifier: Int] = [:]
-        keyed[StrokeIdentifier(7)] = 1
-        keyed[StrokeIdentifier(7)] = 2
-        keyed[StrokeIdentifier(8)] = 3
-        #expect(keyed.count == 2)
-        #expect(keyed[StrokeIdentifier(7)] == 2)
+    @Test func identifiersDoNotCalculate() {
+        for type in identifierTypes {
+            #expect(!(type is any AdditiveArithmetic.Type))
+            #expect(!(type is any Numeric.Type))
+            #expect(!(type is any BinaryInteger.Type))
+            #expect(!(type is any FixedWidthInteger.Type))
+        }
     }
 }

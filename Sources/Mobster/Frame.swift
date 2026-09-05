@@ -1,6 +1,5 @@
-/// The rectangle defining scene space.
-public struct Frame: Hashable, Sendable {
-    /// Scene coordinates.
+/// A region in scene space.
+public struct Frame: Sendable {
     public let origin: SIMD2<Float>
     public let size: SIMD2<Float>
 
