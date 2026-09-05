@@ -201,7 +201,7 @@ The field is vended as a grayscale rasterization on demand. The rasterization is
 Adherence controls the reach of an inverse distance squared falloff against the field.
 
 **guide.adherence.reach.full**
-At an adherence of one the reach covers the Frame and every point snaps fully onto its nearest path location.
+At an adherence of one every point in the Frame settles within the settle epsilon of its nearest path location. The reach achieving this follows from the Frame extent and the epsilon. A reach merely equal to the Frame extent does not achieve it, because the falloff yields a weight below one for every finite reach.
 
 **guide.adherence.reach.least**
 At the least adherence the reach collapses and only a point already at a path location is displaced.
@@ -215,8 +215,11 @@ A point's target is its own location displaced toward the nearest path location 
 **guide.adherence.short**
 A point far from every path settles short of the path rather than arriving at it.
 
+**guide.adherence.reach.full.derive**
+The reach satisfying full adherence follows from the worst case distance in the Frame and the settle epsilon. Mobster vends it. It grows faster than the Frame does, so a fixed multiple of the Frame extent does not serve.
+
 **guide.adherence.curve**
-The mapping from the adherence dial to a reach is derived in the harness.
+The mapping from the adherence dial to a reach is derived in the harness, between zero and the reach that satisfies full adherence.
 
 ## Token
 
@@ -258,6 +261,12 @@ A Guide advances by play, receiving a speed and a time.
 **guide.play.evaluate**
 Every token in the membership is evaluated at the supplied time.
 
+**guide.play.absolute**
+Evaluation at a time yields the same location whatever times were evaluated before it. Playing to a time is not an increment from the last play, and a time already played returns the picture that time produced the first time.
+
+**token.origin.segment**
+The time origin is written when a segment begins, at tokenization and at a field change. It is not written on evaluation.
+
 **guide.play.end**
 Playing to the end time settles every token in one call.
 
@@ -283,6 +292,12 @@ A point has settled when it is within one pixel of its target.
 
 **guide.settle.notify**
 A Guide notifies its listeners when every point has settled.
+
+**guide.settle.notify.enter**
+The notification fires on entering the settled condition, including a membership that is already settled when it is created. It fires once per settled condition and again only after a change that unsettles the membership.
+
+**guide.settle.arrival**
+A point's arrival is judged after it moves, not before. A point one epsilon from its target moves onto it and that play is the one that settles it.
 
 **guide.settle.track.never**
 A Guide does not track settled state and does not walk its membership to answer for it.
