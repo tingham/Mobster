@@ -71,8 +71,14 @@ Source locations are interpreted into paths with curvature. The interpretation i
 **path.decimate**
 Interpreted paths are decimated before they are baked.
 
+**path.decimate.tolerance**
+A path is decimated until its deviation from the supplied geometry reaches one texel. Detail the field cannot resolve is not carried.
+
 **path.complexity.cap**
-A path exceeding the complexity cap is reduced by removing entries until it conforms. It is neither truncated nor rejected. The cap is derived in the harness.
+A path whose supplied vertex count exceeds its surviving count by more than the waste factor is rejected. The rejection reports both counts, because a consumer cannot compute the limit without knowing the field resolution.
+
+**path.smooth.never**
+Mobster does not smooth supplied geometry. The consumer has already interpreted the stroke and smoothing again discards a decision made with more context.
 
 **path.vend**
 Interpreted paths are vended to the consumer on demand.
@@ -123,6 +129,9 @@ Columnar dividers spread evenly across the Frame with a parameterized gutter.
 
 **preset.rows**
 Row lines spread evenly across the Frame with a parameterized gutter.
+
+**preset.grid**
+Columnar dividers and row lines together across the Frame, each axis taking its own count and sharing the gutter.
 
 **preset.gutter.band**
 A gutter is a band with two edges. A count of four columns with one gutter width yields six lines.
