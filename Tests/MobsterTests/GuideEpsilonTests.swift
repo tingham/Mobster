@@ -5,7 +5,7 @@ struct GuideEpsilonTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(128, 128))
 
     private func field() -> Field {
-        FieldBake(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], frame: frame, resolution: 128).field()
+        FieldFixture.field(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], frame: frame, count: 128)
     }
 
     /// The point starts forty units from the path and a reach of forty carries it half way, so it targets 44.5 and the play stops it short of that by the gap asked for.

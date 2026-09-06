@@ -5,7 +5,7 @@ struct GuideSettlementTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(128, 128))
 
     private func field() -> Field {
-        FieldBake(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], frame: frame, resolution: 128).field()
+        FieldFixture.field(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], frame: frame, count: 128)
     }
 
     private func guide() -> Guide {
@@ -45,7 +45,7 @@ struct GuideSettlementTests {
         #expect(count.value == 1)
 
         // The change lands well after the play, so a segment left dated from the play would carry the points home on the next call and settle them early.
-        let moved = FieldBake(paths: [[SIMD2<Float>(0.5, 0), SIMD2<Float>(0.5, 128)]], frame: frame, resolution: 128).field()
+        let moved = FieldFixture.field(paths: [[SIMD2<Float>(0.5, 0), SIMD2<Float>(0.5, 128)]], frame: frame, count: 128)
         guide.update(field: moved, time: 1500)
         _ = guide.play(speed: 10, time: 1501)
         #expect(guide.tokens[PointIdentifier(1)]?.location == SIMD2<Float>(54.5, 64.5))

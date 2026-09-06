@@ -5,7 +5,7 @@ struct TokenTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(128, 128))
 
     private func field() -> Field {
-        FieldBake(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], frame: frame, resolution: 128).field()
+        FieldFixture.field(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], frame: frame, count: 128)
     }
 
     @Test func tokenIsCreatedForEveryPointInTheMembership() {

@@ -40,14 +40,14 @@ struct GuideTests {
         #expect(guide.frame.size == frame.size)
     }
 
-    @Test func aGuideWorksBeforeInitializeBecauseItAlreadyHasItsFrame() {
+    @Test func aGuideWorksBeforeInitializeBecauseItAlreadyHasItsFrame() throws {
         let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(128, 128))
-        let guide = Guide(frame: frame, adherence: Adherence(reach: 30), settleEpsilon: 1)
+        let guide = Guide(frame: frame, adherence: Adherence(reach: 30), settleEpsilon: FieldResolution.epsilon(count: 128, frame: frame))
         let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
             Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
         ])
         guide.tokenize(membership: [stroke], time: 0)
-        guide.update(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], resolution: 128, time: 0)
+        try guide.update(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], budget: .max, time: 0)
 
         #expect(guide.tokens.count == 1)
         #expect(abs((guide.tokens[PointIdentifier(1)]?.target.x ?? 0) - 38.9) < 1e-3)

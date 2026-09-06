@@ -4,7 +4,7 @@ struct FieldGrid: Sendable {
     let columns: Int
     let rows: Int
 
-    /// Rounding the counts leaves a texel square only where the aspect ratio of the Frame divides the resolution evenly.
+    /// Rounding the counts leaves a texel square only where the aspect ratio of the Frame divides the derived count evenly.
     var texel: SIMD2<Float> {
         frame.size / SIMD2<Float>(Float(columns), Float(rows))
     }
