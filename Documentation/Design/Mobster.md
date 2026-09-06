@@ -255,7 +255,7 @@ A location, carrying an optional identifier and optional attributes. The identif
 An optional weight. A vert with more mass moves less per tick.
 
 **vert.drag**
-An optional resistance at the start of its travel. A drag of minus one moves the vert away from its target rather than toward it.
+An optional leniency across its travel, running from minus one to one. A drag of one is the plain travel. A drag of zero holds the vert back for the whole run. A drag of minus one carries it away from its target before it returns. The scale runs downward because no family linear in drag both holds back above and repels below; whichever end repels, the other runs fast.
 
 **vert.physics**
 The attributes are not only a correctness mechanism. A non destructive guide evaluating a whole layer with coupling and mass in play produces motion worth showing, which is its own reason to have them.
