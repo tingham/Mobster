@@ -5,7 +5,7 @@ struct FieldEmptyTests {
     private let frame = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(200, 100))
 
     @Test func aFieldWithNoPathReportsThatItHoldsNone() {
-        let field = FieldBake(paths: [], frame: frame, resolution: 32).field()
+        let field = FieldFixture.field(paths: [], frame: frame, count: 32)
 
         #expect(field.isEmpty)
         #expect(field.distance(at: SIMD2<Float>(0, 0)) == .infinity)
@@ -14,13 +14,13 @@ struct FieldEmptyTests {
 
     /// A raster of uniform maximum distance cannot be told apart from a legitimate one, so an empty field vends none.
     @Test func anEmptyFieldVendsNoGrayscale() {
-        #expect(FieldBake(paths: [], frame: frame, resolution: 32).field().grayscale() == nil)
+        #expect(FieldFixture.field(paths: [], frame: frame, count: 32).grayscale() == nil)
     }
 
-    /// The counts follow from the Frame and the resolution alone, so a consumer sizing a view from them is not told a different size by a bake that found nothing.
+    /// The counts follow from the Frame and the epsilon alone, so a consumer sizing a view from them is not told a different size by a bake that found nothing.
     @Test func texelCountsDoNotVaryWithWhetherTheBakeFoundAPath() {
-        let bare = FieldBake(paths: [], frame: frame, resolution: 32).field()
-        let plotted = FieldBake(paths: [[SIMD2<Float>(0, 40), SIMD2<Float>(120, 90)]], frame: frame, resolution: 32).field()
+        let bare = FieldFixture.field(paths: [], frame: frame, count: 32)
+        let plotted = FieldFixture.field(paths: [[SIMD2<Float>(0, 40), SIMD2<Float>(120, 90)]], frame: frame, count: 32)
 
         #expect(bare.columns == plotted.columns)
         #expect(bare.rows == plotted.rows)
@@ -30,9 +30,9 @@ struct FieldEmptyTests {
 
     @Test func aFrameWithNoExtentOnEitherAxisBakesAnEmptyField() {
         let paths = [[SIMD2<Float>(0, 40), SIMD2<Float>(120, 90)]]
-        let flat = FieldBake(paths: paths, frame: Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(100, 0)), resolution: 10).field()
-        let thin = FieldBake(paths: paths, frame: Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(0, 100)), resolution: 10).field()
-        let none = FieldBake(paths: paths, frame: Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(0, 0)), resolution: 10).field()
+        let flat = FieldFixture.field(paths: paths, frame: Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(100, 0)), count: 10)
+        let thin = FieldFixture.field(paths: paths, frame: Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(0, 100)), count: 10)
+        let none = FieldFixture.field(paths: paths, frame: Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(0, 0)), count: 10)
 
         #expect(flat.isEmpty)
         #expect(thin.isEmpty)

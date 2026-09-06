@@ -27,7 +27,6 @@ struct HarnessInspectorView: View {
             }
             Section("Timing") {
                 TimingReadoutView(plot: model.plot)
-                BakeTimingReadoutView(plot: model.field)
                 PlayTimingReadoutView(plot: model.motion)
             }
         }

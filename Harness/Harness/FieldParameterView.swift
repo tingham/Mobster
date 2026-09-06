@@ -6,6 +6,13 @@ struct FieldParameterView: View {
     var body: some View {
         Toggle("Show Field", isOn: $model.fieldVisible)
             .controlSize(.large)
-        IntegerParameterSliderView(title: "Resolution", value: $model.fieldResolution, range: 8 ... 256)
+        ParameterSliderView(title: "Settle Epsilon", value: $model.settleEpsilon, range: 0 ... 20)
+        BudgetParameterSliderView(value: $model.budget, range: HarnessModel.budgetRange)
+        if let refusal = model.field.refusal {
+            FieldRefusalReadoutView(refusal: refusal)
+        } else if let raster = model.field.raster {
+            FieldExtentReadoutView(raster: raster)
+        }
+        BakeTimingReadoutView(plot: model.field)
     }
 }

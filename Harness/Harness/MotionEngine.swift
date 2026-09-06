@@ -8,23 +8,24 @@ final class MotionEngine {
     private var adhesion: Float
     private var run: Double
     private var epsilon: Float
-    private var resolution: Int
+    private var budget: Int
     private var guide: Guide
     private var displaced: [Line] = []
     private var raster: FieldRaster?
+    private var refusal: FieldRefusal?
     private var bake: Duration = .zero
     private var evaluation: Duration = .zero
     private var time: Double = 0
 
-    init(frame: Frame, source: GuideSource, content: [Line], adhesion: Float, run: Double, epsilon: Float, resolution: Int) {
+    init(frame: Frame, source: GuideSource, content: [Line], adhesion: Float, run: Double, epsilon: Float, budget: Int) {
         self.frame = frame
         self.source = source
         self.content = content
         self.adhesion = adhesion
         self.run = run
         self.epsilon = epsilon
-        self.resolution = resolution
-        guide = Guide(frame: frame, settleEpsilon: epsilon)
+        self.budget = budget
+        guide = Guide(frame: frame)
         build()
     }
 
@@ -33,21 +34,20 @@ final class MotionEngine {
     }
 
     var field: FieldPlot {
-        FieldPlot(raster: raster, duration: bake)
+        FieldPlot(raster: raster, refusal: refusal, duration: bake)
     }
 
-    func load(source: GuideSource, content: [Line], resolution: Int) {
+    func load(source: GuideSource, content: [Line]) {
         self.source = source
         self.content = content
-        self.resolution = resolution
         rebuild()
     }
 
-    /// The epsilon arrives with a Guide rather than at initialize, so a change to it is the one tune that cannot be answered by initializing again.
-    func tune(adhesion: Float, run: Double, epsilon: Float) {
+    func tune(adhesion: Float, run: Double, epsilon: Float, budget: Int) {
         self.adhesion = adhesion
         self.run = run
         self.epsilon = epsilon
+        self.budget = budget
         rebuild()
     }
 
@@ -62,11 +62,18 @@ final class MotionEngine {
         evaluate(at: landing)
     }
 
+    /// A refused bake leaves a Guide that displaces nothing, which the readout says outright rather than leaving the canvas to imply it.
     private func build() {
-        guide = Guide(frame: frame, settleEpsilon: epsilon)
+        guide = Guide(frame: frame)
+        var refused: FieldRefusal?
         bake = ContinuousClock().measure {
-            guide.initialize(source: source, frame: frame, adhesion: adhesion, duration: run, resolution: resolution)
+            do throws(FieldRefusal) {
+                try guide.initialize(source: source, frame: frame, adhesion: adhesion, duration: run, settleEpsilon: epsilon, budget: budget)
+            } catch {
+                refused = error
+            }
         }
+        refusal = refused
         // Taken once here rather than per redraw, because the grayscale is derived from the field and not held by it.
         raster = guide.raster()
         displaced = content

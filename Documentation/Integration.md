@@ -8,7 +8,7 @@ You give it paths or a preset with its parameters, a configuration for the field
 let paths = ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame)
 
 let guide = Guide(frame: frame, adherence: adherence, settleEpsilon: epsilon)
-guide.update(paths: paths, resolution: resolution, time: 0)
+try guide.update(paths: paths, budget: budget, time: 0)
 guide.tokenize(membership: strokes, time: 0)
 
 let advance = guide.play(speed: speed, time: t)

@@ -3,7 +3,7 @@ import Observation
 /// The time the harness hands the Guide. Steps are counted rather than measured, so a step index names one time value and only one, whichever direction the transport arrived at it from.
 @Observable
 final class Transport {
-    /// Seconds one step covers. Fixed, so the speed dial is the only thing changing how far a step carries a point.
+    /// Seconds one step covers. Fixed, so the duration dial is the only thing changing how far a step carries a vert.
     static let interval: Double = 1.0 / 60.0
     /// The last step the scrub reaches. Eight seconds of run at the interval above.
     static let limit = 480

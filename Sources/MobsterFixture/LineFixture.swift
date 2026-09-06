@@ -12,7 +12,7 @@ public struct LineFixture: Sendable {
     public func lines(in frame: Frame) -> [Line] {
         var random = FixtureRandom(seed: parameters.seed)
         var identity = FixtureIdentitySequence()
-        let count = max(parameters.strokeCount, 0)
+        let count = max(parameters.lineCount, 0)
         var population: [Line] = []
         population.reserveCapacity(count)
 
@@ -31,7 +31,7 @@ public struct LineFixture: Sendable {
         let turn = parameters.turn * Float.pi / 180
         var location = frame.origin + inset + SIMD2<Float>(random.unit() * usable.x, random.unit() * usable.y)
         var heading = random.unit() * 2 * Float.pi
-        let count = max(parameters.pointsPerStroke, 0)
+        let count = max(parameters.vertsPerLine, 0)
         var verts: [Vert] = []
         verts.reserveCapacity(count)
 

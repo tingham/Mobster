@@ -6,9 +6,12 @@ import Observation
 final class HarnessModel {
     /// Scene space is fitted to the canvas at draw time, so this is a shape rather than a pixel count.
     static let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
-    static let openingResolution = 64
+    /// Texel segment products a bake may spend. A bake runs at roughly a nanosecond a product in release and a hundred times that in the debug build this harness is dragged in, so this opening holds a drag near a quarter second rather than near half a minute.
+    static let openingBudget = 2_000_000
+    /// Three decades, the lower end being a bake no build stalls on and the upper end one a release consumer would still wait through.
+    static let budgetRange = 100_000 ... 100_000_000
     /// The fixture takes no default of its own, so the opening magnitudes are the harness's and every one of them is a slider.
-    static let openingFixture = FixtureParameters(seed: 1, strokeCount: 24, pointsPerStroke: 48, step: 0.02, turn: 30, margin: 0.1)
+    static let openingFixture = FixtureParameters(seed: 1, lineCount: 24, vertsPerLine: 48, step: 0.02, turn: 30, margin: 0.1)
     /// Zero to one. This opening is a place for the slider to start from and not a recommendation: it is the value that puts a visible run inside the transport window.
     static let openingAdhesion: Float = 0.1
     /// Seconds. The time by which every vert has arrived, which the transport window is eight seconds wide enough to cover.
@@ -21,11 +24,11 @@ final class HarnessModel {
     var focus: PresetFocus = .maxXMinY { didSet { replot() } }
     var parameters = PresetParameters() { didSet { replot() } }
     var fieldVisible = false
-    var fieldResolution = HarnessModel.openingResolution { didSet { reload() } }
     var fixture = HarnessModel.openingFixture { didSet { repopulate() } }
     var adhesion = HarnessModel.openingAdhesion { didSet { retune() } }
     var run = HarnessModel.openingRun { didSet { retune() } }
     var settleEpsilon = HarnessModel.openingEpsilon { didSet { retune() } }
+    var budget = HarnessModel.openingBudget { didSet { retune() } }
     let transport = Transport()
 
     /// Held rather than computed so the timing readout reports one generation and not one per redraw.
@@ -51,7 +54,7 @@ final class HarnessModel {
                                    adhesion: Self.openingAdhesion,
                                    run: Double(Self.openingRun),
                                    epsilon: Self.openingEpsilon,
-                                   resolution: Self.openingResolution)
+                                   budget: Self.openingBudget)
         plot = opening
         lines = population
         engine = running
@@ -87,12 +90,13 @@ final class HarnessModel {
     }
 
     private func reload() {
-        engine.load(source: Self.source(plot.paths), content: lines, resolution: fieldResolution)
+        engine.load(source: Self.source(plot.paths), content: lines)
         settle()
     }
 
+    /// The bake happens inside the Guide, so every one of these rebakes and there is no separate rebake to trigger.
     private func retune() {
-        engine.tune(adhesion: adhesion, run: Double(run), epsilon: settleEpsilon)
+        engine.tune(adhesion: adhesion, run: Double(run), epsilon: settleEpsilon, budget: budget)
         settle()
     }
 

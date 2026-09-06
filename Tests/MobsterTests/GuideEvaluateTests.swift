@@ -10,9 +10,9 @@ struct GuideEvaluateTests {
         .lines([Line(verts: [Vert(location: SIMD2<Float>(64.5, 0)), Vert(location: SIMD2<Float>(64.5, 128))])])
     }
 
-    private func guide(adhesion: Float = 0.1) -> Guide {
-        let guide = Guide(frame: frame, settleEpsilon: 1)
-        guide.initialize(source: source, frame: frame, adhesion: adhesion, duration: duration, resolution: 128)
+    private func guide(adhesion: Float = 0.1) throws -> Guide {
+        let guide = Guide(frame: frame)
+        try guide.initialize(source: source, frame: frame, adhesion: adhesion, duration: duration, settleEpsilon: 1, budget: .max)
         return guide
     }
 
@@ -24,34 +24,34 @@ struct GuideEvaluateTests {
         lines[0].verts[0].location.x
     }
 
-    @Test func atTheDurationAVertStandsAtItsTarget() {
+    @Test func atTheDurationAVertStandsAtItsTarget() throws {
         // Forty units out against a reach of 242.876, so the falloff carries all but 1.0563 of it.
-        #expect(abs(x(guide().evaluate(content(), at: duration)) - 63.443699) < 1e-3)
+        #expect(abs(x(try guide().evaluate(content(), at: duration)) - 63.443699) < 1e-3)
     }
 
-    @Test func halfTheDurationCarriesAVertHalfTheWay() {
-        let guide = guide()
+    @Test func halfTheDurationCarriesAVertHalfTheWay() throws {
+        let guide = try guide()
         let half = x(guide.evaluate(content(), at: duration / 2)) - 24.5
         let whole = x(guide.evaluate(content(), at: duration)) - 24.5
 
         #expect(abs(half * 2 - whole) < 1e-3)
     }
 
-    @Test func aTimeBeforeTheRunLeavesTheVertWhereItStands() {
-        let guide = guide()
+    @Test func aTimeBeforeTheRunLeavesTheVertWhereItStands() throws {
+        let guide = try guide()
 
         #expect(x(guide.evaluate(content(), at: 0)) == 24.5)
         #expect(x(guide.evaluate(content(), at: -10)) == 24.5)
     }
 
-    @Test func everyVertHasArrivedByTheDuration() {
-        let guide = guide()
+    @Test func everyVertHasArrivedByTheDuration() throws {
+        let guide = try guide()
 
         #expect(x(guide.evaluate(content(), at: duration * 10)) == x(guide.evaluate(content(), at: duration)))
     }
 
-    @Test func aTimeYieldsTheSameResultWhateverTimesPrecededIt() {
-        let guide = guide()
+    @Test func aTimeYieldsTheSameResultWhateverTimesPrecededIt() throws {
+        let guide = try guide()
         let direct = x(guide.evaluate(content(), at: 2))
 
         _ = guide.evaluate(content(), at: duration)
@@ -61,15 +61,15 @@ struct GuideEvaluateTests {
         #expect(x(guide.evaluate(content(), at: 2)) == direct)
     }
 
-    @Test func contentHeldUndisplacedAnswersTheSameWayEveryTime() {
-        let guide = guide()
+    @Test func contentHeldUndisplacedAnswersTheSameWayEveryTime() throws {
+        let guide = try guide()
         let landings = (0 ..< 10).map { _ in x(guide.evaluate(content(), at: duration)) }
 
         #expect(Set(landings.map(\.bitPattern)).count == 1)
     }
 
-    @Test func aVertFarFromEveryPathSettlesShortAndStaysShort() {
-        let guide = guide()
+    @Test func aVertFarFromEveryPathSettlesShortAndStaysShort() throws {
+        let guide = try guide()
         let settled = x(guide.evaluate(content(), at: duration))
 
         #expect(64.5 - settled > guide.settleEpsilon)
@@ -78,8 +78,8 @@ struct GuideEvaluateTests {
         }
     }
 
-    @Test func aResultFedBackInIsAFurtherDisplacement() {
-        let guide = guide()
+    @Test func aResultFedBackInIsAFurtherDisplacement() throws {
+        let guide = try guide()
         let once = guide.evaluate(content(), at: duration)
         let twice = guide.evaluate(once, at: duration)
 
@@ -87,8 +87,8 @@ struct GuideEvaluateTests {
         #expect(64.5 - x(twice) < 64.5 - x(once))
     }
 
-    @Test func theAttributesAreCarriedThroughUntouched() {
-        let guide = guide()
+    @Test func theAttributesAreCarriedThroughUntouched() throws {
+        let guide = try guide()
         let supplied = [Line(verts: [
             Vert(location: SIMD2<Float>(24.5, 64.5), identifier: VertIdentifier(1), mass: 0, drag: -1, coupling: 0.5),
             Vert(location: SIMD2<Float>(34.5, 64.5)),
@@ -104,8 +104,8 @@ struct GuideEvaluateTests {
         #expect(returned[0].verts[1].coupling == nil)
     }
 
-    @Test func theIdentifiersAndTheVertOrderSurviveTheEvaluation() {
-        let guide = guide()
+    @Test func theIdentifiersAndTheVertOrderSurviveTheEvaluation() throws {
+        let guide = try guide()
         let supplied = [Line(verts: [
             Vert(location: SIMD2<Float>(24.5, 64.5), identifier: VertIdentifier(1)),
             Vert(location: SIMD2<Float>(24.5, 32.5), identifier: VertIdentifier(2)),
@@ -118,8 +118,8 @@ struct GuideEvaluateTests {
         #expect(returned[0].verts.map(\.identifier) == [VertIdentifier(1), VertIdentifier(2)])
     }
 
-    @Test func aVertNeedingNoIdentifierIsStillEvaluated() {
-        let guide = guide()
+    @Test func aVertNeedingNoIdentifierIsStillEvaluated() throws {
+        let guide = try guide()
         let supplied = [Line(verts: [Vert(location: SIMD2<Float>(24.5, 64.5))])]
 
         #expect(x(guide.evaluate(supplied, at: duration)) > 24.5)

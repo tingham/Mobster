@@ -5,12 +5,12 @@ import Testing
 struct FixturePopulationTests {
     private let frame = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(640, 480))
 
-    private func parameters(seed: UInt64 = 7, strokeCount: Int = 12, pointsPerStroke: Int = 40) -> FixtureParameters {
-        FixtureParameters(seed: seed, strokeCount: strokeCount, pointsPerStroke: pointsPerStroke, step: 0.03, turn: 35, margin: 0.1)
+    private func parameters(seed: UInt64 = 7, lineCount: Int = 12, vertsPerLine: Int = 40) -> FixtureParameters {
+        FixtureParameters(seed: seed, lineCount: lineCount, vertsPerLine: vertsPerLine, step: 0.03, turn: 35, margin: 0.1)
     }
 
     @Test func theCountsFollowTheParameters() {
-        let strokes = LineFixture(parameters: parameters(strokeCount: 9, pointsPerStroke: 23)).lines(in: frame)
+        let strokes = LineFixture(parameters: parameters(lineCount: 9, vertsPerLine: 23)).lines(in: frame)
 
         #expect(strokes.count == 9)
         #expect(strokes.allSatisfy { $0.verts.count == 23 })
@@ -29,7 +29,7 @@ struct FixturePopulationTests {
     }
 
     @Test func aLongerStepSpreadsTheStrokeFurther() {
-        var tight = parameters(strokeCount: 1)
+        var tight = parameters(lineCount: 1)
         tight.step = 0.005
         var loose = tight
         loose.step = 0.05
@@ -38,7 +38,7 @@ struct FixturePopulationTests {
     }
 
     @Test func theMarginHoldsTheFirstPointOffTheEdge() {
-        var parameters = parameters(strokeCount: 40)
+        var parameters = parameters(lineCount: 40)
         parameters.margin = 0.25
         let inset = frame.size * parameters.margin
         let strokes = LineFixture(parameters: parameters).lines(in: frame)
@@ -53,7 +53,7 @@ struct FixturePopulationTests {
     }
 
     @Test func aTurnOfZeroWalksInAStraightLine() {
-        var parameters = parameters(strokeCount: 1, pointsPerStroke: 4)
+        var parameters = parameters(lineCount: 1, vertsPerLine: 4)
         parameters.turn = 0
         parameters.step = 0.01
         let samples = LineFixture(parameters: parameters).lines(in: frame)[0].verts

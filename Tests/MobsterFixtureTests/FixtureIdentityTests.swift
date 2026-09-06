@@ -4,7 +4,7 @@ import Testing
 
 struct FixtureIdentityTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
-    private let parameters = FixtureParameters(seed: 3, strokeCount: 16, pointsPerStroke: 32, step: 0.02, turn: 30, margin: 0.08)
+    private let parameters = FixtureParameters(seed: 3, lineCount: 16, vertsPerLine: 32, step: 0.02, turn: 30, margin: 0.08)
 
     @Test func pointIdentifiersAreUniqueAcrossTheWholePopulation() {
         let strokes = LineFixture(parameters: parameters).lines(in: frame)
