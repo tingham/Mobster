@@ -348,20 +348,19 @@ A skip take may advance the modulation step of any number of points in the membe
 
 ## Body
 
-**Outcomes, not yet a parameterization. The control surface follows at implementation.**
+**Outcomes, not yet a parameterization. The control surface follows at implementation, with the principal.**
 
-A vert carries an optional mass and an optional drag. Mass moves it less per tick; drag moves it less at the start. A line carries an optional body, which says what happens to a vert's peers when that vert moves. A consumer sending a guide needs none of it; a consumer sending target content may send all of it.
+A vert carries three optional attributes the consumer contributes during reduction. A consumer sending a guide needs none of them; a consumer sending target content may send all of them.
 
-The outcomes wanted, across the range:
+- A weight. It moves less per tick.
+- A counter influence. It appears stochastic across a canvas. It is derived from the vert identifier rather than drawn, or determinism is lost.
+- A coupling. It says how much of this vert's motion its peers take, signed, so that peers may oppose rather than follow.
 
-- Verts move independently and peer state is disregarded entirely.
-- A vert drags its peers along, weakly or strongly.
-- A vert drags peers near it more than peers far along the line, out to the extents.
-- A vert pushes its peers away from their own targets rather than toward them.
-- The whole line moves as one body, its resistance taken as the mean of its verts or as their sum.
-- The whole line pivots, anchored at its heaviest vert and turning toward the lightest vert's target.
+Coupling is a vert property rather than a line property. Propagation through neighbours gives the falloff along the line for free, so how far coupling reaches is not a separate parameter. A line stiff at one end and loose at the other is expressible, and a uniform line is the case where every vert carries the same value. No rule is needed for which vert's target wins on a stiff line, because the motion emerges from propagation rather than being arbitrated.
 
-Three things vary independently across that range and are the axes any control surface has to serve: how much of a vert's motion its peers take, how far along the line that reaches, and whether peers follow or oppose. Body as one body and verts as independent are the ends of the first.
+The outcomes that fall out, across the range: verts moving independently; a vert dragging its peers along weakly or strongly; a vert dragging near peers more than far ones; a vert pushing its peers away from their own targets; and a whole line moving as one body.
+
+A line carries an identity and nothing else.
 
 ## Adherence Extensions
 
