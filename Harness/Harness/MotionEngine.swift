@@ -1,94 +1,86 @@
 import Mobster
 
-/// Runs the Guide at whatever time the transport stands on. One play answers for that time outright, so the engine keeps no history and a scrub is the same single call a forward step is.
+/// Runs the Guide at whatever time the transport stands on. One evaluation answers for that time outright, so the engine keeps no history and a scrub is the same single call a forward step is.
 final class MotionEngine {
     private let frame: Frame
-    private var field: Field
-    private var strokes: [Stroke]
-    private var reach: Float
-    private var speed: Float
+    private var source: GuideSource
+    private var content: [Line]
+    private var adhesion: Float
+    private var run: Double
     private var epsilon: Float
+    private var resolution: Int
     private var guide: Guide
-    private var locations: [PointIdentifier: SIMD2<Float>] = [:]
-    private var rects: [GuideRect] = []
-    private var settled = false
-    private var duration: Duration = .zero
+    private var displaced: [Line] = []
+    private var raster: FieldRaster?
+    private var bake: Duration = .zero
+    private var evaluation: Duration = .zero
     private var time: Double = 0
 
-    init(frame: Frame, field: Field, strokes: [Stroke], reach: Float, speed: Float, epsilon: Float) {
+    init(frame: Frame, source: GuideSource, content: [Line], adhesion: Float, run: Double, epsilon: Float, resolution: Int) {
         self.frame = frame
-        self.field = field
-        self.strokes = strokes
-        self.reach = reach
-        self.speed = speed
+        self.source = source
+        self.content = content
+        self.adhesion = adhesion
+        self.run = run
         self.epsilon = epsilon
-        guide = Guide(frame: frame, adherence: Adherence(reach: reach), settleEpsilon: epsilon)
+        self.resolution = resolution
+        guide = Guide(frame: frame, settleEpsilon: epsilon)
         build()
     }
 
     var plot: MotionPlot {
-        MotionPlot(locations: locations, rects: rects, settled: settled, duration: duration)
+        MotionPlot(lines: displaced, settled: time >= run, duration: evaluation)
     }
 
-    func load(field: Field, strokes: [Stroke]) {
-        self.field = field
-        self.strokes = strokes
+    var field: FieldPlot {
+        FieldPlot(raster: raster, duration: bake)
+    }
+
+    func load(source: GuideSource, content: [Line], resolution: Int) {
+        self.source = source
+        self.content = content
+        self.resolution = resolution
         rebuild()
     }
 
-    /// Reach rebuilds because it changes where every point was always going, and the epsilon because a Guide reports settlement on entry alone. Speed is an argument to the play.
-    func tune(reach: Float, speed: Float, epsilon: Float) {
-        self.speed = speed
-        guard reach != self.reach || epsilon != self.epsilon else {
-            play(at: time)
-            return
-        }
-        self.reach = reach
+    /// The epsilon arrives with a Guide rather than at initialize, so a change to it is the one tune that cannot be answered by initializing again.
+    func tune(adhesion: Float, run: Double, epsilon: Float) {
+        self.adhesion = adhesion
+        self.run = run
         self.epsilon = epsilon
         rebuild()
     }
 
     func seek(to step: Int) {
-        play(at: Double(step) * Transport.interval)
+        evaluate(at: Double(step) * Transport.interval)
     }
 
     /// The time on screen survives the rebuild, so an input change answers for that time rather than throwing the run back to the start.
     private func rebuild() {
         let landing = time
         build()
-        play(at: landing)
+        evaluate(at: landing)
     }
 
-    /// A fresh Guide rather than a reinitialized one, because initialize discards tokens and leaves the settle listeners in place.
     private func build() {
-        guide = Guide(frame: frame, adherence: Adherence(reach: reach), settleEpsilon: epsilon)
-        settled = false
-        // Registered ahead of the tokenization so a membership settled the moment it exists is caught.
-        guide.addSettleListener { [weak self] in self?.settled = true }
-        guide.initialize(frame: frame, membership: strokes, time: 0)
-        guide.update(field: field, time: 0)
-        locations = strokes.reduce(into: [PointIdentifier: SIMD2<Float>]()) { store, stroke in
-            for sample in stroke.samples { store[sample.identifier] = sample.location }
+        guide = Guide(frame: frame, settleEpsilon: epsilon)
+        bake = ContinuousClock().measure {
+            guide.initialize(source: source, frame: frame, adhesion: adhesion, duration: run, resolution: resolution)
         }
-        rects = []
-        duration = .zero
+        // Taken once here rather than per redraw, because the grayscale is derived from the field and not held by it.
+        raster = guide.raster()
+        displaced = content
+        evaluation = .zero
         time = 0
     }
 
-    /// The clock read reports what the play cost. It never enters the time the Guide is handed.
-    private func play(at moment: Double) {
-        // A play at an earlier time may leave the membership unsettled, and a Guide reports entry alone, so the latch is dropped here and left for the Guide to set again.
-        if moment < time { settled = false }
-
-        var advance = GuideAdvance(displacements: [])
-        duration = ContinuousClock().measure {
-            advance = guide.play(speed: speed, time: moment)
+    /// The clock read reports what the evaluation cost. It never enters the time the Guide is handed.
+    private func evaluate(at moment: Double) {
+        var returned: [Line] = []
+        evaluation = ContinuousClock().measure {
+            returned = guide.evaluate(content, at: moment)
         }
-
-        for displacement in advance.displacements {
-            locations[displacement.point] = displacement.location
-        }
-        rects = advance.rects
+        displaced = returned
         time = moment
     }
 }

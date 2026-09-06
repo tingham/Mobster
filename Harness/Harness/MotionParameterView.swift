@@ -4,10 +4,8 @@ struct MotionParameterView: View {
     @Bindable var model: HarnessModel
 
     var body: some View {
-        ParameterSliderView(title: "Reach", value: $model.reach, range: 0 ... 1000)
-        ParameterSliderView(title: "Speed", value: $model.speed, range: 0 ... 2000)
+        ParameterSliderView(title: "Adhesion", value: $model.adhesion, range: 0 ... 1)
+        ParameterSliderView(title: "Duration", value: $model.run, range: 0 ... 8)
         ParameterSliderView(title: "Settle Epsilon", value: $model.settleEpsilon, range: 0 ... 20)
-        Toggle("Show Dirty Rects", isOn: $model.dirtyVisible)
-            .controlSize(.large)
     }
 }

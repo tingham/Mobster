@@ -11,9 +11,8 @@ struct HarnessView: View {
             PresetCanvasView(frame: HarnessModel.frame,
                              raster: model.raster,
                              paths: model.plot.paths,
-                             strokes: model.strokes,
-                             locations: model.motion.locations,
-                             rects: model.dirtyRects)
+                             lines: model.lines,
+                             displaced: model.motion.lines)
             Divider()
             HarnessInspectorView(model: model)
         }
