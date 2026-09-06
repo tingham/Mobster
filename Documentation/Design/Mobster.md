@@ -346,6 +346,23 @@ Data removed from the target layer is handled by initialize. A Guide does not re
 **guide.skiptake.advance**
 A skip take may advance the modulation step of any number of points in the membership.
 
+## Body
+
+**Outcomes, not yet a parameterization. The control surface follows at implementation.**
+
+A vert carries an optional mass and an optional drag. Mass moves it less per tick; drag moves it less at the start. A line carries an optional body, which says what happens to a vert's peers when that vert moves. A consumer sending a guide needs none of it; a consumer sending target content may send all of it.
+
+The outcomes wanted, across the range:
+
+- Verts move independently and peer state is disregarded entirely.
+- A vert drags its peers along, weakly or strongly.
+- A vert drags peers near it more than peers far along the line, out to the extents.
+- A vert pushes its peers away from their own targets rather than toward them.
+- The whole line moves as one body, its resistance taken as the mean of its verts or as their sum.
+- The whole line pivots, anchored at its heaviest vert and turning toward the lightest vert's target.
+
+Three things vary independently across that range and are the axes any control surface has to serve: how much of a vert's motion its peers take, how far along the line that reaches, and whether peers follow or oppose. Body as one body and verts as independent are the ends of the first.
+
 ## Adherence Extensions
 
 **Not an implementation target. A 1.1 tier concept, recorded so it is not rediscovered.**
