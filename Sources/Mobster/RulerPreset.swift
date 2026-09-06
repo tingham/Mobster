@@ -1,5 +1,5 @@
 /// A line crossing the Frame between two locations derived from two degrees, flanked by a parallel pair at an offset.
-public struct RulerPreset: Hashable, Sendable {
+public struct RulerPreset: Hashable, Preset {
     private static let designSize = SIMD2<Float>(1, 1)
 
     /// Design space, where zero to one spans the Frame.

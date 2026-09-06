@@ -3,44 +3,70 @@ import Testing
 
 struct GuideSourceTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(128, 128))
-    private let path = [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]]
 
     private func guide() -> Guide {
-        let guide = Guide(frame: frame, adherence: Adherence(reach: 30), settleEpsilon: 1)
-        let stroke = Stroke(identifier: StrokeIdentifier(1), samples: [
-            Sample(identifier: PointIdentifier(1), location: SIMD2<Float>(24.5, 64.5)),
-        ])
-        guide.initialize(frame: frame, membership: [stroke])
-        return guide
+        Guide(frame: frame, settleEpsilon: 1)
     }
 
-    @Test func pathsBakeAFieldTheTargetsResolveAgainst() {
-        let guide = guide()
-        guide.update(paths: path, resolution: 128, time: 0)
+    @Test func theLinesOfALineSourceAreVendedAsTheyArrived() {
+        let supplied = [Line(verts: [
+            Vert(location: SIMD2<Float>(64.5, 0)),
+            Vert(location: SIMD2<Float>(64.5, 128)),
+        ], identifier: LineIdentifier(3))]
 
-        // Forty units out, a reach of thirty, so nine twenty fifths of the distance: 24.5 + 14.4.
-        #expect(abs((guide.tokens[PointIdentifier(1)]?.target.x ?? 0) - 38.9) < 1e-3)
+        let guide = guide()
+        guide.initialize(source: .lines(supplied), frame: frame, adhesion: 1, duration: 1, resolution: 128)
+
+        #expect(guide.lines.count == 1)
+        #expect(guide.lines[0].identifier == LineIdentifier(3))
+        #expect(guide.lines[0].verts.map(\.location) == supplied[0].verts.map(\.location))
     }
 
-    @Test func pathsBakeAgainstTheFrameTheGuideOperatesWithin() {
+    @Test func aPresetIsInterpretedIntoLinesAgainstTheFrame() {
         let guide = guide()
-        guide.update(paths: path, resolution: 128, time: 0)
+        guide.initialize(source: .preset(ThirdsPreset()), frame: frame, adhesion: 1, duration: 1, resolution: 128)
 
-        #expect(guide.field?.columns == 128)
-        #expect(guide.field?.rows == 128)
-        #expect(guide.field?.frame.size == frame.size)
+        #expect(guide.lines.count == 4)
+        #expect(guide.lines.allSatisfy { $0.verts.count == 2 })
+        #expect(abs(guide.lines[0].verts[0].location.x - 128 / 3) < 1e-3)
     }
 
-    @Test func bakedPathsEndTheSegmentInFlight() {
+    @Test func aGuideNeedsNoIdentifierOnTheLinesItInterprets() {
         let guide = guide()
-        guide.update(paths: path, resolution: 128, time: 0)
-        _ = guide.play(speed: 10, time: 1)
+        guide.initialize(source: .preset(ThirdsPreset()), frame: frame, adhesion: 1, duration: 1, resolution: 128)
 
-        guide.update(paths: [[SIMD2<Float>(0.5, 0), SIMD2<Float>(0.5, 128)]], resolution: 128, time: 4)
-        let token = guide.tokens[PointIdentifier(1)]
+        #expect(guide.lines.allSatisfy { $0.identifier == nil })
+        #expect(guide.lines.flatMap(\.verts).allSatisfy { $0.identifier == nil })
+    }
 
-        #expect(token?.location == SIMD2<Float>(34.5, 64.5))
-        #expect(token?.anchor == SIMD2<Float>(34.5, 64.5))
-        #expect(token?.origin == 4)
+    @Test func theFieldIsVendedAsARasterizationOfTheFrame() {
+        let guide = guide()
+        guide.initialize(source: .preset(ThirdsPreset()), frame: frame, adhesion: 1, duration: 1, resolution: 128)
+        let raster = guide.raster()
+
+        #expect(raster?.columns == 128)
+        #expect(raster?.rows == 128)
+        #expect(raster?.samples.count == 128 * 128)
+    }
+
+    @Test func aSourceHoldingNoPathVendsNoRasterization() {
+        let guide = guide()
+        guide.initialize(source: .lines([]), frame: frame, adhesion: 1, duration: 1, resolution: 128)
+
+        #expect(guide.raster() == nil)
+    }
+
+    @Test func initializingAgainReplacesTheSourceTheFrameTheAdhesionAndTheDuration() {
+        let guide = guide()
+        guide.initialize(source: .preset(ThirdsPreset()), frame: frame, adhesion: 0.25, duration: 2, resolution: 128)
+
+        let replacement = Frame(origin: SIMD2<Float>(-50, -50), size: SIMD2<Float>(200, 200))
+        guide.initialize(source: .lines([Line(verts: [Vert(location: SIMD2<Float>(0, 0))])]), frame: replacement, adhesion: 0.75, duration: 9, resolution: 64)
+
+        #expect(guide.lines.count == 1)
+        #expect(guide.frame.origin == replacement.origin)
+        #expect(guide.frame.size == replacement.size)
+        #expect(guide.adhesion == 0.75)
+        #expect(guide.duration == 9)
     }
 }
