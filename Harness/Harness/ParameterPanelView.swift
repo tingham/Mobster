@@ -11,6 +11,8 @@ struct ParameterPanelView: View {
             ColumnsParameterView(parameters: $model.parameters)
         case .rows:
             RowsParameterView(parameters: $model.parameters)
+        case .grid:
+            GridParameterView(parameters: $model.parameters)
         case .ruler:
             RulerParameterView(parameters: $model.parameters)
         case .curve:

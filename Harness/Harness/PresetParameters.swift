@@ -4,6 +4,8 @@ struct PresetParameters: Hashable, Sendable {
     var columnGutter: Float = 0.02
     var rowCount: Int = 4
     var rowGutter: Float = 0.02
+    var gridCount: Int = 4
+    var gridGutter: Float = 0.02
     var rulerCenter: SIMD2<Float> = SIMD2<Float>(0.5, 0.5)
     var rulerFirstDegree: Float = 0
     var rulerSecondDegree: Float = 180
