@@ -3,26 +3,33 @@ public struct FieldBake: Sendable {
     /// Scene coordinates, one entry per interpreted path.
     public let paths: [[SIMD2<Float>]]
     public let frame: Frame
-    /// Texels across the wider axis of the Frame. The other axis takes the count its share of the Frame rounds to.
-    public let resolution: Int
+    /// Scene units. The texel counts follow from it and the Frame, so no resolution is supplied.
+    public let settleEpsilon: Float
+    /// Texel segment products the bake may spend. Supplied, because how long a caller will wait is not the package's to decide.
+    public let budget: Int
 
-    public init(paths: [[SIMD2<Float>]], frame: Frame, resolution: Int) {
+    public init(paths: [[SIMD2<Float>]], frame: Frame, settleEpsilon: Float, budget: Int) {
         self.paths = paths
         self.frame = frame
-        self.resolution = resolution
+        self.settleEpsilon = settleEpsilon
+        self.budget = budget
     }
 
-    public func field() -> Field {
-        let span = max(frame.size.x, frame.size.y)
-        guard resolution > 0, frame.size.x > 0, frame.size.y > 0 else {
+    public func field() throws(FieldRefusal) -> Field {
+        let resolution = FieldResolution(frame: frame, settleEpsilon: settleEpsilon)
+        guard resolution.texels > 0 else {
             return Field(frame: frame, columns: 0, rows: 0, locations: [])
         }
 
-        let columns = max(1, Int((frame.size.x / span * Float(resolution)).rounded()))
-        let rows = max(1, Int((frame.size.y / span * Float(resolution)).rounded()))
+        let columns = resolution.columns
+        let rows = resolution.rows
         let grid = FieldGrid(frame: frame, columns: columns, rows: rows)
         let runs = paths.flatMap(segments)
         guard !runs.isEmpty else { return Field(frame: frame, columns: columns, rows: rows, locations: []) }
+
+        guard resolution.texels * runs.count <= budget else {
+            throw FieldRefusal(epsilon: settleEpsilon, affordable: affordable(runs: runs.count, demanded: resolution.count))
+        }
 
         let tolerance = length(grid.texel) * 1e-4
         var locations = [SIMD2<Float>]()
@@ -35,6 +42,25 @@ public struct FieldBake: Sendable {
         }
 
         return Field(frame: frame, columns: columns, rows: rows, locations: locations)
+    }
+
+    /// The greatest count the budget affords, bisected with the forward derivation rather than inverted in closed form, so the epsilon reported is one this same bake accepts.
+    private func affordable(runs: Int, demanded: Int) -> Float {
+        guard fits(count: 1, runs: runs) else { return .infinity }
+
+        var low = 1
+        var high = demanded
+        while high - low > 1 {
+            let middle = low + (high - low) / 2
+            if fits(count: middle, runs: runs) { low = middle } else { high = middle }
+        }
+
+        return FieldResolution.epsilon(count: low, frame: frame)
+    }
+
+    /// What the reported epsilon derives to, not what the count it came from was, because the round trip through a Float may land a texel either side.
+    private func fits(count: Int, runs: Int) -> Bool {
+        FieldResolution(frame: frame, settleEpsilon: FieldResolution.epsilon(count: count, frame: frame)).texels * runs <= budget
     }
 
     /// The location already settled for the preceding texel bounds the search for this one, because a path location any texel resolved to is a path location this one could resolve to. It is a bound and never a candidate, so a texel's answer follows from the paths alone. Squared lengths carry the comparison until a candidate is close enough to matter, which keeps the square root off the rejected majority.

@@ -61,9 +61,9 @@ public final class Guide {
         resolve(time: time)
     }
 
-    /// Baking here is what a stroke event on the source layer lands on, since paths are what such an event yields and a caller with no field of its own has nothing else to hand over.
-    public func update(paths: [[SIMD2<Float>]], resolution: Int, time: Double) {
-        update(field: FieldBake(paths: paths, frame: frame, resolution: resolution).field(), time: time)
+    /// Baking here is what a stroke event on the source layer lands on, since paths are what such an event yields and a caller with no field of its own has nothing else to hand over. The bake resolves against the epsilon the Guide already settles within, so no resolution crosses the boundary.
+    public func update(paths: [[SIMD2<Float>]], budget: Int, time: Double) throws(FieldRefusal) {
+        update(field: try FieldBake(paths: paths, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field(), time: time)
     }
 
     /// The dial moved every target, so it ends the segment in flight exactly as a field change does.

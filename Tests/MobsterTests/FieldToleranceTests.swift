@@ -36,8 +36,8 @@ struct FieldToleranceTests {
     }
 
     /// A tie is not counted: where two locations are the same distance away both are a true nearest and the tie break, not the bound, decides which is stored.
-    private func breaches(_ paths: [[SIMD2<Float>]], _ frame: Frame, _ resolution: Int) -> Int {
-        let field = FieldBake(paths: paths, frame: frame, resolution: resolution).field()
+    private func breaches(_ paths: [[SIMD2<Float>]], _ frame: Frame, _ count: Int) -> Int {
+        let field = FieldFixture.field(paths: paths, frame: frame, count: count)
         let grid = FieldGrid(frame: frame, columns: field.columns, rows: field.rows)
         let bound = length(grid.texel)
         var count = 0

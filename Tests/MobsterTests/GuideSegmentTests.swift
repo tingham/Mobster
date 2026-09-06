@@ -5,7 +5,7 @@ struct GuideSegmentTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(128, 128))
 
     private func field(at x: Float) -> Field {
-        FieldBake(paths: [[SIMD2<Float>(x, 0), SIMD2<Float>(x, 128)]], frame: frame, resolution: 128).field()
+        FieldFixture.field(paths: [[SIMD2<Float>(x, 0), SIMD2<Float>(x, 128)]], frame: frame, count: 128)
     }
 
     @Test func fieldChangeReanchorsTheSegmentAtTheCurrentLocation() {

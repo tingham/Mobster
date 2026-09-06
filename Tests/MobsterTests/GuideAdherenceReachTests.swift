@@ -3,7 +3,7 @@ import Testing
 
 struct GuideAdherenceReachTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(128, 128))
-    /// The texel centres in opposite corners of a 128 by 128 Frame baked at resolution 128, the furthest a point in this Frame can be from this path.
+    /// Opposite corners of a 128 by 128 Frame, the furthest a point in this Frame can be from this path.
     private let corner = SIMD2<Float>(0.5, 0.5)
     private let far = SIMD2<Float>(127.5, 127.5)
 
@@ -13,7 +13,7 @@ struct GuideAdherenceReachTests {
             Sample(identifier: PointIdentifier(1), location: far),
         ])
         guide.initialize(frame: frame, membership: [stroke])
-        guide.update(paths: [[corner]], resolution: 128, time: 0)
+        try! guide.update(paths: [[corner]], budget: .max, time: 0)
         return guide
     }
 
