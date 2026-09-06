@@ -336,7 +336,7 @@ A distance weight could be selected from a number of falloff presets and applied
 
 The workload it serves is a cycle: enable the guide, paint a stroke, disable the guide, transform the guide, enable it again, paint another stroke, disable it. Marks therefore accumulate on one layer having been painted under different guide states, and the selected falloff governs how much of the earlier work responds when the guide moves.
 
-Note what this asks of the shipped behaviour. Under guide.adherence.short every point in the membership is drawn some distance, however small, because the falloff is nonzero at every finite distance. A transform of the guide is a new initialize, so the next evaluation resolves every supplied vert against the new field. The cycle above therefore draws every previously painted mark toward each new guide position, and the selected falloff is what makes that cycle usable rather than destructive.
+Note what this asks of the shipped behaviour. Under guide.adherence.short every vert supplied is drawn some distance, however small, because the falloff is nonzero at every finite distance. A transform of the guide is a new initialize, so the next evaluation resolves every supplied vert against the new field. The cycle above therefore draws every previously painted mark toward each new guide position, and the selected falloff is what makes that cycle usable rather than destructive.
 
 ## Destructive Workload
 
