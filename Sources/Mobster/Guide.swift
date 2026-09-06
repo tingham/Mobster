@@ -53,11 +53,12 @@ public final class Guide {
         Adherence.reach(settling: length(frame.size), within: settleEpsilon)
     }
 
-    /// Attributes are carried through untouched, because what consumes them is a later cycle.
+    /// Coupling is carried through untouched, because what consumes it is a later cycle.
     private func displaced(_ vert: Vert, progress: Float, adherence: Adherence) -> Vert {
         let target = adherence.target(for: vert.location, in: field)
+        let carried = Travel(mass: vert.mass, drag: vert.drag).fraction(at: progress)
         return Vert(
-            location: vert.location + (target - vert.location) * progress,
+            location: vert.location + (target - vert.location) * carried,
             identifier: vert.identifier,
             mass: vert.mass,
             drag: vert.drag,
