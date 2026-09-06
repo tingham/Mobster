@@ -331,6 +331,16 @@ Data removed from the target layer is handled by initialize. A Guide does not re
 **guide.skiptake.advance**
 A skip take may advance the modulation step of any number of points in the membership.
 
+## Adherence Extensions
+
+**Not an implementation target. A 1.1 tier concept, recorded so it is not rediscovered.**
+
+A per point property could modulate how strongly adherence acts on that point, the way a physics simulation consumes mass. Size or Coverage, either but not both, and as an option rather than as a requirement of the mechanism.
+
+Marks made outside a range could be left unaffected entirely, so that a guide can coexist with free painting on the same layer. The range could derive from adherence, which would make one control govern both how strongly a point is drawn and how far the guide reaches to claim one. This is likely workload specific rather than an option.
+
+Note what the second changes about the shipped behaviour. Under guide.adherence.short every point in the membership is drawn some distance, however small, because the falloff is nonzero at every finite distance. A range cutoff is the difference between a guide that weakly disturbs the whole layer and one that leaves distant work alone.
+
 ## Destructive Workload
 
 **Not an implementation target. Recorded so it is not rediscovered.**
