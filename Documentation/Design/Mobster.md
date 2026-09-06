@@ -347,7 +347,9 @@ Note what this asks of the shipped behaviour. Under guide.adherence.short every 
 
 **Not an implementation target. Recorded so it is not rediscovered.**
 
-A Guide applying destructively yields a reduced result the consumer writes back into the live stroke, rather than filtering ahead of rasterization. The internal logic is the same as the live workload, so the consumer can achieve this result with the live workload alone. A committed point is already at its target, so the consumer routes only live strokes to avoid compounding the displacement. A reduced result is a subset of the identifiers supplied. Open: whether the destructive result differs from the settled live result at all.
+A Guide applying destructively yields a reduced result the consumer writes back into the live stroke, rather than filtering ahead of rasterization. The internal logic is the same as the live workload, so the consumer can reach this result through the live workload alone.
+
+It is not merely a convenience. A guide used as an ITERATION TOOL rather than as a one time effect on a layer's content requires it: the cycle of enable, paint, disable, transform, enable retargets the whole membership on every transform, so unless each session's result is persisted, the next cycle resolves from the original locations and the earlier session's work is undone rather than built upon. Persisting is what makes the cycle accumulate. The selected falloff then governs how much of the already persisted work the next cycle disturbs. A committed point is already at its target, so the consumer routes only live strokes to avoid compounding the displacement. A reduced result is a subset of the identifiers supplied. Open: whether the destructive result differs from the settled live result at all.
 
 ## Harness
 
