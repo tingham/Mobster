@@ -162,6 +162,12 @@ Identical in structure to the ruler, with a location between the start and the e
 
 ## Field
 
+**field.resolution.derive**
+The field resolution follows from the Frame and the settle epsilon. It is not supplied. A read snaps to the containing texel, so a texel larger than the epsilon carries more error than the tolerance the points are settling within.
+
+**field.resolution.refuse**
+A derived resolution whose bake exceeds what the package will spend is refused, reporting the epsilon asked for and the epsilon that would be affordable. The consumer chooses again rather than discovering the cost.
+
 **field.bake**
 The field is baked from the interpreted paths in Swift on the host.
 
