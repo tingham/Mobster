@@ -14,7 +14,7 @@ struct FixtureDeterminismTests {
 
     /// Recorded by a separate process from the one asserting them, so agreement is evidence the seed alone carries the population across a process boundary.
     @Test func theSeedReproducesItsRecordedPopulation() {
-        let strokes = StrokeFixture(parameters: parameters).strokes(in: frame)
+        let strokes = LineFixture(parameters: parameters).lines(in: frame)
         let recorded: [(UInt64, [(UInt64, SIMD2<Float>)])] = [
             (1, [(2, SIMD2<Float>(234.92398, 347.0416)), (11, SIMD2<Float>(361.72775, 452.75098)), (21, SIMD2<Float>(466.78876, 393.59494))]),
             (43, [(44, SIMD2<Float>(363.69464, 350.58264)), (53, SIMD2<Float>(407.27072, 491.30862)), (63, SIMD2<Float>(480.35907, 329.0688))]),
@@ -26,23 +26,23 @@ struct FixtureDeterminismTests {
         #expect(strokes.count == 6)
         for (position, entry) in zip(strokeIndices, recorded) {
             let stroke = strokes[position]
-            #expect(stroke.identifier.value == entry.0)
+            #expect(stroke.identifier?.value == entry.0)
             for (index, expected) in zip(sampleIndices, entry.1) {
-                #expect(stroke.samples[index].identifier.value == expected.0)
-                #expect(matches(stroke.samples[index].location, expected.1))
+                #expect(stroke.verts[index].identifier?.value == expected.0)
+                #expect(matches(stroke.verts[index].location, expected.1))
             }
         }
     }
 
     @Test func twoRunsOfTheSameSeedAgreeOnEveryPoint() {
-        let first = StrokeFixture(parameters: parameters).strokes(in: frame)
-        let second = StrokeFixture(parameters: parameters).strokes(in: frame)
+        let first = LineFixture(parameters: parameters).lines(in: frame)
+        let second = LineFixture(parameters: parameters).lines(in: frame)
 
         #expect(first.count == second.count)
         for (left, right) in zip(first, second) {
             #expect(left.identifier == right.identifier)
-            #expect(left.samples.count == right.samples.count)
-            for (sample, twin) in zip(left.samples, right.samples) {
+            #expect(left.verts.count == right.verts.count)
+            for (sample, twin) in zip(left.verts, right.verts) {
                 #expect(sample.identifier == twin.identifier)
                 #expect(sample.location.x.bitPattern == twin.location.x.bitPattern)
                 #expect(sample.location.y.bitPattern == twin.location.y.bitPattern)
@@ -53,12 +53,12 @@ struct FixtureDeterminismTests {
     @Test func anotherSeedMovesEveryPoint() {
         var other = parameters
         other.seed = parameters.seed + 1
-        let first = StrokeFixture(parameters: parameters).strokes(in: frame)
-        let second = StrokeFixture(parameters: other).strokes(in: frame)
+        let first = LineFixture(parameters: parameters).lines(in: frame)
+        let second = LineFixture(parameters: other).lines(in: frame)
         var agreements = 0
 
         for (left, right) in zip(first, second) {
-            for (sample, twin) in zip(left.samples, right.samples) where matches(sample.location, twin.location) {
+            for (sample, twin) in zip(left.verts, right.verts) where matches(sample.location, twin.location) {
                 agreements += 1
             }
         }
@@ -68,11 +68,11 @@ struct FixtureDeterminismTests {
 
     @Test func theSameSeedKeepsTheSameIdentifiersUnderAnotherFrame() {
         let elsewhere = Frame(origin: SIMD2<Float>(400, -200), size: SIMD2<Float>(100, 900))
-        let first = StrokeFixture(parameters: parameters).strokes(in: frame)
-        let second = StrokeFixture(parameters: parameters).strokes(in: elsewhere)
+        let first = LineFixture(parameters: parameters).lines(in: frame)
+        let second = LineFixture(parameters: parameters).lines(in: elsewhere)
 
         #expect(first.map(\.identifier) == second.map(\.identifier))
-        #expect(first.flatMap { $0.samples.map(\.identifier) } == second.flatMap { $0.samples.map(\.identifier) })
+        #expect(first.flatMap { $0.verts.map(\.identifier) } == second.flatMap { $0.verts.map(\.identifier) })
     }
 
     @Test func theGeneratorReplaysItsStream() {
