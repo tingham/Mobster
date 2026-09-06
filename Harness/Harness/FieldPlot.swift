@@ -6,16 +6,23 @@ struct FieldPlot {
     let field: Field
     /// Nil for a field holding no path location, which vends no grayscale.
     let raster: FieldRaster?
+    /// What the bake refused, held so the harness can say so: an empty canvas cannot be told apart from a field nothing is drawn against.
+    let refusal: FieldRefusal?
     let duration: Duration
 
     init(paths: [[SIMD2<Float>]], frame: Frame, settleEpsilon: Float, budget: Int) {
         var baked = Field(frame: frame, columns: 0, rows: 0, locations: [])
+        var refused: FieldRefusal?
         let elapsed = ContinuousClock().measure {
-            // A refused bake stands as the empty field, which the canvas already draws as nothing, rather than as the stall the refusal exists to prevent.
-            baked = (try? FieldBake(paths: paths, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()) ?? baked
+            do throws(FieldRefusal) {
+                baked = try FieldBake(paths: paths, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()
+            } catch {
+                refused = error
+            }
         }
         field = baked
         raster = baked.grayscale()
+        refusal = refused
         duration = elapsed
     }
 }

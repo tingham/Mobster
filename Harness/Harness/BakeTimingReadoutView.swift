@@ -16,5 +16,11 @@ struct BakeTimingReadoutView: View {
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
         }
+        #if DEBUG
+        // The figure above is a debug bake and a consumer ships against a release one, which measured a hundred times faster on the same field.
+        Text("Debug build. The same bake measured about a hundred times faster in release.")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        #endif
     }
 }
