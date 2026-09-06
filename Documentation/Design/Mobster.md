@@ -337,9 +337,11 @@ A skip take may advance the modulation step of any number of points in the membe
 
 A per point property could modulate how strongly adherence acts on that point, the way a physics simulation consumes mass. Size or Coverage, either but not both, and as an option rather than as a requirement of the mechanism.
 
-Marks made outside a range could be left unaffected entirely, so that a guide can coexist with free painting on the same layer. The range could derive from adherence, which would make one control govern both how strongly a point is drawn and how far the guide reaches to claim one. This is likely workload specific rather than an option.
+A distance weight could be selected from a number of falloff presets and applied after the fact, because the user said so, rather than following from the field. This is not a cutoff. It is the user choosing the character of the distance response, and one of those characters happens to leave distant work alone. This is likely workload specific rather than an option.
 
-Note what the second changes about the shipped behaviour. Under guide.adherence.short every point in the membership is drawn some distance, however small, because the falloff is nonzero at every finite distance. A range cutoff is the difference between a guide that weakly disturbs the whole layer and one that leaves distant work alone.
+The workload it serves is a cycle: enable the guide, paint a stroke, disable the guide, transform the guide, enable it again, paint another stroke, disable it. Marks therefore accumulate on one layer having been painted under different guide states, and the selected falloff governs how much of the earlier work responds when the guide moves.
+
+Note what this asks of the shipped behaviour. Under guide.adherence.short every point in the membership is drawn some distance, however small, because the falloff is nonzero at every finite distance. Under token.segment a transform of the guide is a field change, which retargets the whole membership. So the cycle above currently yanks every previously painted mark toward each new guide position, and the selected falloff is what makes that cycle usable rather than destructive.
 
 ## Destructive Workload
 
