@@ -11,11 +11,11 @@ final class HarnessModel {
     /// Three decades, the lower end being a bake no build stalls on and the upper end one a release consumer would still wait through.
     static let budgetRange = 100_000 ... 100_000_000
     /// The fixture takes no default of its own, so the opening magnitudes are the harness's and every one of them is a slider.
-    static let openingFixture = FixtureParameters(seed: 1, strokeCount: 24, pointsPerStroke: 48, step: 0.02, turn: 30, margin: 0.1)
-    /// Scene units. The dial that would map onto a reach is the thing the principal is here to decide, so the slider carries the reach itself and interposes no curve. This opening is a place for the sliders to start from and not a recommendation: it is the pair that puts a visible run inside the transport window.
-    static let openingReach: Float = 200
-    /// Scene units per second.
-    static let openingSpeed: Float = 100
+    static let openingFixture = FixtureParameters(seed: 1, lineCount: 24, vertsPerLine: 48, step: 0.02, turn: 30, margin: 0.1)
+    /// Zero to one. This opening is a place for the slider to start from and not a recommendation: it is the value that puts a visible run inside the transport window.
+    static let openingAdhesion: Float = 0.1
+    /// Seconds. The time by which every vert has arrived, which the transport window is eight seconds wide enough to cover.
+    static let openingRun: Float = 4
     /// Scene units, against a Frame six hundred by four hundred. What a pixel is worth here is the question the slider exists to answer.
     static let openingEpsilon: Float = 1
 
@@ -25,18 +25,18 @@ final class HarnessModel {
     var parameters = PresetParameters() { didSet { replot() } }
     var fieldVisible = false
     var fixture = HarnessModel.openingFixture { didSet { repopulate() } }
-    var reach = HarnessModel.openingReach { didSet { retune() } }
-    var speed = HarnessModel.openingSpeed { didSet { retune() } }
-    var settleEpsilon = HarnessModel.openingEpsilon { didSet { resettle() } }
-    var budget = HarnessModel.openingBudget { didSet { rebake() } }
-    var dirtyVisible = false
+    var adhesion = HarnessModel.openingAdhesion { didSet { retune() } }
+    var run = HarnessModel.openingRun { didSet { retune() } }
+    var settleEpsilon = HarnessModel.openingEpsilon { didSet { retune() } }
+    var budget = HarnessModel.openingBudget { didSet { retune() } }
     let transport = Transport()
 
     /// Held rather than computed so the timing readout reports one generation and not one per redraw.
     private(set) var plot: PresetPlot
-    /// Baked whether or not it is shown, because the tokens resolve against it either way.
+    /// Taken whether or not the field is shown, because the bake happens either way.
     private(set) var field: FieldPlot
-    private(set) var strokes: [Stroke]
+    /// The anchors every displacement is measured from, which the harness holds undisplaced.
+    private(set) var lines: [Line]
     private(set) var motion: MotionPlot
     private let engine: MotionEngine
 
@@ -45,19 +45,20 @@ final class HarnessModel {
         fieldVisible ? field.raster : nil
     }
 
-    var dirtyRects: [GuideRect] {
-        dirtyVisible ? motion.rects : []
-    }
-
     init() {
         let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, mode: .aspect, focus: .maxXMinY)
-        let baked = FieldPlot(paths: opening.paths, frame: Self.frame, settleEpsilon: Self.openingEpsilon, budget: Self.openingBudget)
-        let population = StrokeFixture(parameters: Self.openingFixture).strokes(in: Self.frame)
-        let running = MotionEngine(frame: Self.frame, field: baked.field, strokes: population, reach: Self.openingReach, speed: Self.openingSpeed, epsilon: Self.openingEpsilon)
+        let population = LineFixture(parameters: Self.openingFixture).lines(in: Self.frame)
+        let running = MotionEngine(frame: Self.frame,
+                                   source: Self.source(opening.paths),
+                                   content: population,
+                                   adhesion: Self.openingAdhesion,
+                                   run: Double(Self.openingRun),
+                                   epsilon: Self.openingEpsilon,
+                                   budget: Self.openingBudget)
         plot = opening
-        field = baked
-        strokes = population
+        lines = population
         engine = running
+        field = running.field
         motion = running.plot
     }
 
@@ -73,39 +74,39 @@ final class HarnessModel {
         seek()
     }
 
-    private func replot() {
-        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, mode: mode, focus: focus)
-        rebake()
+    /// The harness already holds the plotted paths for drawing, so it hands them over as lines rather than naming the preset again.
+    private static func source(_ paths: [[SIMD2<Float>]]) -> GuideSource {
+        .lines(paths.map { path in Line(verts: path.map { Vert(location: $0) }) })
     }
 
-    private func rebake() {
-        field = FieldPlot(paths: plot.paths, frame: Self.frame, settleEpsilon: settleEpsilon, budget: budget)
+    private func replot() {
+        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, mode: mode, focus: focus)
         reload()
     }
 
-    /// The field resolution follows from the epsilon, so a change to it rebakes as well as retunes.
-    private func resettle() {
-        rebake()
-        retune()
-    }
-
     private func repopulate() {
-        strokes = StrokeFixture(parameters: fixture).strokes(in: Self.frame)
+        lines = LineFixture(parameters: fixture).lines(in: Self.frame)
         reload()
     }
 
     private func reload() {
-        engine.load(field: field.field, strokes: strokes)
-        motion = engine.plot
+        engine.load(source: Self.source(plot.paths), content: lines)
+        settle()
     }
 
+    /// The bake happens inside the Guide, so every one of these rebakes and there is no separate rebake to trigger.
     private func retune() {
-        engine.tune(reach: reach, speed: speed, epsilon: settleEpsilon)
-        motion = engine.plot
+        engine.tune(adhesion: adhesion, run: Double(run), epsilon: settleEpsilon, budget: budget)
+        settle()
     }
 
     private func seek() {
         engine.seek(to: transport.step)
+        motion = engine.plot
+    }
+
+    private func settle() {
+        field = engine.field
         motion = engine.plot
     }
 }

@@ -7,6 +7,10 @@ struct FieldRefusalTests {
     private let paths = [[SIMD2<Float>(100, 100), SIMD2<Float>(900, 100), SIMD2<Float>(900, 600)], [SIMD2<Float>(100, 600), SIMD2<Float>(500, 350), SIMD2<Float>(100, 100)]]
     private let segments = 4
 
+    private var lines: [Line] {
+        paths.map { path in Line(verts: path.map { Vert(location: $0) }) }
+    }
+
     private func bake(epsilon: Float, budget: Int) -> FieldBake {
         FieldBake(paths: paths, frame: frame, settleEpsilon: epsilon, budget: budget)
     }
@@ -55,9 +59,26 @@ struct FieldRefusalTests {
         #expect(try bake(epsilon: refusal.affordable, budget: segments - 1).field().isEmpty)
     }
 
-    @Test func aGuideBakingPathsCarriesTheRefusalToItsCaller() {
-        let guide = Guide(frame: frame, adherence: Adherence(reach: 30), settleEpsilon: 1)
+    @Test func aGuideBakingItsSourceCarriesTheRefusalToItsCaller() {
+        let guide = Guide(frame: frame)
 
-        #expect(throws: FieldRefusal.self) { try guide.update(paths: paths, budget: 10_000, time: 0) }
+        #expect(throws: FieldRefusal.self) {
+            try guide.initialize(source: .lines(lines), frame: frame, adhesion: 1, duration: 1, settleEpsilon: 1, budget: 10_000)
+        }
+    }
+
+    /// A refused bake replaces nothing, so the Guide a consumer already holds keeps answering for the source it did bake.
+    @Test func aRefusedGuideStandsAsItDidBeforeTheAttempt() throws {
+        let guide = Guide(frame: frame)
+        try guide.initialize(source: .lines(lines), frame: frame, adhesion: 0.5, duration: 3, settleEpsilon: 4, budget: .max)
+
+        #expect(throws: FieldRefusal.self) {
+            try guide.initialize(source: .lines(lines), frame: frame, adhesion: 1, duration: 9, settleEpsilon: 1, budget: 10_000)
+        }
+
+        #expect(guide.adhesion == 0.5)
+        #expect(guide.duration == 3)
+        #expect(guide.settleEpsilon == 4)
+        #expect(guide.lines.count == lines.count)
     }
 }

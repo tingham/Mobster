@@ -1,5 +1,5 @@
-/// Identity of a stroke, minted by the consumer and opaque to Mobster.
-public struct StrokeIdentifier: Hashable, Sendable {
+/// Identity of a vert, minted by the consumer and opaque to Mobster.
+public struct VertIdentifier: Hashable, Sendable {
     /// Mobster keys on this and never interprets it.
     public let value: UInt64
 

@@ -1,5 +1,5 @@
 /// Columnar dividers spread evenly across the Frame, separated by gutters.
-public struct ColumnsPreset: Hashable, Sendable {
+public struct ColumnsPreset: Hashable, Preset {
     private static let designSize = SIMD2<Float>(1, 1)
 
     public let count: Int

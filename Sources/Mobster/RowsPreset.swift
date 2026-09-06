@@ -1,5 +1,5 @@
 /// Row lines spread evenly across the Frame, separated by gutters.
-public struct RowsPreset: Hashable, Sendable {
+public struct RowsPreset: Hashable, Preset {
     private static let designSize = SIMD2<Float>(1, 1)
 
     public let count: Int

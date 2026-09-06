@@ -10,8 +10,8 @@ struct FieldParameterView: View {
         BudgetParameterSliderView(value: $model.budget, range: HarnessModel.budgetRange)
         if let refusal = model.field.refusal {
             FieldRefusalReadoutView(refusal: refusal)
-        } else {
-            FieldExtentReadoutView(field: model.field.field)
+        } else if let raster = model.field.raster {
+            FieldExtentReadoutView(raster: raster)
         }
         BakeTimingReadoutView(plot: model.field)
     }

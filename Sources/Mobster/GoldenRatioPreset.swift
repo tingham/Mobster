@@ -1,5 +1,5 @@
 /// A spiral populating the standard ratio frame, plotted with the nested rectangles it is derived from. Its geometry is fixed, so it is read rather than computed.
-public struct GoldenRatioPreset: Hashable, Sendable {
+public struct GoldenRatioPreset: Hashable, Preset {
     private static let resourceName = "GoldenRatio"
     /// The corner the stored spiral already converges toward, so every other focus is a mirror away from it.
     private static let storedFocus = PresetFocus.maxXMinY
