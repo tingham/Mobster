@@ -3,7 +3,7 @@ import Testing
 
 struct IdentifierTests {
     /// Opacity is a negative property no runtime assertion reaches, so the conformance list stands in for it: an identifier that gained an ordering or an arithmetic still keys a dictionary and still passes an equality test.
-    private let identifierTypes: [Any.Type] = [PointIdentifier.self, StrokeIdentifier.self]
+    private let identifierTypes: [Any.Type] = [VertIdentifier.self, LineIdentifier.self]
 
     private func requireSendable<T: Sendable>(_ type: T.Type) {}
 
@@ -14,8 +14,8 @@ struct IdentifierTests {
     }
 
     @Test func identifiersCrossTheBoundary() {
-        requireSendable(PointIdentifier.self)
-        requireSendable(StrokeIdentifier.self)
+        requireSendable(VertIdentifier.self)
+        requireSendable(LineIdentifier.self)
     }
 
     @Test func identifiersDoNotOrder() {
