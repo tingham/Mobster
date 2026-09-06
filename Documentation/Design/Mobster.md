@@ -131,7 +131,7 @@ Columnar dividers spread evenly across the Frame with a parameterized gutter.
 Row lines spread evenly across the Frame with a parameterized gutter.
 
 **preset.grid**
-Columnar dividers and row lines together across the Frame, each axis taking its own count and sharing the gutter.
+Columnar dividers and row lines together across the Frame, one count and one gutter serving both axes.
 
 **preset.gutter.band**
 A gutter is a band with two edges. A count of four columns with one gutter width yields six lines.
