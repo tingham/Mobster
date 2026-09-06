@@ -5,6 +5,10 @@ Design requirements. Narrative background lives in the principal issue.
 
 ## Package
 
+**mobster.frame.between**
+Mobster evaluates between two frames. Carrying positions across successive sets of targets is the consuming application's work, because that is what an animation program is for and this is not one.
+
+
 **mobster.model.none**
 Mobster declares no document model and imports none.
 
