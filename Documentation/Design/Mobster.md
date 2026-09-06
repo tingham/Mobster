@@ -31,7 +31,7 @@ Work is implemented in Swift through the sub 1.0 versions. A kernel is written o
 Data crosses the boundary as value types.
 
 **mobster.transfer.event**
-Bulk transfer occurs on membership change and on field change. Advancement carries a time and returns displaced locations with rectangles.
+The expensive work happens once, at initialize, where the field is baked. Evaluation carries content and a time and returns content.
 
 ## Space
 
@@ -44,8 +44,8 @@ The Frame is a region in scene space.
 **guide.frame.position**
 The Frame carries a position within scene space.
 
-**guide.initialize.reset**
-Initialize discards every existing token and rebuilds the membership. There is no incremental token removal.
+**guide.initialize.again**
+Initializing again replaces the source, the Frame, the adhesion and the duration, and rebakes. A Guide retains nothing about content between evaluations, so there is nothing else to discard.
 
 **guide.space.scene**
 Locations, targets and returned rectangles are expressed in scene coordinates.
@@ -56,7 +56,7 @@ Normalization to a zero to one identity is applied only where a calculation requ
 ## Sources
 
 **guide.target**
-A Guide names the layer it applies to. Points inside strokes on that layer are its membership.
+A Guide is given content to evaluate rather than a layer to own. What the consumer chooses to send, whether the stroke in progress or the whole layer, is the consumer's decision and changes nothing here.
 
 **guide.source.layer**
 A Guide may name a layer as its source. Stroke data from that layer is interpreted by Mobster into paths.
@@ -246,109 +246,69 @@ Changing adherence resolves every target again from each point's current locatio
 **guide.adherence.curve**
 The mapping from the adherence dial to a reach is derived in the harness, between zero and the reach that satisfies full adherence.
 
-## Token
+## Types
 
-**token.create**
-A token is created for each point in the membership that does not already have one.
+**vert**
+A location, carrying an optional identifier and optional attributes. The identifier is the consumer's and is returned untouched. A consumer sending a guide needs no identifier and no attributes.
 
-**token.reuse**
-An existing token for a point is reused.
+**vert.mass**
+An optional weight. A vert with more mass moves less per tick.
 
-**token.identity.stroke**
-A token carries the identifier of the stroke its point belongs to.
+**vert.drag**
+An optional resistance at the start of its travel. A drag of minus one moves the vert away from its target rather than toward it.
 
-**token.identity.point**
-A token carries the identifier of its point.
+**vert.physics**
+The attributes are not only a correctness mechanism. A non destructive guide evaluating a whole layer with coupling and mass in play produces motion worth showing, which is its own reason to have them.
 
-**token.progress**
-A token stores the current location of its point.
+**vert.coupling**
+An optional signed measure of how much of this vert's motion its peers take. Propagation through neighbours supplies the falloff along the line, so how far it reaches is not a separate attribute. A negative coupling opposes rather than follows.
 
-**token.target**
-A token stores the location its point will land on.
+**vert.attributes.optional**
+An absent attribute is not a defaulted one. A consumer that supplies none gets motion that disregards peer state entirely.
 
-**token.origin**
-A token stores the time origin of the segment in flight.
+**line**
+An ordered sequence of verts carrying an optional identifier. It holds no behaviour of its own; what happens to a line is what happens to its verts.
 
-**token.planar**
-A token carries no depth. A Guide does not displace a point in depth.
+## Evaluation
 
-**token.segment**
-A field change ends the segment in flight and starts a new one anchored at the current location.
+**guide.initialize**
+A Guide is initialized with its source, which is guide lines or a preset, the Frame it operates within, an adhesion, and a duration. The bake happens here and once.
 
-**token.authority.none**
-A token holds no authority over the point it references.
+**guide.adhesion**
+Adhesion is a control between zero and one. It maps onto the reach the falloff uses, and the consumer never sees a reach.
 
-## Advancement
+**guide.duration**
+The duration is the time at which every vert has arrived. It is supplied at initialize.
 
-**guide.play**
-A Guide advances by play, receiving a speed and a time.
+**guide.evaluate**
+A Guide evaluates content, which is lines the consumer holds, at a time. It returns those lines with their verts displaced. Nothing is retained between calls.
 
-**guide.play.evaluate**
-Every token in the membership is evaluated at the supplied time.
+**guide.evaluate.anchor**
+The verts supplied are the anchors the displacement is measured from. A consumer holding undisplaced content and evaluating it each frame receives a stable result; a consumer feeding a result back in has declared a new anchor and asked for a further displacement.
 
-**guide.play.absolute**
-Evaluation at a time yields the same location whatever times were evaluated before it. Playing to a time is not an increment from the last play, and a time already played returns the picture that time produced the first time.
+**guide.evaluate.time**
+A time yields the same result whatever times were evaluated before it. Evaluation is not an increment from a previous call.
 
-**token.origin.segment**
-The time origin is written when a segment begins, at tokenization and at a field change. It is not written on evaluation.
+**guide.evaluate.settled**
+At the duration every vert has arrived, so a consumer wanting the settled result asks for the duration and does not iterate toward it.
 
-**guide.play.end**
-Playing to the end time settles every token in one call.
+**guide.field.vend**
+A Guide vends a rasterization of its field on demand. The field itself is not exposed.
 
-**guide.rate**
-The rate at which a point travels to its target is derived in the harness.
-
-**guide.determinism.pure**
-Evaluation within a segment is a pure function of the token and the time. No wall clock and no drawn random state participate.
-
-**guide.determinism.seed**
-A seed required by the rate is derived from the point identifier.
+**guide.lines.vend**
+A Guide vends the lines interpreted from its source on demand.
 
 **guide.pass.single**
-A pass resolves one Guide. Two Guides on a layer are resolved by two passes, sequenced by the consumer.
+An evaluation resolves one Guide. Two Guides on a layer are two evaluations, sequenced by the consumer.
 
-**guide.rect.dirty**
-Advancement returns rectangles in scene coordinates covering advanced points, individually or as unions.
+**guide.determinism.pure**
+An evaluation is a pure function of the content, the Guide and the time. No wall clock and no drawn random state participate.
 
-## Settlement
+**guide.determinism.seed**
+A seed required by a vert attribute is derived from the vert identifier.
 
 **guide.settle.epsilon**
-A point has settled when it is nearer its target than the settle epsilon. The comparison is strict, so that a point exactly one epsilon out is not already settled before the play that carries it home. The epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth.
-
-**guide.settle.notify**
-A Guide notifies its listeners when every point has settled.
-
-**guide.settle.epsilon.change**
-Setting the settle epsilon observes settlement again. It does not resolve targets, because the epsilon decides only whether a point has arrived and not where it is going.
-
-**guide.settle.notify.enter**
-The notification fires on entering the settled condition, including a membership that is already settled when it is created. It fires once per settled condition and again only after a change that unsettles the membership.
-
-**guide.settle.arrival**
-A point's arrival is judged after it moves, not before. A point one epsilon from its target moves onto it and that play is the one that settles it.
-
-**guide.settle.track.never**
-A Guide does not track settled state and does not walk its membership to answer for it. It may carry what the last pass counted, since that is a record of a pass already taken rather than a state that can disagree with the points.
-
-## Skip Takes
-
-**guide.skiptake.source**
-A stroke event on the source layer updates the field.
-
-**guide.skiptake.target**
-A stroke event on the target layer updates the membership.
-
-**guide.skiptake.retarget**
-A field change updates the target of every token.
-
-**guide.skiptake.tokenize**
-New data on the target layer is tokenized and evaluated against the field.
-
-**guide.skiptake.remove**
-Data removed from the target layer is handled by initialize. A Guide does not reconcile a membership against a removal.
-
-**guide.skiptake.advance**
-A skip take may advance the modulation step of any number of points in the membership.
+A vert has arrived when it is nearer its target than the settle epsilon. The epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth. It sets the field resolution and the reach that full adhesion requires; it is not a control the consumer tunes for feel.
 
 ## Body
 
@@ -376,7 +336,7 @@ A distance weight could be selected from a number of falloff presets and applied
 
 The workload it serves is a cycle: enable the guide, paint a stroke, disable the guide, transform the guide, enable it again, paint another stroke, disable it. Marks therefore accumulate on one layer having been painted under different guide states, and the selected falloff governs how much of the earlier work responds when the guide moves.
 
-Note what this asks of the shipped behaviour. Under guide.adherence.short every point in the membership is drawn some distance, however small, because the falloff is nonzero at every finite distance. Under token.segment a transform of the guide is a field change, which retargets the whole membership. So the cycle above currently yanks every previously painted mark toward each new guide position, and the selected falloff is what makes that cycle usable rather than destructive.
+Note what this asks of the shipped behaviour. Under guide.adherence.short every point in the membership is drawn some distance, however small, because the falloff is nonzero at every finite distance. A transform of the guide is a new initialize, so the next evaluation resolves every supplied vert against the new field. The cycle above therefore draws every previously painted mark toward each new guide position, and the selected falloff is what makes that cycle usable rather than destructive.
 
 ## Destructive Workload
 
@@ -384,7 +344,7 @@ Note what this asks of the shipped behaviour. Under guide.adherence.short every 
 
 A Guide applying destructively yields a reduced result the consumer writes back into the live stroke, rather than filtering ahead of rasterization. The internal logic is the same as the live workload, so the consumer can reach this result through the live workload alone.
 
-It is not merely a convenience. A guide used as an ITERATION TOOL rather than as a one time effect on a layer's content requires it: the cycle of enable, paint, disable, transform, enable retargets the whole membership on every transform, so unless each session's result is persisted, the next cycle resolves from the original locations and the earlier session's work is undone rather than built upon. Persisting is what makes the cycle accumulate. The selected falloff then governs how much of the already persisted work the next cycle disturbs. A committed point is already at its target, so the consumer routes only live strokes to avoid compounding the displacement. A reduced result is a subset of the identifiers supplied. Open: whether the destructive result differs from the settled live result at all.
+It is not merely a convenience. A guide used as an ITERATION TOOL rather than as a one time effect on a layer's content requires it: unless each session's result is persisted, the next cycle resolves from the original locations and the earlier session's work is undone rather than built upon. Persisting is what makes the cycle accumulate. The selected falloff then governs how much of the already persisted work the next cycle disturbs. A reduced result is a subset of the identifiers supplied.
 
 ## Harness
 
