@@ -5,33 +5,37 @@
 You give it paths or a preset with its parameters, a configuration for the field, a set of strokes, and a time. It gives back the points, by identifier, and where they landed.
 
 ```swift
-let paths = ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame)
+let guide = Guide(frame: frame)
 
-let guide = Guide(frame: frame, adherence: adherence, settleEpsilon: epsilon)
-try guide.update(paths: paths, budget: budget, time: 0)
-guide.tokenize(membership: strokes, time: 0)
+try guide.initialize(
+    source: .preset(ColumnsPreset(count: 4, gutter: 0.05)),
+    frame: frame,
+    adhesion: adhesion,        // zero to one, no reach in sight
+    duration: duration,        // the time by which every vert has arrived
+    settleEpsilon: epsilon,    // scene units; derives the field and the full adhesion reach
+    budget: budget             // texel segment products the bake may spend
+)
 
-let advance = guide.play(speed: speed, time: t)
-for landed in advance.displacements {
-    // landed.point, landed.location
-}
+let moved = guide.evaluate(lines, at: t)
 ```
 
-Nothing in that sequence requires the Guide to outlive the call. Construct it, resolve, read the result, discard it. **Statefulness is the consumer's to derive**, not the package's to impose: a client that wants to hold the Guide between frames and animate may, and a client that wants one resolve and a committed result need not know the type persists anything.
+`initialize` bakes, once, and throws a `FieldRefusal` when the epsilon asked for costs more than the budget allows — the refusal carries an affordable epsilon, and a Guide whose initialize is refused stands exactly as it did rather than half replaced. `evaluate` retains nothing.
+
+The Guide outlives the call only to hold its baked field, which is the expensive part. It retains nothing about content. **Statefulness is the consumer's to derive**, not the package's to impose: a client that wants to hold the Guide between frames and animate may, and a client that wants one resolve and a committed result need not know the type persists anything.
 
 ## Which positions go back in
 
 The single decision this contract forces, and the one that decides the character of the tool.
 
-A target is resolved once, from where a point is when it is tokenized, and a point far from every path settles SHORT of that path rather than arriving on it. That is deliberate.
+A target is resolved from where a vert is when it is supplied, and a vert far from every path settles SHORT of that path rather than arriving on it. That is deliberate.
 
-So one application, with the original positions in and a time past the last arrival, gives the final result: everything drawn as far toward the guide as adherence says it should be drawn, and no further. Feeding those results back in as a second application resolves fresh targets from the new positions and draws them further. Successive applications converge onto the path; a single application does not.
+So one application, with the original positions in and the duration as the time, gives the final result: everything drawn as far toward the guide as adherence says it should be drawn, and no further. Feeding those results back in as a second application resolves fresh targets from the new positions and draws them further. Successive applications converge onto the path; a single application does not.
 
 That is the iteration cycle — place a guide, apply it, commit, transform the guide, apply again — and it is why the two behave differently on purpose.
 
 ## Time is a dividend, not the mechanism
 
-The time argument exists because evaluating at a time is how a target gets approached at all. That it can be swept to produce motion is an affordance that comes free, not the reason the package is shaped this way. A client using guides as art creation tools asks for a time past the last arrival, takes the positions, and never animates anything.
+The time argument exists because evaluating at a time is how a target gets approached at all. That it can be swept to produce motion is an affordance that comes free, not the reason the package is shaped this way. A client using guides as art creation tools asks for the duration, takes the positions, and never animates anything.
 
 ## The modes
 
@@ -41,13 +45,13 @@ The modes a client composes differ chiefly in **what the document persists** —
 
 The guide affects the stroke being drawn and nothing else. Its membership is the in progress stroke, not the layer. The result is captured to persistence when the stroke commits.
 
-Requires from Mobster: a membership scoped to one stroke, and a settled result read at commit.
+Requires from Mobster: nothing special. Initialize at strokeBegin, evaluate the growing stroke at each strokeMoved, evaluate at the duration and persist at strokeEnd.
 
 ## Preview then drop
 
 The guide is placed with a falloff and previews live over existing content. Dropping it persists the modifications destructively and the guide goes away.
 
-Requires from Mobster: the live workload for the preview, the destructive result on commit, and the falloff selection governing how much existing work the preview disturbs.
+Requires from Mobster: nothing special. Evaluate the layer each frame for the preview, evaluate at the duration and persist on drop.
 
 ## Dynamic modifier from a layer
 
