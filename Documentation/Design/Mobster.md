@@ -122,7 +122,7 @@ Golden Ratio plots the nested rectangles the spiral is derived from alongside th
 The corner the spiral converges toward is selectable.
 
 **preset.thirds**
-Three columns and three rows conforming to the aspect ratio of the Frame.
+Three columns and three rows conforming to the aspect ratio of the Frame. It is a grid with a zero gutter and is kept separate regardless, because an editorial illustrator expects to find thirds by name.
 
 **preset.columns**
 Columnar dividers spread evenly across the Frame with a parameterized gutter.
