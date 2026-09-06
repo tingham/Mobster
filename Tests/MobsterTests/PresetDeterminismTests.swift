@@ -10,6 +10,8 @@ struct PresetDeterminismTests {
         { frame in ColumnsPreset(count: 4, gutter: 0.05, mode: .bounds).paths(in: frame) },
         { frame in RowsPreset(count: 3, gutter: 0.02).paths(in: frame) },
         { frame in RowsPreset(count: 3, gutter: 0.02, mode: .bounds).paths(in: frame) },
+        { frame in GridPreset(count: 4, gutter: 0.05).paths(in: frame) },
+        { frame in GridPreset(count: 4, gutter: 0.05, mode: .bounds).paths(in: frame) },
         { frame in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08).paths(in: frame) },
         { frame in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, mode: .bounds).paths(in: frame) },
         { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame) },
@@ -17,7 +19,7 @@ struct PresetDeterminismTests {
     ]
 
     /// Indices in plotters whose immediate successor is the same preset in bounds mode.
-    static let aspectPlotters = [1, 3, 5, 7, 9]
+    static let aspectPlotters = [1, 3, 5, 7, 9, 11]
 
     /// The Frame the recorded sequences below were taken against. Its origin is off zero so a sequence recorded from a preset that ignored the origin would not match.
     private let frame = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(640, 480))
