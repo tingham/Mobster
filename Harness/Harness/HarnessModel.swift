@@ -18,6 +18,8 @@ final class HarnessModel {
     static let openingRun: Float = 4
     /// Scene units, against a Frame six hundred by four hundred. What a pixel is worth here is the question the slider exists to answer.
     static let openingEpsilon: Float = 1
+    /// Minus one to one, carried by every vert in the population. The opening leaves the population moving independently, which is the reading the coupled ones are judged against.
+    static let openingCoupling: Float = 0
 
     var kind: PresetKind = .columns { didSet { replot() } }
     var mode: PresetPlotMode = .aspect { didSet { replot() } }
@@ -29,6 +31,7 @@ final class HarnessModel {
     var run = HarnessModel.openingRun { didSet { retune() } }
     var settleEpsilon = HarnessModel.openingEpsilon { didSet { retune() } }
     var budget = HarnessModel.openingBudget { didSet { retune() } }
+    var coupling = HarnessModel.openingCoupling { didSet { repopulate() } }
     let transport = Transport()
 
     /// Held rather than computed so the timing readout reports one generation and not one per redraw.
@@ -47,7 +50,7 @@ final class HarnessModel {
 
     init() {
         let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, mode: .aspect, focus: .maxXMinY)
-        let population = LineFixture(parameters: Self.openingFixture).lines(in: Self.frame)
+        let population = Self.coupled(LineFixture(parameters: Self.openingFixture).lines(in: Self.frame), coupling: Self.openingCoupling)
         let running = MotionEngine(frame: Self.frame,
                                    source: Self.source(opening.paths),
                                    content: population,
@@ -85,8 +88,17 @@ final class HarnessModel {
     }
 
     private func repopulate() {
-        lines = LineFixture(parameters: fixture).lines(in: Self.frame)
+        lines = Self.coupled(LineFixture(parameters: fixture).lines(in: Self.frame), coupling: coupling)
         reload()
+    }
+
+    /// One coupling across the whole population, so what the slider does to a line reads at a glance rather than against a per vert spread.
+    private static func coupled(_ lines: [Line], coupling: Float) -> [Line] {
+        lines.map { line in
+            Line(verts: line.verts.map { vert in
+                Vert(location: vert.location, identifier: vert.identifier, mass: vert.mass, drag: vert.drag, coupling: coupling)
+            }, identifier: line.identifier)
+        }
     }
 
     private func reload() {
