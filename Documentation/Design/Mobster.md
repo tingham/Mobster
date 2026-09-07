@@ -266,6 +266,9 @@ An optional signed measure of how much of this vert's motion its peers take. Pro
 **vert.attributes.optional**
 An absent attribute is not a defaulted one. A consumer that supplies none gets motion that disregards peer state entirely.
 
+**vert.coupling.zero**
+Coupling is the exception. A coupling of zero emits no offset and an absent coupling emits none either, so the two cannot be told apart through evaluation and no test should pretend otherwise. Mass and drag both carry a distinction; this does not.
+
 **line**
 An ordered sequence of verts carrying an optional identifier. It holds no behaviour of its own; what happens to a line is what happens to its verts.
 
