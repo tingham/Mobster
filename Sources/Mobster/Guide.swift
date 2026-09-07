@@ -39,7 +39,7 @@ public final class Guide {
         let adherence = Adherence(reach: adhesion * fullAdherenceReach)
 
         return content.map { line in
-            Line(verts: line.verts.map { displaced($0, progress: carried, adherence: adherence) }, identifier: line.identifier)
+            Line(verts: displaced(line.verts, progress: carried, adherence: adherence), identifier: line.identifier)
         }
     }
 
@@ -53,17 +53,25 @@ public final class Guide {
         Adherence.reach(settling: length(frame.size), within: settleEpsilon)
     }
 
-    /// Coupling is carried through untouched, because what consumes it is a later cycle.
-    private func displaced(_ vert: Vert, progress: Float, adherence: Adherence) -> Vert {
-        let target = adherence.target(for: vert.location, in: field)
-        let carried = Travel(mass: vert.mass, drag: vert.drag).fraction(at: progress)
-        return Vert(
-            location: vert.location + (target - vert.location) * carried,
-            identifier: vert.identifier,
-            mass: vert.mass,
-            drag: vert.drag,
-            coupling: vert.coupling
-        )
+    /// The whole line's offsets are resolved before any vert is placed, because what a peer takes a share of is the motion its neighbour makes at this progress.
+    private func displaced(_ verts: [Vert], progress: Float, adherence: Adherence) -> [Vert] {
+        let travels = verts.map { Travel(mass: $0.mass, drag: $0.drag) }
+        let fractions = travels.map { $0.fraction(at: progress) }
+        let offsets = Coupling(strengths: verts.map(\.coupling), fractions: fractions).offsets(at: progress)
+
+        return verts.indices.map { index in
+            let vert = verts[index]
+            let target = adherence.target(for: vert.location, in: field)
+            // An offset shifts where a vert stands on its own travel, so the shape its mass and drag ask for is spent from the shifted stance rather than added to.
+            let carried = travels[index].fraction(at: min(max(progress + offsets[index], 0), 1))
+            return Vert(
+                location: vert.location + (target - vert.location) * carried,
+                identifier: vert.identifier,
+                mass: vert.mass,
+                drag: vert.drag,
+                coupling: vert.coupling
+            )
+        }
     }
 
     /// Arrival is tested first, so a duration of zero has arrived at every time the run covers rather than dividing by it.
