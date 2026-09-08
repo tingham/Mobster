@@ -6,7 +6,7 @@ import Observation
 final class HarnessModel {
     /// Scene space is fitted to the canvas at draw time, so this is a shape rather than a pixel count.
     static let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
-    /// Texel segment products a bake may spend. A bake runs at roughly 1.2 nanoseconds a product in release and a hundred times that in the debug build this harness is dragged in, so this opening holds a drag near a quarter second rather than near half a minute.
+    /// Texel segment products a bake may spend. A bake runs at roughly 1.2 nanoseconds a product in release and a hundred times that in the debug build this harness is dragged in, so this opening holds a drag near a quarter second.
     static let openingBudget = 2_000_000
     /// Three decades, the lower end being a bake no build stalls on and the upper end one a release consumer would still wait through.
     static let budgetRange = 100_000 ... 100_000_000
