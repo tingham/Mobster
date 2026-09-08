@@ -1,3 +1,5 @@
+> **Superseded.** This is a historical record of what was asked for at the time. The authority is [Design/Mobster.md](../Design/Mobster.md). Requirement identifiers cited below may no longer exist.
+
 # Cut 2: Path interpretation
 
 Turns ordered source locations into the paths a field is later baked from.

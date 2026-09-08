@@ -1,3 +1,5 @@
+> **Superseded.** This is a historical record of what was asked for at the time. The authority is [Design/Mobster.md](../Design/Mobster.md). Requirement identifiers cited below may no longer exist.
+
 # Cut 3 follow up: Plot mode and Golden Ratio
 
 Applies the principal's rulings. Changes public signatures.
