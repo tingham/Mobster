@@ -75,14 +75,8 @@ Source locations are interpreted into paths with curvature. The interpretation i
 **path.decimate**
 Interpreted paths are decimated before they are baked.
 
-**path.decimate.tolerance**
-A path is decimated until its deviation from the supplied geometry reaches one texel. Detail the field cannot resolve is not carried.
-
-**path.complexity.cap**
-A path whose supplied vertex count exceeds its surviving count by more than the waste factor is rejected. The rejection reports both counts, because a consumer cannot compute the limit without knowing the field resolution.
-
 **path.smooth.never**
-Mobster does not smooth supplied geometry. The consumer has already interpreted the stroke and smoothing again discards a decision made with more context.
+Mobster does not smooth supplied geometry and does not decimate it. The consumer has already interpreted the stroke and interpreting it again discards a decision made with more context. Detail below what the field can resolve is wasted work rather than a wrong answer, and the refusal on bake cost is what guards against paying for too much of it.
 
 **path.vend**
 Interpreted paths are vended to the consumer on demand.
