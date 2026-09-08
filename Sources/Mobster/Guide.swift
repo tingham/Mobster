@@ -6,9 +6,9 @@ public final class Guide {
     public private(set) var adhesion: Float
     /// The time at which every vert has arrived.
     public private(set) var duration: Double
-    /// Scene units, deciding arrival, deriving the field resolution and setting the reach full adhesion requires. It arrives where the bake happens, so those three cannot be answered by different epsilons.
+    /// Scene units, deriving the field resolution and setting the reach full adhesion requires. It arrives where the bake happens, so those two cannot be answered by different epsilons.
     public private(set) var settleEpsilon: Float
-    /// Interpreted from the source at initialize.
+    /// Taken from the source at initialize.
     public private(set) var lines: [Line]
     private var field: Field
 
@@ -81,7 +81,7 @@ public final class Guide {
         return Float(time / duration)
     }
 
-    /// Nothing keys a guide, so an interpreted vert carries no identifier.
+    /// Supplied lines are vended back untouched, identifiers and all. A preset plots its own, and nothing keys a preset, so those verts carry no identifier.
     private static func interpret(_ source: GuideSource, in frame: Frame) -> [Line] {
         switch source {
         case let .lines(lines):
