@@ -340,7 +340,7 @@ It is not merely a convenience. A guide used as an ITERATION TOOL rather than as
 The harness is an Xcode project targeting macOS.
 
 **harness.fixture**
-The harness carries a nominally complex dataset as a fixture.
+The harness carries a nominally complex dataset as a fixture. It is a separate target and a separate product, because it mints identifiers and the library must not, and because an Xcode project links a package product rather than a bare target.
 
 **harness.preview**
 The harness presents a preview to the screen.
