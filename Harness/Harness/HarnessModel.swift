@@ -10,8 +10,8 @@ final class HarnessModel {
     static let openingBudget = 2_000_000
     /// Three decades, the lower end being a bake no build stalls on and the upper end one a release consumer would still wait through.
     static let budgetRange = 100_000 ... 100_000_000
-    /// The fixture takes no default of its own, so the opening magnitudes are the harness's and every one of them is a slider.
-    static let openingFixture = FixtureParameters(seed: 1, lineCount: 24, vertsPerLine: 48, step: 0.02, turn: 30, margin: 0.1)
+    /// The fixture takes no default of its own, so the opening magnitudes are the harness's and every one of them is a slider. The opening spread is off zero because coupling propagates a difference in motion, and a population moving alike shows a coupling slider doing nothing.
+    static let openingFixture = FixtureParameters(seed: 1, lineCount: 24, vertsPerLine: 48, step: 0.02, turn: 30, margin: 0.1, spread: 0.5)
     /// Zero to one. This opening is a place for the slider to start from and not a recommendation: it is the value that puts a visible run inside the transport window.
     static let openingAdhesion: Float = 0.1
     /// Seconds. The time by which every vert has arrived, which the transport window is eight seconds wide enough to cover.
