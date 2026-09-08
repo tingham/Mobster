@@ -25,6 +25,7 @@ public struct LineFixture: Sendable {
 
     private func line(in frame: Frame, random: inout FixtureRandom, identity: inout FixtureIdentitySequence) -> Line {
         let identifier = identity.line()
+        let spread = FixtureSpread(amount: parameters.spread, seed: parameters.seed)
         let inset = frame.size * parameters.margin
         let usable = frame.size - inset * 2
         let step = min(frame.size.x, frame.size.y) * parameters.step
@@ -41,7 +42,9 @@ public struct LineFixture: Sendable {
                 let advanced = location + SIMD2<Float>(cos(heading), sin(heading)) * step
                 (location, heading) = Self.reflected(advanced, heading: heading, in: frame)
             }
-            verts.append(Vert(location: location, identifier: identity.vert()))
+            let vertIdentifier = identity.vert()
+            let attributes = spread.attributes(for: vertIdentifier)
+            verts.append(Vert(location: location, identifier: vertIdentifier, mass: attributes?.mass, drag: attributes?.drag))
         }
 
         return Line(verts: verts, identifier: identifier)

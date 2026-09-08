@@ -6,7 +6,7 @@ struct FixturePopulationTests {
     private let frame = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(640, 480))
 
     private func parameters(seed: UInt64 = 7, lineCount: Int = 12, vertsPerLine: Int = 40) -> FixtureParameters {
-        FixtureParameters(seed: seed, lineCount: lineCount, vertsPerLine: vertsPerLine, step: 0.03, turn: 35, margin: 0.1)
+        FixtureParameters(seed: seed, lineCount: lineCount, vertsPerLine: vertsPerLine, step: 0.03, turn: 35, margin: 0.1, spread: 0)
     }
 
     @Test func theCountsFollowTheParameters() {

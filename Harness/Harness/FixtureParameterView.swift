@@ -11,5 +11,6 @@ struct FixtureParameterView: View {
         ParameterSliderView(title: "Step", value: $parameters.step, range: 0.001 ... 0.2)
         ParameterSliderView(title: "Turn", value: $parameters.turn, range: 0 ... 180)
         ParameterSliderView(title: "Margin", value: $parameters.margin, range: 0 ... 0.45)
+        ParameterSliderView(title: "Spread", value: $parameters.spread, range: 0 ... 1)
     }
 }

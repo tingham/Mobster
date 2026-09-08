@@ -5,7 +5,7 @@ import Testing
 struct FixtureDeterminismTests {
     /// The Frame the sequence below was recorded against. Its origin is off zero, so a population that ignored the origin would not match.
     private let frame = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(640, 480))
-    private let parameters = FixtureParameters(seed: 5, lineCount: 6, vertsPerLine: 20, step: 0.04, turn: 45, margin: 0.12)
+    private let parameters = FixtureParameters(seed: 5, lineCount: 6, vertsPerLine: 20, step: 0.04, turn: 45, margin: 0.12, spread: 0)
 
     /// Wide enough to absorb a difference in float rounding between architectures and far narrower than any change in the walk.
     private func matches(_ location: SIMD2<Float>, _ recorded: SIMD2<Float>) -> Bool {
