@@ -11,7 +11,7 @@ struct FieldTiebreakTests {
 
     /// The centre of the Frame is at fifty, the equidistant texel centre at fifty and a half, so the nearer of the two paths to the centre is the one at thirty.
     @Test func anEquidistantLocationResolvesTowardTheCentreOfTheFrame() {
-        let field = FieldBake(paths: [column(30), column(71)], frame: frame, resolution: 100).field()
+        let field = FieldFixture.field(paths: [column(30), column(71)], frame: frame, count: 100)
 
         #expect(abs(field.distance(at: SIMD2<Float>(50.5, 50.5)) - 20.5) < 0.001)
         #expect(field.direction(at: SIMD2<Float>(50.5, 50.5)) == SIMD2<Float>(-1, 0))
@@ -20,7 +20,7 @@ struct FieldTiebreakTests {
 
     /// The mirror of the case above: the equidistant texel centre at forty nine and a half puts the path at seventy nearer the centre of the Frame.
     @Test func theMirrorOfThatCaseResolvesTowardTheCentreAsWell() {
-        let field = FieldBake(paths: [column(29), column(70)], frame: frame, resolution: 100).field()
+        let field = FieldFixture.field(paths: [column(29), column(70)], frame: frame, count: 100)
 
         #expect(abs(field.distance(at: SIMD2<Float>(49.5, 49.5)) - 20.5) < 0.001)
         #expect(field.direction(at: SIMD2<Float>(49.5, 49.5)) == SIMD2<Float>(1, 0))
@@ -31,7 +31,7 @@ struct FieldTiebreakTests {
     @Test func theTieBreakHoldsAgainstAFrameAwayFromTheOrigin() {
         let placed = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(100, 100))
         let paths = [[SIMD2<Float>(0, 15), SIMD2<Float>(0, 115)], [SIMD2<Float>(41, 15), SIMD2<Float>(41, 115)]]
-        let field = FieldBake(paths: paths, frame: placed, resolution: 100).field()
+        let field = FieldFixture.field(paths: paths, frame: placed, count: 100)
 
         #expect(abs(field.distance(at: SIMD2<Float>(20.5, 65.5)) - 20.5) < 0.001)
         #expect(field.direction(at: SIMD2<Float>(20.5, 65.5)) == SIMD2<Float>(-1, 0))
@@ -40,8 +40,8 @@ struct FieldTiebreakTests {
 
     /// Two single point paths equidistant from the centre of the Frame as well as from every texel on the medial line between them, where the rule is the lesser x. Sweep order would answer with the greater one.
     @Test func aPairEquidistantFromTheCentreResolvesToTheLesserCoordinate() {
-        let forward = FieldBake(paths: [[SIMD2<Float>(30, 70)], [SIMD2<Float>(70, 30)]], frame: frame, resolution: 100).field()
-        let reversed = FieldBake(paths: [[SIMD2<Float>(70, 30)], [SIMD2<Float>(30, 70)]], frame: frame, resolution: 100).field()
+        let forward = FieldFixture.field(paths: [[SIMD2<Float>(30, 70)], [SIMD2<Float>(70, 30)]], frame: frame, count: 100)
+        let reversed = FieldFixture.field(paths: [[SIMD2<Float>(70, 30)], [SIMD2<Float>(30, 70)]], frame: frame, count: 100)
 
         for step in [30, 40, 50, 60, 70] {
             #expect(forward.locations[step * 100 + step] == SIMD2<Float>(30, 70))
@@ -51,8 +51,8 @@ struct FieldTiebreakTests {
 
     /// The lesser of the two is up and to the left of the corner texel, at forty five degrees off the run between them.
     @Test func thatPairAnswersTheSameWithThePathsSuppliedInEitherOrder() {
-        let forward = FieldBake(paths: [[SIMD2<Float>(30, 70)], [SIMD2<Float>(70, 30)]], frame: frame, resolution: 100).field()
-        let reversed = FieldBake(paths: [[SIMD2<Float>(70, 30)], [SIMD2<Float>(30, 70)]], frame: frame, resolution: 100).field()
+        let forward = FieldFixture.field(paths: [[SIMD2<Float>(30, 70)], [SIMD2<Float>(70, 30)]], frame: frame, count: 100)
+        let reversed = FieldFixture.field(paths: [[SIMD2<Float>(70, 30)], [SIMD2<Float>(30, 70)]], frame: frame, count: 100)
         let direction = forward.direction(at: SIMD2<Float>(0.5, 0.5))
 
         #expect(forward.locations == reversed.locations)

@@ -8,7 +8,7 @@ struct AdherenceTests {
     private let onPath = SIMD2<Float>(64.5, 64.5)
 
     private func field() -> Field {
-        FieldBake(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], frame: frame, resolution: 128).field()
+        FieldFixture.field(paths: [[SIMD2<Float>(64.5, 0), SIMD2<Float>(64.5, 128)]], frame: frame, count: 128)
     }
 
     private func near(_ value: SIMD2<Float>, _ expected: SIMD2<Float>) -> Bool {
@@ -50,7 +50,7 @@ struct AdherenceTests {
     }
 
     @Test func emptyFieldResolvesToTheLocation() {
-        let empty = FieldBake(paths: [], frame: frame, resolution: 128).field()
+        let empty = FieldFixture.field(paths: [], frame: frame, count: 128)
 
         #expect(Adherence(reach: 40).target(for: point, in: empty) == point)
     }

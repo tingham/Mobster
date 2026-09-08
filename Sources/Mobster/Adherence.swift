@@ -1,6 +1,6 @@
 /// The inverse distance squared falloff a Guide resolves a target through.
 public struct Adherence: Hashable, Sendable {
-    /// Scene units, the distance at which a point is carried half the way to its nearest path location. The dial to reach mapping is derived in the harness, so there is no default here.
+    /// Scene units, the distance at which a vert is carried half the way to its nearest path location. A Guide derives it from its adhesion, so there is no default here.
     public let reach: Float
 
     public init(reach: Float) {

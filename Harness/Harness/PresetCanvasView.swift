@@ -6,11 +6,10 @@ struct PresetCanvasView: View {
     /// Nil where the field is hidden and where it holds no path location, which are drawn the same way: not at all.
     let raster: FieldRaster?
     let paths: [[SIMD2<Float>]]
-    let strokes: [Stroke]
-    /// Where each point stands now. A point absent from this is drawn where it started.
-    let locations: [PointIdentifier: SIMD2<Float>]
-    /// Empty where the rectangles are hidden.
-    let rects: [GuideRect]
+    /// The anchors, held undisplaced by the consumer's stand in.
+    let lines: [Line]
+    /// What the Guide returned for the time on screen, in the order the anchors were supplied.
+    let displaced: [Line]
 
     private static let margin: CGFloat = 24
     private static let guideWidth: CGFloat = 1.5
@@ -18,15 +17,13 @@ struct PresetCanvasView: View {
     private static let pointRadius: CGFloat = 2.5
     private static let strokeWidth: CGFloat = 1
     private static let strokeOpacity: CGFloat = 0.45
-    /// Amber against the cyan of the guides, which separates the points a Guide moves from the paths it moves them toward.
+    /// Amber against the cyan of the guides, which separates the verts a Guide moves from the paths it moves them toward.
     private static let fixtureColor = Color(red: 1, green: 0.62, blue: 0.04)
     /// The field stays achromatic and dim, so hue belongs to the cyan and the amber alone and neither loses its contrast over a lit texel.
     private static let fieldOpacity: Double = 0.45
-    /// Where a point started reads as a dim amber ring and where it stands now as a solid amber disc, so the run is legible without a second hue.
+    /// Where a vert started reads as a dim amber ring and where it stands now as a solid amber disc, so the run is legible without a second hue.
     private static let originOpacity: CGFloat = 0.3
     private static let originWidth: CGFloat = 1
-    private static let dirtyWidth: CGFloat = 0.5
-    private static let dirtyOpacity: CGFloat = 0.6
 
     var body: some View {
         Canvas { context, size in
@@ -41,18 +38,15 @@ struct PresetCanvasView: View {
             for path in paths {
                 context.stroke(guidePath(path, scale: scale, origin: origin), with: .color(.cyan), lineWidth: Self.guideWidth)
             }
-            for stroke in strokes {
-                let seeded = stroke.samples.map(\.location)
+            for line in lines {
+                let seeded = line.verts.map(\.location)
                 context.stroke(guidePath(seeded, scale: scale, origin: origin), with: .color(Self.fixtureColor.opacity(Self.originOpacity)), lineWidth: Self.strokeWidth)
                 context.stroke(dots(seeded, scale: scale, origin: origin), with: .color(Self.fixtureColor.opacity(Self.originOpacity)), lineWidth: Self.originWidth)
             }
-            for stroke in strokes {
-                let carried = displaced(stroke)
+            for line in displaced {
+                let carried = line.verts.map(\.location)
                 context.stroke(guidePath(carried, scale: scale, origin: origin), with: .color(Self.fixtureColor.opacity(Self.strokeOpacity)), lineWidth: Self.strokeWidth)
                 context.fill(dots(carried, scale: scale, origin: origin), with: .color(Self.fixtureColor))
-            }
-            for rect in rects {
-                context.stroke(dirtyPath(rect, scale: scale, origin: origin), with: .color(.white.opacity(Self.dirtyOpacity)), lineWidth: Self.dirtyWidth)
             }
         }
         .background(Color.black)
@@ -103,10 +97,6 @@ struct PresetCanvasView: View {
                        intent: .defaultIntent)
     }
 
-    private func displaced(_ stroke: Stroke) -> [SIMD2<Float>] {
-        stroke.samples.map { locations[$0.identifier] ?? $0.location }
-    }
-
     private func dots(_ scene: [SIMD2<Float>], scale: CGFloat, origin: CGPoint) -> Path {
         var path = Path()
         for point in scene {
@@ -124,11 +114,5 @@ struct PresetCanvasView: View {
             path.addLine(to: location(point, scale: scale, origin: origin))
         }
         return path
-    }
-
-    /// Stroked rather than filled, because a run along one axis dirties a rectangle with no extent on the other and a fill of it covers nothing.
-    private func dirtyPath(_ rect: GuideRect, scale: CGFloat, origin: CGPoint) -> Path {
-        let corner = location(rect.origin, scale: scale, origin: origin)
-        return Path(CGRect(x: corner.x, y: corner.y, width: CGFloat(rect.size.x) * scale, height: CGFloat(rect.size.y) * scale))
     }
 }

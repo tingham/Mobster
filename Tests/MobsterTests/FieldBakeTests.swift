@@ -4,22 +4,35 @@ import Testing
 struct FieldBakeTests {
     private let frame = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(200, 100))
 
-    @Test func resolutionCountsTexelsAcrossTheWiderAxisOfTheFrame() {
+    @Test func theDerivedCountLiesAcrossTheWiderAxisOfTheFrame() {
         let paths = [[SIMD2<Float>(-30, 15), SIMD2<Float>(170, 115)]]
 
-        for resolution in [10, 40, 128] {
-            let field = FieldBake(paths: paths, frame: frame, resolution: resolution).field()
+        for count in [10, 40, 128] {
+            let field = FieldFixture.field(paths: paths, frame: frame, count: count)
 
-            #expect(field.columns == resolution)
-            #expect(field.rows == resolution / 2)
+            #expect(field.columns == count)
+            #expect(field.rows == count / 2)
             #expect(field.locations.count == field.columns * field.rows)
         }
     }
 
-    /// The narrower count is rounded, so a Frame whose ratio does not divide the resolution has a texel taller than it is wide. Ten by three and a half rounds to ten by four.
+    /// Half the epsilon is half the texel on each axis, so the field is four times the texels of the one before it.
+    @Test func aHalvedEpsilonBakesAFinerField() throws {
+        let paths = [[SIMD2<Float>(-30, 15), SIMD2<Float>(170, 115)]]
+        let coarse = try FieldBake(paths: paths, frame: frame, settleEpsilon: 2, budget: .max).field()
+        let fine = try FieldBake(paths: paths, frame: frame, settleEpsilon: 1, budget: .max).field()
+
+        #expect(coarse.columns == 71)
+        #expect(fine.columns == 142)
+        #expect(coarse.locations.count == 71 * 36)
+        #expect(fine.locations.count == 142 * 71)
+        #expect(fine.locations.count > coarse.locations.count * 3)
+    }
+
+    /// The narrower count is rounded, so a Frame whose ratio does not divide the count has a texel taller than it is wide. Ten by three and a half rounds to ten by four.
     @Test func theNarrowerCountIsRoundedAndLeavesATexelOffSquare() {
         let oblong = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(100, 35))
-        let field = FieldBake(paths: [[SIMD2<Float>(0, 0), SIMD2<Float>(100, 35)]], frame: oblong, resolution: 10).field()
+        let field = FieldFixture.field(paths: [[SIMD2<Float>(0, 0), SIMD2<Float>(100, 35)]], frame: oblong, count: 10)
         let grid = FieldGrid(frame: oblong, columns: field.columns, rows: field.rows)
 
         #expect(field.columns == 10)
@@ -29,8 +42,8 @@ struct FieldBakeTests {
 
     @Test func theSamePathsAndFrameBakeAnIdenticalField() {
         let paths = ColumnsPreset(count: 4, gutter: 0.05, mode: .aspect).paths(in: frame)
-        let first = FieldBake(paths: paths, frame: frame, resolution: 64).field()
-        let second = FieldBake(paths: paths, frame: frame, resolution: 64).field()
+        let first = FieldFixture.field(paths: paths, frame: frame, count: 64)
+        let second = FieldFixture.field(paths: paths, frame: frame, count: 64)
 
         #expect(first.locations == second.locations)
     }
@@ -38,7 +51,7 @@ struct FieldBakeTests {
     /// A single upright path gives every texel a nearest location of the path's own x at the texel's own y, which a field storing any other location on that path fails.
     @Test func everyStoredLocationIsTheNearestOnThePath() {
         let paths = [[SIMD2<Float>(40, 15), SIMD2<Float>(40, 115)]]
-        let field = FieldBake(paths: paths, frame: frame, resolution: 60).field()
+        let field = FieldFixture.field(paths: paths, frame: frame, count: 60)
         let grid = FieldGrid(frame: frame, columns: field.columns, rows: field.rows)
 
         for row in 0 ..< field.rows {
@@ -52,7 +65,7 @@ struct FieldBakeTests {
     }
 
     @Test func noPathsBakeNoLocations() {
-        let field = FieldBake(paths: [], frame: frame, resolution: 32).field()
+        let field = FieldFixture.field(paths: [], frame: frame, count: 32)
 
         #expect(field.locations.isEmpty)
         #expect(field.distance(at: SIMD2<Float>(0, 0)) == .infinity)

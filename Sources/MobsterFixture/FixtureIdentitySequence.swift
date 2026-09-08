@@ -4,15 +4,15 @@ import Mobster
 struct FixtureIdentitySequence {
     private var pending: UInt64 = 1
 
-    mutating func stroke() -> StrokeIdentifier {
-        StrokeIdentifier(take())
+    mutating func line() -> LineIdentifier {
+        LineIdentifier(take())
     }
 
-    mutating func point() -> PointIdentifier {
-        PointIdentifier(take())
+    mutating func vert() -> VertIdentifier {
+        VertIdentifier(take())
     }
 
-    /// One counter serves both kinds, so a point identifier is unique across the whole population and not merely within its stroke.
+    /// One counter serves both kinds, so a vert identifier is unique across the whole population and not merely within its line.
     private mutating func take() -> UInt64 {
         defer { pending &+= 1 }
         return pending

@@ -1,13 +1,12 @@
 import Mobster
 
-/// Where every point stands after the run, what the advance that reached this step dirtied, and what one advance costs.
+/// What the Guide returned for the step the transport stands on, and what that one evaluation cost.
 struct MotionPlot {
-    /// Keyed by point, so a stroke's samples are looked up by identity rather than by position in the membership.
-    let locations: [PointIdentifier: SIMD2<Float>]
-    let rects: [GuideRect]
+    /// The content the Guide returned, in the order it was supplied.
+    let lines: [Line]
     let settled: Bool
-    /// The last advance alone, which is the per step cost rather than the cost of the replay a rewind performs.
+    /// One evaluation alone, which is the per step cost and not the cost of the run that reached this step.
     let duration: Duration
 
-    static let idle = MotionPlot(locations: [:], rects: [], settled: false, duration: .zero)
+    static let idle = MotionPlot(lines: [], settled: false, duration: .zero)
 }

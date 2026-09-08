@@ -24,6 +24,8 @@ struct PresetPlot {
             ColumnsPreset(count: parameters.columnCount, gutter: parameters.columnGutter, mode: mode).paths(in: frame)
         case .rows:
             RowsPreset(count: parameters.rowCount, gutter: parameters.rowGutter, mode: mode).paths(in: frame)
+        case .grid:
+            GridPreset(count: parameters.gridCount, gutter: parameters.gridGutter, mode: mode).paths(in: frame)
         case .ruler:
             RulerPreset(center: parameters.rulerCenter,
                         firstDegree: parameters.rulerFirstDegree,

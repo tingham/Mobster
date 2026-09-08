@@ -1,5 +1,5 @@
 /// A ruler whose line is bowed by a control location, flanked by a parallel pair at an offset.
-public struct CurvePreset: Hashable, Sendable {
+public struct CurvePreset: Hashable, Preset {
     private static let designSize = SIMD2<Float>(1, 1)
 
     /// Design space, where zero to one spans the Frame.

@@ -4,6 +4,7 @@ enum PresetKind: String, CaseIterable, Identifiable, Hashable, Sendable {
     case thirds
     case columns
     case rows
+    case grid
     case ruler
     case curve
 
@@ -15,6 +16,7 @@ enum PresetKind: String, CaseIterable, Identifiable, Hashable, Sendable {
         case .thirds: "Thirds"
         case .columns: "Columns"
         case .rows: "Rows"
+        case .grid: "Grid"
         case .ruler: "Ruler"
         case .curve: "Curve"
         }

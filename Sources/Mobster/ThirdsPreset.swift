@@ -1,5 +1,5 @@
 /// Three columns and three rows, so two dividers on each axis.
-public struct ThirdsPreset: Hashable, Sendable {
+public struct ThirdsPreset: Hashable, Preset {
     private static let designSize = SIMD2<Float>(1, 1)
 
     public let mode: PresetPlotMode

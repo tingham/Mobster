@@ -1,5 +1,5 @@
-/// Identity of a point, minted by the consumer and opaque to Mobster.
-public struct PointIdentifier: Hashable, Sendable {
+/// Identity of a line, minted by the consumer and opaque to Mobster.
+public struct LineIdentifier: Hashable, Sendable {
     /// Mobster keys on this and never interprets it.
     public let value: UInt64
 
