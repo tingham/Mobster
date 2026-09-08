@@ -37,6 +37,18 @@ That is the iteration cycle — place a guide, apply it, commit, transform the g
 
 The time argument exists because evaluating at a time is how a target gets approached at all. That it can be swept to produce motion is an affordance that comes free, not the reason the package is shaped this way. A client using guides as art creation tools asks for the duration, takes the positions, and never animates anything.
 
+## How much a guide costs
+
+The field is a grid. The bake costs grid squares times guide segments.
+
+A finer settle epsilon means more grid squares. More verts means more segments. Both make the bake slower and they multiply.
+
+So there is no single limit on guide verts. At a fine epsilon a few hundred is what you can afford; at a coarse one, thousands. Measured on a Frame of 1000 by 700 in release, at an epsilon of one the grid is 351,168 squares and a fifth of a second buys about 285 segments. The same fifth of a second buys 4,000 segments at an epsilon of five.
+
+The bake happens once, at `initialize`. Under the stroke lifecycle that is once per stroke, not once per frame.
+
+`initialize` refuses rather than stalling when the epsilon asked for costs more than the budget allows, and the refusal carries an epsilon that would fit.
+
 ## The modes
 
 The modes a client composes differ chiefly in **what the document persists** — the displaced positions, or the relationship that produced them.
