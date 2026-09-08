@@ -69,11 +69,8 @@ A source Frame differing from the target Frame maps absolutely. Mobster does not
 
 ## Paths
 
-**path.interpret**
-Source locations are interpreted into paths with curvature. The interpretation is Mobster's own and does not reproduce the source representation.
-
-**path.decimate**
-Interpreted paths are decimated before they are baked.
+**path.supplied**
+A path is supplied by the consumer or plotted by a preset. Mobster does not interpret source geometry into paths; a consumer wanting a layer as a source reduces it before sending.
 
 **path.smooth.never**
 Mobster does not smooth supplied geometry and does not decimate it. The consumer has already interpreted the stroke and interpreting it again discards a decision made with more context. Detail below what the field can resolve is wasted work rather than a wrong answer, and the refusal on bake cost is what guards against paying for too much of it.
