@@ -22,7 +22,7 @@ struct Travel {
             carried = weighted(carried, mass: mass)
         }
         if let drag {
-            carried = resisted(carried, drag: drag)
+            carried = lenient(carried, drag: drag)
         }
         return carried
     }
@@ -33,7 +33,7 @@ struct Travel {
     }
 
     /// The scale runs downward from one: a leniency of one is the plain travel, a leniency of zero holds the vert back across the whole run, and a leniency of minus one repels it from its target before it returns.
-    private func resisted(_ progress: Float, drag: Float) -> Float {
+    private func lenient(_ progress: Float, drag: Float) -> Float {
         let leniency = min(max(drag, -1), 1)
         return progress * (progress + leniency * (1 - progress))
     }
