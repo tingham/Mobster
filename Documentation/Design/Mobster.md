@@ -35,8 +35,8 @@ The expensive work happens once, at initialize, where the field is baked. Evalua
 
 ## Space
 
-**guide.initialize**
-A Guide receives the Frame it operates within when it is constructed, so that no workload can run before it. Initialize supplies a new Frame and resets.
+**guide.frame.construct**
+A Guide receives the Frame it operates within when it is constructed, so that no workload can run before it.
 
 **guide.frame.region**
 The Frame is a region in scene space.
@@ -45,7 +45,7 @@ The Frame is a region in scene space.
 The Frame carries a position within scene space.
 
 **guide.initialize.again**
-Initializing again replaces the source, the Frame, the adhesion and the duration, and rebakes. A Guide retains nothing about content between evaluations, so there is nothing else to discard.
+Initializing again replaces the source, the Frame, the adhesion, the duration and the settle epsilon, and rebakes. A Guide retains nothing about content between evaluations, so there is nothing else to discard.
 
 **guide.space.scene**
 Locations, targets and returned rectangles are expressed in scene coordinates.
@@ -58,14 +58,11 @@ Normalization to a zero to one identity is applied only where a calculation requ
 **guide.target**
 A Guide is given content to evaluate rather than a layer to own. What the consumer chooses to send, whether the stroke in progress or the whole layer, is the consumer's decision and changes nothing here.
 
-**guide.source.layer**
-A Guide may name a layer as its source. Stroke data from that layer is interpreted by Mobster into paths.
+**guide.source.lines**
+A Guide may take lines as its source. They are vended back unchanged; Mobster does not reinterpret them.
 
 **guide.source.preset**
 A Guide may name a preset as its source. The preset plots paths against the Frame the Guide operates within.
-
-**guide.source.map.absolute**
-A source Frame differing from the target Frame maps absolutely. Mobster does not fit source bounds to target bounds.
 
 ## Paths
 
@@ -76,10 +73,10 @@ A path is supplied by the consumer or plotted by a preset. Mobster does not inte
 Mobster does not smooth supplied geometry and does not decimate it. The consumer has already interpreted the stroke and interpreting it again discards a decision made with more context. Detail below what the field can resolve is wasted work rather than a wrong answer, and the refusal on bake cost is what guards against paying for too much of it.
 
 **path.vend**
-Interpreted paths are vended to the consumer on demand.
+A Guide vends the lines of its source on demand.
 
-**path.role**
-A vended path carries what it is. A consumer can distinguish a ruler's base line from its parallels, and a spiral from the rectangles it was derived from, without relying on the order they arrive in.
+**path.order**
+A preset emits its paths in a defined order and that order is how a consumer tells them apart. A ruler emits its base line then the offset pair; Golden Ratio emits the spiral then its quadlines outermost first. Nothing on a path says what it is, so a consumer that wants to draw a quadline differently from a spiral indexes by position. That is brittle and it is the contract until something asks for better.
 
 ## Presets
 
@@ -102,7 +99,7 @@ A preset plotting in bounds mode plots paths scaled to a minimum bounds encompas
 A preset scaled to a minimum bounds is centered within the Frame.
 
 **preset.frame.mode.default**
-Thirds, Columns, Rows, Ruler and Curve construct in aspect mode. Each is defined relative to the Frame and a Frame relative quantity resolves against the Frame only in that mode.
+Thirds, Columns, Rows, Grid, Ruler and Curve construct in aspect mode. Each is defined relative to the Frame and a Frame relative quantity resolves against the Frame only in that mode.
 
 **preset.goldenRatio**
 A spiral populating the standard ratio frame.
@@ -117,7 +114,7 @@ Golden Ratio plots the nested rectangles the spiral is derived from alongside th
 The corner the spiral converges toward is selectable.
 
 **preset.thirds**
-Three columns and three rows conforming to the aspect ratio of the Frame. It is a grid with a zero gutter and is kept separate regardless, because an editorial illustrator expects to find thirds by name.
+Three columns and three rows conforming to the aspect ratio of the Frame. A grid of three with a zero gutter is not the same thing, because a gutter is a band with two edges whatever its width and so emits eight lines where thirds emits four. It also stays separate because an editorial illustrator expects to find thirds by name.
 
 **preset.columns**
 Columnar dividers spread evenly across the Frame with a parameterized gutter.
@@ -132,7 +129,7 @@ Columnar dividers and row lines together across the Frame, one count and one gut
 A gutter is a band with two edges. A count of four columns with one gutter width yields six lines.
 
 **preset.gutter.fraction**
-A gutter width is a fraction of the Frame extent along the axis it divides. Its meaning does not change with plot mode.
+A gutter width is a fraction of the Frame extent along the axis it divides in aspect mode, which is the mode these presets construct in. In bounds mode the design rectangle is larger than the Frame and the gutter is a fraction of that instead.
 
 **preset.ruler**
 Two circular degrees derive two locations on the edge of the Frame.
@@ -153,7 +150,7 @@ A distance parameter creates a parallel line at that offset on each side of the 
 A parallel line crosses the Frame. It is cast to the edge of the Frame rather than translated as a fixed length.
 
 **preset.curve**
-Identical in structure to the ruler, with a location between the start and the end controlling the tension of the interpreted spline.
+Identical in structure to the ruler, with a location between the start and the end controlling the tension of the curve. The curve is a quadratic Bezier sampled at a resolution the caller supplies.
 
 ## Field
 
@@ -161,10 +158,10 @@ Identical in structure to the ruler, with a location between the start and the e
 The field resolution follows from the Frame and the settle epsilon. It is not supplied. A read snaps to the containing texel, so a texel larger than the epsilon carries more error than the tolerance the points are settling within.
 
 **field.resolution.refuse**
-A derived resolution whose bake exceeds what the package will spend is refused, reporting the epsilon asked for and the epsilon that would be affordable. The consumer chooses again rather than discovering the cost.
+A derived resolution whose bake exceeds the budget the consumer supplies is refused, reporting the epsilon asked for and the epsilon that would be affordable. The consumer chooses again rather than discovering the cost.
 
 **field.bake**
-The field is baked from the interpreted paths in Swift on the host.
+The field is baked from the source's paths in Swift on the host.
 
 **field.bake.exterior**
 A path location outside the Frame participates in the field. A query inside the Frame resolves to the true nearest path location whether that location lies inside the Frame or not.
@@ -231,11 +228,8 @@ A point far from every path settles short of the path rather than arriving at it
 **guide.adherence.reach.full.derive**
 The reach satisfying full adherence follows from the worst case distance in the Frame and the settle epsilon. Mobster vends it. It grows faster than the Frame does, so a fixed multiple of the Frame extent does not serve.
 
-**guide.adherence.change**
-Changing adherence resolves every target again from each point's current location, and ends the segment in flight as a field change does.
-
 **guide.adherence.curve**
-The mapping from the adherence dial to a reach is derived in the harness, between zero and the reach that satisfies full adherence.
+The Guide maps the adhesion dial onto a reach, between zero and the reach that satisfies full adhesion. The mapping is linear until the principal has a reason for it not to be.
 
 ## Types
 
@@ -290,7 +284,7 @@ At the duration every vert has arrived, so a consumer wanting the settled result
 A Guide vends a rasterization of its field on demand. The field itself is not exposed.
 
 **guide.lines.vend**
-A Guide vends the lines interpreted from its source on demand.
+A Guide vends the lines of its source on demand.
 
 **guide.pass.single**
 An evaluation resolves one Guide. Two Guides on a layer are two evaluations, sequenced by the consumer.
@@ -299,10 +293,10 @@ An evaluation resolves one Guide. Two Guides on a layer are two evaluations, seq
 An evaluation is a pure function of the content, the Guide and the time. No wall clock and no drawn random state participate.
 
 **guide.determinism.seed**
-A seed required by a vert attribute is derived from the vert identifier.
+A seed, wherever one is needed, is derived from an identifier rather than drawn. The fixture's per vert spread is the only thing that currently needs one.
 
 **guide.settle.epsilon**
-A vert has arrived when it is nearer its target than the settle epsilon. The epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth. It sets the field resolution and the reach that full adhesion requires; it is not a control the consumer tunes for feel.
+The settle epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth. It derives the field resolution and it sets the reach that full adhesion requires. It does not decide arrival; arrival is the duration. It is not a control the consumer tunes for feel.
 
 ## Body
 
@@ -311,12 +305,12 @@ A vert has arrived when it is nearer its target than the settle epsilon. The eps
 A vert carries three optional attributes the consumer contributes during reduction. A consumer sending a guide needs none of them; a consumer sending target content may send all of them.
 
 - A weight. It moves less per tick.
-- A counter influence. It appears stochastic across a canvas. It is derived from the vert identifier rather than drawn, or determinism is lost.
+- A drag. It shapes the approach, running down from the plain travel through held back to repelled.
 - A coupling. It says how much of this vert's motion its peers take, signed, so that peers may oppose rather than follow.
 
 Coupling is a vert property rather than a line property. Propagation through neighbours gives the falloff along the line for free, so how far coupling reaches is not a separate parameter. A line stiff at one end and loose at the other is expressible, and a uniform line is the case where every vert carries the same value. No rule is needed for which vert's target wins on a stiff line, because the motion emerges from propagation rather than being arbitrated.
 
-The outcomes that fall out, across the range: verts moving independently; a vert dragging its peers along weakly or strongly; a vert dragging near peers more than far ones; a vert pushing its peers away from their own targets; and a whole line moving as one body.
+The outcomes that fall out, across the range: verts moving independently; a vert advancing its peers along their own travel, weakly or strongly; a vert advancing near peers more than far ones; and a vert retarding its peers instead. A whole line moving as one body preserving its shape is NOT among them, because coupling shifts a peer along its own travel and cannot carry it toward another vert's target.
 
 A line carries an identity and nothing else.
 
