@@ -23,14 +23,14 @@ public final class Guide {
 
     /// The bake happens here and once, so a refusal surfaces here. Nothing is replaced until the bake is in hand, which leaves a refused Guide as it stood rather than half changed.
     public func initialize(source: GuideSource, frame: Frame, adhesion: Float, duration: Double, settleEpsilon: Float, budget: Int) throws(FieldRefusal) {
-        let interpreted = Self.interpret(source, in: frame)
-        let baked = try FieldBake(paths: interpreted.map { $0.verts.map(\.location) }, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()
+        let taken = Self.lines(from: source, in: frame)
+        let baked = try FieldBake(paths: taken.map { $0.verts.map(\.location) }, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()
 
         self.frame = frame
         self.adhesion = min(max(adhesion, 0), 1)
         self.duration = duration
         self.settleEpsilon = settleEpsilon
-        lines = interpreted
+        lines = taken
         field = baked
     }
 
@@ -82,7 +82,7 @@ public final class Guide {
     }
 
     /// Supplied lines are vended back untouched, identifiers and all. A preset plots its own, and nothing keys a preset, so those verts carry no identifier.
-    private static func interpret(_ source: GuideSource, in frame: Frame) -> [Line] {
+    private static func lines(from source: GuideSource, in frame: Frame) -> [Line] {
         switch source {
         case let .lines(lines):
             return lines
