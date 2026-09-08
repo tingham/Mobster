@@ -4,7 +4,7 @@ import Foundation
 struct Travel {
     /// Nil is the plain travel rather than a weight of zero, so an absent attribute and a supplied zero cannot meet on one path.
     let mass: Float?
-    /// Nil is the plain travel rather than a resistance of zero.
+    /// Nil is the plain travel rather than a leniency of zero.
     let drag: Float?
 
     init(mass: Float?, drag: Float?) {
@@ -32,9 +32,9 @@ struct Travel {
         pow(progress, max(mass, 0))
     }
 
-    /// A resistance of one is spent, a resistance of zero holds the vert back against the whole run, and a resistance of minus one leads it away before it returns.
+    /// The scale runs downward from one: a leniency of one is the plain travel, a leniency of zero holds the vert back across the whole run, and a leniency of minus one repels it from its target before it returns.
     private func resisted(_ progress: Float, drag: Float) -> Float {
-        let resistance = min(max(drag, -1), 1)
-        return progress * (progress + resistance * (1 - progress))
+        let leniency = min(max(drag, -1), 1)
+        return progress * (progress + leniency * (1 - progress))
     }
 }
