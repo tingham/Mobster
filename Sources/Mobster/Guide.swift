@@ -6,9 +6,9 @@ public final class Guide {
     public private(set) var adhesion: Float
     /// The time at which every vert has arrived.
     public private(set) var duration: Double
-    /// Scene units, deciding arrival, deriving the field resolution and setting the reach full adhesion requires. It arrives where the bake happens, so those three cannot be answered by different epsilons.
+    /// Scene units, deriving the field resolution and setting the reach full adhesion requires. It arrives where the bake happens, so those two cannot be answered by different epsilons.
     public private(set) var settleEpsilon: Float
-    /// Interpreted from the source at initialize.
+    /// Taken from the source at initialize.
     public private(set) var lines: [Line]
     private var field: Field
 
@@ -23,14 +23,14 @@ public final class Guide {
 
     /// The bake happens here and once, so a refusal surfaces here. Nothing is replaced until the bake is in hand, which leaves a refused Guide as it stood rather than half changed.
     public func initialize(source: GuideSource, frame: Frame, adhesion: Float, duration: Double, settleEpsilon: Float, budget: Int) throws(FieldRefusal) {
-        let interpreted = Self.interpret(source, in: frame)
-        let baked = try FieldBake(paths: interpreted.map { $0.verts.map(\.location) }, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()
+        let taken = Self.lines(from: source, in: frame)
+        let baked = try FieldBake(paths: taken.map { $0.verts.map(\.location) }, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()
 
         self.frame = frame
         self.adhesion = min(max(adhesion, 0), 1)
         self.duration = duration
         self.settleEpsilon = settleEpsilon
-        lines = interpreted
+        lines = taken
         field = baked
     }
 
@@ -81,8 +81,8 @@ public final class Guide {
         return Float(time / duration)
     }
 
-    /// Nothing keys a guide, so an interpreted vert carries no identifier.
-    private static func interpret(_ source: GuideSource, in frame: Frame) -> [Line] {
+    /// Supplied lines are vended back untouched, identifiers and all. A preset plots its own, and nothing keys a preset, so those verts carry no identifier.
+    private static func lines(from source: GuideSource, in frame: Frame) -> [Line] {
         switch source {
         case let .lines(lines):
             return lines

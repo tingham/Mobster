@@ -1,21 +1,21 @@
 /// Bakes paths into a field. Every texel is solved against every segment rather than propagated from its neighbours: a propagated location is only ever as good as the locations its neighbours happened to compute, and a path outside the Frame is computed by no texel at all.
-public struct FieldBake: Sendable {
-    /// Scene coordinates, one entry per interpreted path.
-    public let paths: [[SIMD2<Float>]]
-    public let frame: Frame
+struct FieldBake: Sendable {
+    /// Scene coordinates, one entry per path.
+    let paths: [[SIMD2<Float>]]
+    let frame: Frame
     /// Scene units. The texel counts follow from it and the Frame, so no resolution is supplied.
-    public let settleEpsilon: Float
+    let settleEpsilon: Float
     /// Texel segment products the bake may spend. Supplied, because how long a caller will wait is not the package's to decide.
-    public let budget: Int
+    let budget: Int
 
-    public init(paths: [[SIMD2<Float>]], frame: Frame, settleEpsilon: Float, budget: Int) {
+    init(paths: [[SIMD2<Float>]], frame: Frame, settleEpsilon: Float, budget: Int) {
         self.paths = paths
         self.frame = frame
         self.settleEpsilon = settleEpsilon
         self.budget = budget
     }
 
-    public func field() throws(FieldRefusal) -> Field {
+    func field() throws(FieldRefusal) -> Field {
         let resolution = FieldResolution(frame: frame, settleEpsilon: settleEpsilon)
         guard resolution.texels > 0 else {
             return Field(frame: frame, columns: 0, rows: 0, locations: [])
