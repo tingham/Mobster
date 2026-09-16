@@ -40,6 +40,8 @@ struct PresetPlot {
                         control: parameters.curveControl,
                         resolution: parameters.curveResolution,
                         mode: mode).paths(in: frame)
+        case .head:
+            HeadPreset(sex: parameters.headSex, view: parameters.headView, mode: mode).paths(in: frame)
         }
     }
 }

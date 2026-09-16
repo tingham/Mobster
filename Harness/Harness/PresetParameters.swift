@@ -1,3 +1,5 @@
+import Mobster
+
 /// Every dial the harness offers. Each preset keeps its own values so switching presets does not disturb a magnitude already dialled in on another.
 struct PresetParameters: Hashable, Sendable {
     var columnCount: Int = 4
@@ -16,4 +18,7 @@ struct PresetParameters: Hashable, Sendable {
     var curveDistance: Float = 0.1
     var curveControl: SIMD2<Float> = SIMD2<Float>(0.5, 0.25)
     var curveResolution: Int = 32
+    var headSex: HeadSex = .male
+    /// Opening at the middle of the range, which is the three quarter view.
+    var headView: Float = 0.5
 }
