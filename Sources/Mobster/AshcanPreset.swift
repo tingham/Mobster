@@ -6,7 +6,7 @@ public struct AshcanPreset: Hashable, Preset {
     public let sex: AshcanSex
     /// A height outside the tabled four through eight is plotted at the nearest tabled height, there being no canon beyond them.
     public let heads: Float
-    /// Design space, where zero to one spans the Frame. Left is the lesser x of the design rectangle.
+    /// Design space, where zero to one spans the design rectangle. Left is the lesser x of it.
     public let leftHand: SIMD2<Float>
     public let rightHand: SIMD2<Float>
     public let leftFoot: SIMD2<Float>
@@ -17,7 +17,6 @@ public struct AshcanPreset: Hashable, Preset {
     public let leftKneePole: SIMD2<Float>
     public let rightKneePole: SIMD2<Float>
     public let headLines: Bool
-    public let mode: PresetPlotMode
 
     public init(sex: AshcanSex,
                 heads: Float,
@@ -29,8 +28,7 @@ public struct AshcanPreset: Hashable, Preset {
                 rightElbowPole: SIMD2<Float>,
                 leftKneePole: SIMD2<Float>,
                 rightKneePole: SIMD2<Float>,
-                headLines: Bool,
-                mode: PresetPlotMode = .aspect) {
+                headLines: Bool) {
         self.sex = sex
         self.heads = heads
         self.leftHand = leftHand
@@ -42,11 +40,10 @@ public struct AshcanPreset: Hashable, Preset {
         self.leftKneePole = leftKneePole
         self.rightKneePole = rightKneePole
         self.headLines = headLines
-        self.mode = mode
     }
 
     public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
-        let projection = PresetProjection(mode: mode, frame: frame, designSize: Self.designSize)
+        let projection = PresetProjection(mode: .contain, frame: frame, designSize: Self.designSize)
         let figure = AshcanFigure(heads: heads, sex: sex)
         let pelvis = figure.pelvis
 

@@ -73,24 +73,24 @@ struct FieldToleranceTests {
     }
 
     @Test func aStoredLocationIsWithinATexelOfTheTrueNearestOnEveryPreset() {
-        #expect(breaches(ColumnsPreset(count: 4, gutter: 0.05, mode: .aspect).paths(in: square), square, 64) == 0)
-        #expect(breaches(RowsPreset(count: 3, gutter: 0.02, mode: .aspect).paths(in: square), square, 64) == 0)
-        #expect(breaches(GridPreset(count: 4, gutter: 0.05, mode: .aspect).paths(in: square), square, 64) == 0)
-        #expect(breaches(ThirdsPreset(mode: .aspect).paths(in: square), square, 64) == 0)
-        #expect(breaches(RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, mode: .aspect).paths(in: square), square, 64) == 0)
-        #expect(breaches(CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 32, mode: .aspect).paths(in: square), square, 64) == 0)
-        #expect(breaches(HeadPreset(sex: .male, target: SIMD3<Float>(0.8, 0.4, 1), roll: 0.25, mode: .aspect).paths(in: square), square, 64) == 0)
-        #expect(breaches(PresetDeterminismTests.ashcan(mode: .aspect).paths(in: square), square, 64) == 0)
+        #expect(breaches(ColumnsPreset(count: 4, gutter: 0.05).paths(in: square), square, 64) == 0)
+        #expect(breaches(RowsPreset(count: 3, gutter: 0.02).paths(in: square), square, 64) == 0)
+        #expect(breaches(GridPreset(count: 4, gutter: 0.05).paths(in: square), square, 64) == 0)
+        #expect(breaches(ThirdsPreset().paths(in: square), square, 64) == 0)
+        #expect(breaches(RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08).paths(in: square), square, 64) == 0)
+        #expect(breaches(CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 32).paths(in: square), square, 64) == 0)
+        #expect(breaches(HeadPreset(sex: .male, target: SIMD3<Float>(0.8, 0.4, 1), roll: 0.25).paths(in: square), square, 64) == 0)
+        #expect(breaches(PresetDeterminismTests.ashcan().paths(in: square), square, 64) == 0)
     }
 
-    /// Golden Ratio in bounds mode keeps its own proportions against a square Frame, so part of the spiral is necessarily outside it.
+    /// Golden Ratio covers the Frame, keeping its own proportions, so against a square Frame part of the spiral is necessarily outside it.
     @Test func aStoredLocationIsWithinATexelOfTheTrueNearestOnGoldenRatio() {
         #expect(breaches(GoldenRatioPreset().paths(in: square), square, 64) == 0)
         #expect(breaches(GoldenRatioPreset().paths(in: placed), placed, 64) == 0)
     }
 
     @Test func aStoredLocationIsWithinATexelOfTheTrueNearestAgainstAPlacedFrame() {
-        #expect(breaches(RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, mode: .aspect).paths(in: placed), placed, 64) == 0)
+        #expect(breaches(RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08).paths(in: placed), placed, 64) == 0)
         #expect(breaches([[SIMD2<Float>(-200, 40), SIMD2<Float>(-150, 90)]], placed, 64) == 0)
     }
 }

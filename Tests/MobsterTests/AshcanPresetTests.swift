@@ -4,6 +4,8 @@ import Testing
 struct AshcanPresetTests {
     /// Eight hundred on a side, so a fraction of the height reads as a round number of scene units.
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(800, 800))
+    /// Half again wider than it is tall, so a figure stretched to the axes would read fifty percent broad.
+    private let wide = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
     private let forms = 11
 
     private func figure(sex: AshcanSex, heads: Float, headLines: Bool = false) -> AshcanPreset {
@@ -109,6 +111,16 @@ struct AshcanPresetTests {
                                     SIMD2<Float>(445, 433.6),
                                     SIMD2<Float>(355, 433.6),
                                     SIMD2<Float>(325, 325.2)]))
+    }
+
+    /// Eight heads of male canon are 2.333 heads wide and each shoulder is set in by half a shoulder girth, which puts the shoulder span at 0.249125 of the stature. A Frame six hundred by four hundred carries the stature at the four hundred of its shorter axis and the span at 99.65, where stretching to the axes would put that span at 149.475.
+    @Test func theShoulderSpanHoldsAgainstTheStatureOnAFrameWiderThanItIsTall() {
+        let paths = figure(sex: .male, heads: 8, headLines: true).paths(in: wide)
+        let levels = paths.dropFirst(forms).map { $0[0].y }
+        let span = (paths[5][0].x + paths[5][1].x) / 2 - (paths[3][0].x + paths[3][1].x) / 2
+
+        #expect(abs(levels.last! - levels.first! - 400) < 0.01)
+        #expect(abs(span - 99.65) < 0.01)
     }
 
     /// The shorter table is a child's rather than the adult's scaled down, so its cranium takes a quarter of the height where the adult's takes an eighth and its legs are the shorter for it.

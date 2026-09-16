@@ -6,43 +6,41 @@ struct PresetPlot {
     let paths: [[SIMD2<Float>]]
     let duration: Duration
 
-    init(kind: PresetKind, parameters: PresetParameters, frame: Frame, mode: PresetPlotMode, focus: PresetFocus) {
+    init(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus) {
         var produced: [[SIMD2<Float>]] = []
         let elapsed = ContinuousClock().measure {
-            produced = Self.generate(kind: kind, parameters: parameters, frame: frame, mode: mode, focus: focus)
+            produced = Self.generate(kind: kind, parameters: parameters, frame: frame, focus: focus)
         }
         paths = produced
         duration = elapsed
     }
 
-    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, mode: PresetPlotMode, focus: PresetFocus) -> [[SIMD2<Float>]] {
+    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus) -> [[SIMD2<Float>]] {
         switch kind {
         case .goldenRatio:
             GoldenRatioPreset(focus: focus).paths(in: frame)
         case .thirds:
-            ThirdsPreset(mode: mode).paths(in: frame)
+            ThirdsPreset().paths(in: frame)
         case .columns:
-            ColumnsPreset(count: parameters.columnCount, gutter: parameters.columnGutter, mode: mode).paths(in: frame)
+            ColumnsPreset(count: parameters.columnCount, gutter: parameters.columnGutter).paths(in: frame)
         case .rows:
-            RowsPreset(count: parameters.rowCount, gutter: parameters.rowGutter, mode: mode).paths(in: frame)
+            RowsPreset(count: parameters.rowCount, gutter: parameters.rowGutter).paths(in: frame)
         case .grid:
-            GridPreset(count: parameters.gridCount, gutter: parameters.gridGutter, mode: mode).paths(in: frame)
+            GridPreset(count: parameters.gridCount, gutter: parameters.gridGutter).paths(in: frame)
         case .ruler:
             RulerPreset(center: parameters.rulerCenter,
                         firstDegree: parameters.rulerFirstDegree,
                         secondDegree: parameters.rulerSecondDegree,
-                        distance: parameters.rulerDistance,
-                        mode: mode).paths(in: frame)
+                        distance: parameters.rulerDistance).paths(in: frame)
         case .curve:
             CurvePreset(center: parameters.curveCenter,
                         firstDegree: parameters.curveFirstDegree,
                         secondDegree: parameters.curveSecondDegree,
                         distance: parameters.curveDistance,
                         control: parameters.curveControl,
-                        resolution: parameters.curveResolution,
-                        mode: mode).paths(in: frame)
+                        resolution: parameters.curveResolution).paths(in: frame)
         case .head:
-            HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: roll(parameters.headRoll), mode: mode).paths(in: frame)
+            HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: roll(parameters.headRoll)).paths(in: frame)
         case .ashcan:
             AshcanPreset(sex: parameters.ashcanSex,
                          heads: parameters.ashcanHeads,
@@ -54,8 +52,7 @@ struct PresetPlot {
                          rightElbowPole: pole(parameters.ashcanRightElbowDegree),
                          leftKneePole: pole(parameters.ashcanLeftKneeDegree),
                          rightKneePole: pole(parameters.ashcanRightKneeDegree),
-                         headLines: parameters.ashcanHeadLines,
-                         mode: mode).paths(in: frame)
+                         headLines: parameters.ashcanHeadLines).paths(in: frame)
         }
     }
 

@@ -8,7 +8,7 @@ struct PlotControlView: View {
         case .goldenRatio:
             PresetFocusPickerView(focus: $model.focus)
         case .thirds, .columns, .rows, .grid, .ruler, .curve, .head, .ashcan:
-            PlotModePickerView(mode: $model.mode)
+            EmptyView()
         }
     }
 }

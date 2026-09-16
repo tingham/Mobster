@@ -8,18 +8,16 @@ public struct RulerPreset: Hashable, Preset {
     public let secondDegree: Float
     /// A fraction of the design extent, measured perpendicular to the line.
     public let distance: Float
-    public let mode: PresetPlotMode
 
-    public init(center: SIMD2<Float>, firstDegree: Float, secondDegree: Float, distance: Float, mode: PresetPlotMode = .aspect) {
+    public init(center: SIMD2<Float>, firstDegree: Float, secondDegree: Float, distance: Float) {
         self.center = center
         self.firstDegree = firstDegree
         self.secondDegree = secondDegree
         self.distance = distance
-        self.mode = mode
     }
 
     public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
-        let projection = PresetProjection(mode: mode, frame: frame, designSize: Self.designSize)
+        let projection = PresetProjection(mode: .aspect, frame: frame, designSize: Self.designSize)
         let chord = PresetChord(center: center, firstDegree: firstDegree, secondDegree: secondDegree, designSize: Self.designSize)
         let line = [chord.start, chord.end]
 
