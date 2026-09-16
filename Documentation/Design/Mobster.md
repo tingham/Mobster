@@ -171,7 +171,10 @@ A view angle runs from zero at full profile to one at face forward. The middle o
 The head points at a location. It is not rotated by an angle.
 
 **preset.head.basis**
-Forward runs from the head toward its target. Up and right are derived from it. Where forward runs parallel to up the derivation collapses, and a fallback axis answers rather than the construction snapping.
+Forward runs from the head toward its target. Up and right are derived from it.
+
+**preset.head.tilt.limit**
+Forward is held within forty five degrees either side of level. Beyond that it approaches parallel with up and the derivation of a basis collapses, so the limit removes the case rather than answering it. A head tilted further is not a drawing reference anyway.
 
 **preset.head.roll**
 A scalar turns the head about its forward axis.
