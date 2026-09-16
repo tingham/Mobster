@@ -21,6 +21,8 @@ struct ParameterPanelView: View {
             HeadParameterView(parameters: $model.parameters)
         case .ashcan:
             AshcanParameterView(parameters: $model.parameters)
+        case .cube:
+            CubeParameterView(parameters: $model.parameters)
         }
     }
 }

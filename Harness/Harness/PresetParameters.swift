@@ -35,4 +35,10 @@ struct PresetParameters: Hashable, Sendable {
     var ashcanLeftKneeDegree: Float = 180
     var ashcanRightKneeDegree: Float = 0
     var ashcanHeadLines = true
+    /// A fraction of the Frame, locating the centre of the box.
+    var cubePosition = SIMD2<Float>(0.5, 0.5)
+    /// The edge of the box as a fraction of the lesser axis of the Frame.
+    var cubeSize: Float = 0.5
+    /// Box space, measured from its centre: x across, y downward, z out of the near face. Opening down the body diagonal, which is the view three faces read from.
+    var cubeTarget = SIMD3<Float>(1, 1.7320508, 1.4142135)
 }

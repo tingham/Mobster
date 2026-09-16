@@ -81,15 +81,21 @@ public final class Guide {
         return Float(time / duration)
     }
 
-    /// Supplied lines are vended back untouched, identifiers and all. A preset plots its own, and nothing keys a preset, so those verts carry no identifier.
+    /// Supplied lines are vended back untouched, identifiers and all. A preset plots its own and a mesh has its own extracted, and nothing keys either, so those verts carry no identifier.
     private static func lines(from source: GuideSource, in frame: Frame) -> [Line] {
         switch source {
         case let .lines(lines):
             return lines
         case let .preset(preset):
-            return preset.paths(in: frame).map { path in
-                Line(verts: path.map { Vert(location: $0) })
-            }
+            return interpreted(preset.paths(in: frame))
+        case let .mesh(mesh, device):
+            return interpreted(MeshExtraction(mesh: mesh, frame: frame).paths(device: device))
+        }
+    }
+
+    private static func interpreted(_ paths: [[SIMD2<Float>]]) -> [Line] {
+        paths.map { path in
+            Line(verts: path.map { Vert(location: $0) })
         }
     }
 

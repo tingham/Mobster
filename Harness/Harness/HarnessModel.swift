@@ -1,3 +1,4 @@
+import Metal
 import Mobster
 import MobsterFixture
 import Observation
@@ -20,6 +21,8 @@ final class HarnessModel {
     static let openingEpsilon: Float = 1
     /// Minus one to one, carried by every vert in the population. The opening leaves the population moving independently, which is the reading the coupled ones are judged against.
     static let openingCoupling: Float = 0
+    /// The harness is the consumer, so the harness is what holds the device a mesh source is rendered on. Mobster creates none.
+    static let device = MTLCreateSystemDefaultDevice()
 
     var kind: PresetKind = .columns { didSet { replot() } }
     var focus: PresetFocus = .maxXMinY { didSet { replot() } }
@@ -48,7 +51,7 @@ final class HarnessModel {
     }
 
     init() {
-        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, focus: .maxXMinY)
+        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, focus: .maxXMinY, device: Self.device)
         let population = Self.coupled(LineFixture(parameters: Self.openingFixture).lines(in: Self.frame), coupling: Self.openingCoupling)
         let running = MotionEngine(frame: Self.frame,
                                    source: Self.source(opening.paths),
@@ -82,7 +85,7 @@ final class HarnessModel {
     }
 
     private func replot() {
-        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, focus: focus)
+        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, focus: focus, device: Self.device)
         reload()
     }
 

@@ -1,4 +1,5 @@
 import Foundation
+import Metal
 import Mobster
 
 /// The paths on screen and the time the preset took to produce those same paths.
@@ -6,16 +7,17 @@ struct PresetPlot {
     let paths: [[SIMD2<Float>]]
     let duration: Duration
 
-    init(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus) {
+    /// The device is the consumer's to supply and a mesh source is the only thing that needs one, so it arrives beside the parameters rather than inside the package.
+    init(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus, device: (any MTLDevice)?) {
         var produced: [[SIMD2<Float>]] = []
         let elapsed = ContinuousClock().measure {
-            produced = Self.generate(kind: kind, parameters: parameters, frame: frame, focus: focus)
+            produced = Self.generate(kind: kind, parameters: parameters, frame: frame, focus: focus, device: device)
         }
         paths = produced
         duration = elapsed
     }
 
-    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus) -> [[SIMD2<Float>]] {
+    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus, device: (any MTLDevice)?) -> [[SIMD2<Float>]] {
         switch kind {
         case .goldenRatio:
             GoldenRatioPreset(focus: focus).paths(in: frame)
@@ -53,7 +55,17 @@ struct PresetPlot {
                          leftKneePole: pole(parameters.ashcanLeftKneeDegree),
                          rightKneePole: pole(parameters.ashcanRightKneeDegree),
                          headLines: parameters.ashcanHeadLines).paths(in: frame)
+        case .cube:
+            cube(parameters: parameters, frame: frame, device: device)
         }
+    }
+
+    /// Every mac this harness runs on carries a device, so the absent case is the API's rather than a state the harness presents.
+    private static func cube(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) -> [[SIMD2<Float>]] {
+        guard let device else { return [] }
+        let box = CubeMesh(position: parameters.cubePosition, size: parameters.cubeSize, target: parameters.cubeTarget)
+
+        return MeshExtraction(mesh: box.mesh(in: frame), frame: frame).paths(device: device)
     }
 
     /// The panel dials a roll as a degree, which the preset takes in radians.
