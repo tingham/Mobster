@@ -15,6 +15,9 @@ Mobster declares no document model and imports none.
 **mobster.import.permitted**
 Imports other than a document model are permitted where they earn their cost.
 
+**mobster.dependency.whiplash**
+Mobster subscribes to Whiplash for curve fitting and decimation rather than carrying a copy. It is stateless, as Mobster is, and reimplementing what a maintained package already does is the cost this requirement exists to refuse.
+
 **mobster.identity.opaque**
 A point identifier and a stroke identifier each cross the boundary as an opaque unsigned integer.
 
@@ -63,6 +66,41 @@ A Guide may take lines as its source. They are vended back unchanged; Mobster do
 
 **guide.source.preset**
 A Guide may name a preset as its source. The preset plots paths against the Frame the Guide operates within.
+
+## Mesh
+
+**mesh.source**
+A Guide may take a mesh as its source. Its paths are extracted from a projection of that mesh rather than plotted analytically.
+
+**mesh.component**
+Every triangle of a mesh belongs to a component and every component carries an identity. A limb segment, a ribcage and a pelvis are separate components.
+
+**mesh.low**
+A mesh is low in triangles. An arm segment is a ring of eight points joined into a cylinder; no anatomy is modelled. Two levels of subdivision serve a form that mixes hard and soft surfaces.
+
+**mesh.render**
+A mesh is rendered opaque with depth into an offscreen target, each fragment carrying the identity of the component it belongs to. Occlusion follows from the depth test rather than from removing hidden lines.
+
+**mesh.render.device**
+The consumer supplies the device. Mobster does not create one, and a preset that needs no mesh needs no device.
+
+**mesh.render.resolution**
+The resolution of the identity target follows from the Frame rather than being supplied. It decides the fidelity of every path extracted, the way the field's texel size does.
+
+**mesh.boundary**
+A boundary runs wherever adjacent fragments carry different identities, including where a component meets the background. An interior seam is a boundary as much as a silhouette is, so the join of an upper arm to a forearm is a path without anything drawing it.
+
+**mesh.boundary.identity**
+An identity is never interpolated, averaged or filtered. The target is point sampled and every fragment reads as one whole identity.
+
+**mesh.boundary.midpoint**
+A boundary location sits midway between the two differing fragments, because that is where the boundary is. Nothing is estimated by it.
+
+**mesh.path.fit**
+A traced boundary is fitted to a curve at a count Mobster asks for. Whiplash performs the fit and the decimation.
+
+**mesh.path.lossy**
+A fitted path need not reproduce the traced boundary exactly. Any silhouette of a form serves a person drawing over it better than none.
 
 ## Paths
 
