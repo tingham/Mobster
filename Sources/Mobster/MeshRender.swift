@@ -1,7 +1,7 @@
 import Metal
 
 /// The identity pass. A mesh is drawn opaque with depth into a single sampled target of whole identities, so occlusion follows from the depth test and no hidden line is removed by hand.
-final class MeshRender {
+final class MeshRender: Sendable {
     private static let vertexName = "mobster_mesh_identity_vertex"
     private static let fragmentName = "mobster_mesh_identity_fragment"
     /// The identity is flat and integral through the whole pass, which is what holds it off being interpolated into a value that means nothing.
@@ -35,7 +35,7 @@ final class MeshRender {
     private let pipeline: MTLRenderPipelineState
     private let depth: MTLDepthStencilState
 
-    /// The pass is compiled from source at construction: the package carries no resource bundle, and a twelve triangle draw does not earn a build plugin in front of every consumer's build.
+    /// The pass is compiled from source: the package carries no resource bundle, and a twelve triangle draw does not earn a build plugin in front of every consumer's build. A device compiles it once, which MeshRenderCache is what holds.
     init(device: any MTLDevice) throws(MeshRefusal) {
         guard let library = try? device.makeLibrary(source: Self.source, options: nil),
               let vertexFunction = library.makeFunction(name: Self.vertexName),
