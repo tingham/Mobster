@@ -22,7 +22,6 @@ final class HarnessModel {
     static let openingCoupling: Float = 0
 
     var kind: PresetKind = .columns { didSet { replot() } }
-    var mode: PresetPlotMode = .aspect { didSet { replot() } }
     var focus: PresetFocus = .maxXMinY { didSet { replot() } }
     var parameters = PresetParameters() { didSet { replot() } }
     var fieldVisible = false
@@ -49,7 +48,7 @@ final class HarnessModel {
     }
 
     init() {
-        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, mode: .aspect, focus: .maxXMinY)
+        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, focus: .maxXMinY)
         let population = Self.coupled(LineFixture(parameters: Self.openingFixture).lines(in: Self.frame), coupling: Self.openingCoupling)
         let running = MotionEngine(frame: Self.frame,
                                    source: Self.source(opening.paths),
@@ -83,7 +82,7 @@ final class HarnessModel {
     }
 
     private func replot() {
-        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, mode: mode, focus: focus)
+        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, focus: focus)
         reload()
     }
 
