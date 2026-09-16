@@ -87,31 +87,28 @@ A preset whose paths are fixed is stored as a JSON resource.
 A preset whose paths are computed from parameters is a code function.
 
 **preset.frame.mode**
-A preset holds its plot mode. The mode is set when the preset is constructed and is not a parameter of the request.
+A preset decides how it meets the Frame. The mode is not a parameter, not a construction argument and not visible to the consumer, because how a preset answers a Frame is a property of what that preset is.
 
 **preset.frame.aspect**
-A preset plotting in aspect mode plots paths consistent to the aspect ratio of the Frame. The Frame is its design rectangle, so a quantity the preset expresses relative to the Frame resolves against the Frame.
+A preset defined relative to the Frame takes the Frame as its design rectangle, so a quantity it expresses relative to the Frame resolves against the Frame.
 
 **preset.frame.bounds**
-A preset plotting in bounds mode plots paths scaled to a minimum bounds encompassing the Frame, preserving its own proportions.
+A preset that covers the Frame is scaled to a minimum bounds encompassing it, preserving its own proportions.
 
 **preset.frame.bounds.center**
 A preset scaled to a minimum bounds is centered within the Frame.
 
 **preset.frame.contain**
-A preset plotting in contain mode is scaled by the lesser of the Frame's axes and centered, so the whole of it sits inside the Frame with its own proportions intact.
+A preset that fits inside the Frame is scaled by the lesser of its axes and centered, so the whole of it sits within the Frame with its own proportions intact.
 
-**preset.frame.mode.fixed**
-A preset whose proportions are the requirement fixes its own mode and takes none. The consumer does not choose a mode for a thing whose shape is the point of it.
-
-**preset.frame.mode.default**
-Thirds, Columns, Rows, Grid, Ruler and Curve construct in aspect mode. Each is defined relative to the Frame and a Frame relative quantity resolves against the Frame only in that mode.
+**preset.frame.mode.each**
+Thirds, Columns, Rows, Grid and Ruler are defined relative to the Frame and take it as their design rectangle. Golden Ratio covers the Frame. Head and Ashcan fit inside it. None of them is asked which.
 
 **preset.goldenRatio**
 A spiral populating the standard ratio frame.
 
 **preset.goldenRatio.proportion**
-Golden Ratio preserves its own proportions. It constructs in bounds mode and does not plot in aspect mode, because a distorted spiral is not the golden ratio.
+Golden Ratio preserves its own proportions, because a distorted spiral is not the golden ratio.
 
 **preset.goldenRatio.quadlines**
 Golden Ratio plots the nested rectangles the spiral is derived from alongside the spiral.
@@ -135,7 +132,7 @@ Columnar dividers and row lines together across the Frame, one count and one gut
 A gutter is a band with two edges. A count of four columns with one gutter width yields six lines.
 
 **preset.gutter.fraction**
-A gutter width is a fraction of the Frame extent along the axis it divides in aspect mode, which is the mode these presets construct in. In bounds mode the design rectangle is larger than the Frame and the gutter is a fraction of that instead.
+A gutter width is a fraction of the Frame extent along the axis it divides.
 
 **form.space.depth**
 A construction may be expressed in three dimensions and projected. Nothing else in the package gains a third dimension by it; a preset opts in.
@@ -150,7 +147,7 @@ A figure or head preset plots geometric primitives rather than reproducing a dra
 A human figure plotted as construction forms against the Frame.
 
 **preset.ashcan.proportion**
-The figure plots contained and takes no mode. A figure stretched to an axis is not a figure, for the reason a stretched spiral is not the golden ratio.
+The figure fits inside the Frame with its proportions intact. A figure stretched to an axis is not a figure, for the reason a stretched spiral is not the golden ratio.
 
 **preset.ashcan.sex**
 The figure is proportioned as male or as female.
@@ -171,7 +168,7 @@ Horizontal half width lines sit to either side of the figure at each head break.
 A head plotted as the construction sphere with its side planes, brow line, centre line, jaw, chin and a portion of the neck.
 
 **preset.head.proportion**
-The head plots contained and takes no mode, for the reason the figure does.
+The head fits inside the Frame with its proportions intact, for the reason the figure does.
 
 **preset.head.sex**
 The head is proportioned as male or as female.
