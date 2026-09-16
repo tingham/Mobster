@@ -75,6 +75,9 @@ A Guide may take a mesh as its source. Its paths are extracted from a projection
 **mesh.component**
 Every triangle of a mesh belongs to a component and every component carries an identity. A limb segment, a ribcage and a pelvis are separate components.
 
+**mesh.component.structure**
+An identity marks structure rather than tessellation. A cube's six faces are six identities, because each is a plane a viewer reads as a distinct surface. A cylinder approximated by eight facets is one identity, because the facets approximate one surface rather than describing eight. Subdivision never multiplies identities.
+
 **mesh.low**
 A mesh is low in triangles. An arm segment is a ring of eight points joined into a cylinder; no anatomy is modelled. Two levels of subdivision serve a form that mixes hard and soft surfaces.
 
