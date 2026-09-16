@@ -8,17 +8,17 @@ struct MeshRenderTests {
 
     private func raster(of mesh: Mesh) throws -> MeshIdentityRaster {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let render = try #require(MeshRender(device: device))
+        let render = try MeshRender(device: device)
 
-        return try #require(render.raster(of: mesh, in: square, resolution: MeshResolution(frame: square)))
+        return try #require(try render.raster(of: mesh, in: square, resolution: MeshResolution(frame: square), perspective: MeshPerspective()))
     }
 
     @Test func theTargetTakesItsResolutionFromTheFrame() throws {
         let wide = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let render = try #require(MeshRender(device: device))
+        let render = try MeshRender(device: device)
         let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: SIMD3<Float>(0, 0, 1)).mesh(in: wide)
-        let drawn = try #require(render.raster(of: mesh, in: wide, resolution: MeshResolution(frame: wide)))
+        let drawn = try #require(try render.raster(of: mesh, in: wide, resolution: MeshResolution(frame: wide), perspective: MeshPerspective()))
 
         #expect(drawn.columns == MeshResolution(frame: wide).columns)
         #expect(drawn.rows == MeshResolution(frame: wide).rows)
@@ -51,8 +51,8 @@ struct MeshRenderTests {
 
     @Test func aMeshOfNoTrianglesIsNotRendered() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let render = try #require(MeshRender(device: device))
+        let render = try MeshRender(device: device)
 
-        #expect(render.raster(of: Mesh(triangles: []), in: square, resolution: MeshResolution(frame: square)) == nil)
+        #expect(try render.raster(of: Mesh(triangles: []), in: square, resolution: MeshResolution(frame: square), perspective: MeshPerspective()) == nil)
     }
 }

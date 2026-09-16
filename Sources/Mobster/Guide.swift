@@ -22,9 +22,21 @@ public final class Guide {
     }
 
     /// The bake happens here and once, so a refusal surfaces here. Nothing is replaced until the bake is in hand, which leaves a refused Guide as it stood rather than half changed.
-    public func initialize(source: GuideSource, frame: Frame, adhesion: Float, duration: Double, settleEpsilon: Float, budget: Int) throws(FieldRefusal) {
-        let taken = Self.lines(from: source, in: frame)
-        let baked = try FieldBake(paths: taken.map { $0.verts.map(\.location) }, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()
+    public func initialize(source: GuideSource, frame: Frame, adhesion: Float, duration: Double, settleEpsilon: Float, budget: Int) throws(GuideRefusal) {
+        let taken: [Line]
+        let baked: Field
+
+        do {
+            taken = try Self.lines(from: source, in: frame)
+        } catch {
+            throw .mesh(error)
+        }
+
+        do {
+            baked = try FieldBake(paths: taken.map { $0.verts.map(\.location) }, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()
+        } catch {
+            throw .field(error)
+        }
 
         self.frame = frame
         self.adhesion = min(max(adhesion, 0), 1)
@@ -82,14 +94,14 @@ public final class Guide {
     }
 
     /// Supplied lines are vended back untouched, identifiers and all. A preset plots its own and a mesh has its own extracted, and nothing keys either, so those verts carry no identifier.
-    private static func lines(from source: GuideSource, in frame: Frame) -> [Line] {
+    private static func lines(from source: GuideSource, in frame: Frame) throws(MeshRefusal) -> [Line] {
         switch source {
         case let .lines(lines):
             return lines
         case let .preset(preset):
             return interpreted(preset.paths(in: frame))
-        case let .mesh(mesh, device):
-            return interpreted(MeshExtraction(mesh: mesh, frame: frame).paths(device: device))
+        case let .mesh(mesh, device, fit, perspective):
+            return interpreted(try MeshExtraction(mesh: mesh, frame: frame, fit: fit, perspective: perspective).paths(device: device))
         }
     }
 

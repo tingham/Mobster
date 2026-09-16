@@ -1,10 +1,15 @@
 import Foundation
 
-/// A head plotted as the construction primitives a drawing is built over: the cranial ellipsoid, its two side planes, the brow line and the centre line as great circles of that ellipsoid, the underside and the front of the jaw wedge, and the plotted portion of the neck. Paths are emitted in that order, the side planes taking the subject's right before the left. A primitive reaching into the far side emits only the stretches of it that stand nearer, so the count of paths follows from where the head points.
-public struct HeadPreset: Hashable, Preset {
-    private static let designSize = SIMD2<Float>(1, 1)
-    /// Segments a closed curve is sampled into.
-    private static let ringSegments = 64
+/// A head built as the construction solids a drawing is made over: the cranial ellipsoid, the jaw wedge, the block of the chin and the plotted portion of the neck. The cranial mass is divided at the sagittal plane, at each side plane and at the brow, so the centre line, the side planes and the brow line are boundaries the division leaves rather than curves anything draws. Identities run from the subject's right to the left, below the brow before above it, then the jaw, the chin and the two halves of the neck.
+public struct HeadPreset: Hashable, Sendable {
+    /// Locations to a ring, the division every form of a construction takes.
+    private static let points = 8
+    private static let craniumIdentity: UInt32 = 1
+    private static let jawIdentity: UInt32 = 9
+    private static let chinIdentity: UInt32 = 10
+    private static let neckIdentity: UInt32 = 11
+    /// Design space. The construction is laid in by its full height, crown to shoulder line, and centred across it.
+    private static let designCentre: Float = 0.5
 
     public let sex: HeadSex
     /// The location the head points at, measured from the centre of the cranial mass in head heights: x across the breadth, y downward, z out of the face.
@@ -18,101 +23,102 @@ public struct HeadPreset: Hashable, Preset {
         self.roll = roll
     }
 
-    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
+    public func mesh(in frame: Frame) -> Mesh {
         let canon = HeadCanon(sex: sex)
-        let space = SpaceProjection(basis: SpaceBasis(target: target, roll: roll))
-        let projection = PresetProjection(mode: .contain, frame: frame, designSize: Self.designSize)
-        let solid = [Self.browLine(canon),
-                     Self.centreLine(canon),
-                     Self.sidePlane(canon, offset: canon.sidePlaneOffset),
-                     Self.sidePlane(canon, offset: -canon.sidePlaneOffset),
-                     Self.jaw(canon),
-                     Self.chin(canon)]
-        let flat = [[Self.cranium(canon, space)]] + solid.map(space.runs) + [[Self.neck(canon)]]
+        let placement = Self.placement(canon, target: target, roll: roll, frame: frame)
+        let turned = Self.cranium(canon) + [Self.jaw(canon), Self.chin(canon)]
 
-        return projection.paths(flat.flatMap { $0 }.map { $0.map { Self.design($0, canon) } })
+        return Mesh(triangles: turned.flatMap { $0.triangles(placement.location) }
+            + Self.neck(canon).flatMap { $0.triangles(placement.upright) })
     }
 
-    /// The orthographic outline of an ellipsoid is an ellipse, so the cranial mass is emitted from a closed form rather than from a sampled rim. The plane axes scaled by the semi axes leave a two by two form, and the square root of that form carries the unit circle onto the outline.
-    private static func cranium(_ canon: HeadCanon, _ space: SpaceProjection) -> [SIMD2<Float>] {
-        let semi = SIMD3<Float>(canon.halfWidth, canon.browLevel, canon.halfDepth)
-        let across = space.across * semi
-        let down = space.down * semi
-        let first = (across * across).sum()
-        let second = (down * down).sum()
-        let mixed = (across * down).sum()
-        let area = (first * second - mixed * mixed).squareRoot()
-        let scale = (first + second + 2 * area).squareRoot()
+    /// The mass in four bands of breadth, cut at each side plane and at the sagittal plane, each band divided again at the brow. The cut is a construction element rather than a truncation, so the mass keeps the euryon breadth the canon gives it.
+    private static func cranium(_ canon: HeadCanon) -> [MeshBand] {
+        let breadths = [canon.halfWidth, canon.sidePlaneOffset, 0, -canon.sidePlaneOffset, -canon.halfWidth]
+        let sections = breadths.map { section(canon, at: $0) }
 
-        return (0 ... ringSegments).map { step in
-            let turn = Float(step) / Float(ringSegments) * 2 * .pi
-            let unit = SIMD2<Float>(cos(turn), sin(turn))
-            return SIMD2<Float>((first + area) * unit.x + mixed * unit.y, mixed * unit.x + (second + area) * unit.y) / scale
+        return sections.indices.dropLast().flatMap { index -> [MeshBand] in
+            let identity = craniumIdentity + UInt32(index) * 2
+
+            return [MeshBand(first: below(sections[index]), second: below(sections[index + 1]), identity: MeshIdentity(identity), closed: false),
+                    MeshBand(first: above(sections[index]), second: above(sections[index + 1]), identity: MeshIdentity(identity + 1), closed: false)]
         }
     }
 
-    /// The horizontal great circle of the cranial mass, which its brow level makes the equator of.
-    private static func browLine(_ canon: HeadCanon) -> [SIMD3<Float>] {
-        ring { turn in SIMD3<Float>(canon.halfWidth * sin(turn), 0, canon.halfDepth * cos(turn)) }
+    /// The section of the mass at a breadth, which is the ellipse the cut leaves. Turn zero stands at the front of the brow line and a half turn at the back of it, so the first half of the ring runs below the brow and the second half above it. A section at the full breadth collapses onto the pole.
+    private static func section(_ canon: HeadCanon, at breadth: Float) -> [SIMD3<Float>] {
+        let reach = min(max(breadth / canon.halfWidth, -1), 1)
+        let scale = (1 - reach * reach).squareRoot()
+
+        return (0 ..< points).map { step in
+            let turn = Float(step) / Float(points) * 2 * .pi
+
+            return SIMD3<Float>(breadth, canon.browLevel * scale * sin(turn), canon.halfDepth * scale * cos(turn))
+        }
     }
 
-    /// The sagittal great circle of the cranial mass, running from the crown down to the underside.
-    private static func centreLine(_ canon: HeadCanon) -> [SIMD3<Float>] {
-        ring { turn in SIMD3<Float>(0, -canon.browLevel * cos(turn), canon.halfDepth * sin(turn)) }
+    private static func below(_ section: [SIMD3<Float>]) -> [SIMD3<Float>] {
+        Array(section[0 ... points / 2])
     }
 
-    /// A plane section of the ellipsoid, which is the ellipse the cut leaves behind.
-    private static func sidePlane(_ canon: HeadCanon, offset: Float) -> [SIMD3<Float>] {
-        let reach = offset / canon.halfWidth
-        let section = (1 - reach * reach).squareRoot()
-
-        return ring { turn in SIMD3<Float>(offset, canon.browLevel * section * sin(turn), canon.halfDepth * section * cos(turn)) }
+    private static func above(_ section: [SIMD3<Float>]) -> [SIMD3<Float>] {
+        Array(section[(points / 2)...]) + [section[0]]
     }
 
-    /// The underside of the jaw wedge, whose back edge spans the jaw angles under the depth centre of the cranial mass and whose front edge is the bottom of the chin.
-    private static func jaw(_ canon: HeadCanon) -> [SIMD3<Float>] {
-        let angle = SIMD3<Float>(canon.jawHalfWidth, canon.jawLevel - canon.browLevel, 0)
-        let corner = SIMD3<Float>(canon.chinHalfWidth, canon.chinLevel - canon.browLevel, canon.halfDepth)
-
-        return [angle,
-                corner,
-                SIMD3<Float>(-corner.x, corner.y, corner.z),
-                SIMD3<Float>(-angle.x, angle.y, angle.z),
-                angle]
-    }
-
-    /// The front of the jaw wedge, rising from gnathion to sublabiale. A balanced profile carries pogonion under glabella, which the head length puts at the front of the cranial mass.
-    private static func chin(_ canon: HeadCanon) -> [SIMD3<Float>] {
+    /// The jaw wedge, its back edge spanning the jaw angles under the depth centre of the mass and its front standing at the front of the mass. The front rectangle is left to the chin, the two carrying their own identities because the underside of a jaw and the front of a chin are surfaces a viewer reads apart.
+    private static func jaw(_ canon: HeadCanon) -> MeshBand {
         let base = canon.chinLevel - canon.browLevel
         let top = base - canon.chinFaceHeight
+        let front = [SIMD3<Float>(canon.chinHalfWidth, top, canon.halfDepth),
+                     SIMD3<Float>(canon.chinHalfWidth, base, canon.halfDepth),
+                     SIMD3<Float>(-canon.chinHalfWidth, base, canon.halfDepth),
+                     SIMD3<Float>(-canon.chinHalfWidth, top, canon.halfDepth)]
+        let angle = SIMD3<Float>(canon.jawHalfWidth, canon.jawLevel - canon.browLevel, 0)
+        let back = [angle, angle, SIMD3<Float>(-angle.x, angle.y, angle.z), SIMD3<Float>(-angle.x, angle.y, angle.z)]
 
-        return [SIMD3<Float>(canon.chinHalfWidth, top, canon.halfDepth),
-                SIMD3<Float>(canon.chinHalfWidth, base, canon.halfDepth),
-                SIMD3<Float>(-canon.chinHalfWidth, base, canon.halfDepth),
-                SIMD3<Float>(-canon.chinHalfWidth, top, canon.halfDepth),
-                SIMD3<Float>(canon.chinHalfWidth, top, canon.halfDepth)]
+        return MeshBand(first: front, second: back, identity: MeshIdentity(jawIdentity))
     }
 
-    /// The outline of a circular cylinder standing upright does not move as the head turns within it, so the neck is emitted from its radius alone and is the one part the basis does not carry. It starts at the jaw angles, the lowest level the head still covers it at.
-    private static func neck(_ canon: HeadCanon) -> [SIMD2<Float>] {
+    /// The front of the jaw wedge, rising from gnathion to sublabiale. A balanced profile carries pogonion under glabella, which the head length puts at the front of the mass.
+    private static func chin(_ canon: HeadCanon) -> MeshBand {
+        let base = canon.chinLevel - canon.browLevel
+        let top = base - canon.chinFaceHeight
+        let face = [SIMD3<Float>(canon.chinHalfWidth, top, canon.halfDepth),
+                    SIMD3<Float>(canon.chinHalfWidth, base, canon.halfDepth),
+                    SIMD3<Float>(-canon.chinHalfWidth, base, canon.halfDepth),
+                    SIMD3<Float>(-canon.chinHalfWidth, top, canon.halfDepth)]
+        let middle = SIMD3<Float>(0, (top + base) / 2, canon.halfDepth)
+
+        return MeshBand(first: face, second: [SIMD3<Float>](repeating: middle, count: face.count), identity: MeshIdentity(chinIdentity))
+    }
+
+    /// A circular cylinder standing upright, divided at its middle for the cross section the roundness asks for. It starts at the jaw angles, the lowest level the head still covers it at, and the basis does not carry it: a neck does not turn when the head within it does.
+    private static func neck(_ canon: HeadCanon) -> [MeshBand] {
         let top = canon.jawLevel - canon.browLevel
         let base = canon.neckLevel - canon.browLevel
+        let middle = (top + base) / 2
 
-        return [SIMD2<Float>(canon.neckRadius, top),
-                SIMD2<Float>(canon.neckRadius, base),
-                SIMD2<Float>(-canon.neckRadius, base),
-                SIMD2<Float>(-canon.neckRadius, top),
-                SIMD2<Float>(canon.neckRadius, top)]
+        return [MeshBand(first: ring(canon.neckRadius, at: top), second: ring(canon.neckRadius, at: middle), identity: MeshIdentity(neckIdentity)),
+                MeshBand(first: ring(canon.neckRadius, at: middle), second: ring(canon.neckRadius, at: base), identity: MeshIdentity(neckIdentity + 1))]
     }
 
-    private static func ring(_ location: (Float) -> SIMD3<Float>) -> [SIMD3<Float>] {
-        (0 ... ringSegments).map { step in location(Float(step) / Float(ringSegments) * 2 * .pi) }
+    private static func ring(_ radius: Float, at level: Float) -> [SIMD3<Float>] {
+        (0 ..< points).map { step in
+            let turn = Float(step) / Float(points) * 2 * .pi
+
+            return SIMD3<Float>(radius * cos(turn), level, radius * sin(turn))
+        }
     }
 
-    /// The construction is laid into the design rectangle by its full height, crown to shoulder line, and centred across it. Levels run from the centre of the cranial mass, which the brow level carries back to the crown.
-    private static func design(_ location: SIMD2<Float>, _ canon: HeadCanon) -> SIMD2<Float> {
-        let scale = designSize.y / canon.neckLevel
+    /// Levels run from the centre of the cranial mass, which the brow level carries back to the crown, and the shoulder line is what the full height is measured to.
+    private static func placement(_ canon: HeadCanon, target: SIMD3<Float>, roll: Float, frame: Frame) -> MeshPlacement {
+        let unit = 1 / canon.neckLevel
 
-        return SIMD2<Float>(designSize.x / 2 + location.x * scale, (location.y + canon.browLevel) * scale)
+        return MeshPlacement(target: target,
+                             roll: roll,
+                             origin: SIMD2<Float>(0, 0),
+                             pivot: SIMD2<Float>(designCentre, canon.browLevel * unit),
+                             unit: unit,
+                             frame: frame)
     }
 }

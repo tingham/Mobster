@@ -22,33 +22,40 @@ struct MeshTrace {
 
     let locations: [SIMD2<Float>]
 
-    /// Walking out of one sample in both directions is what puts a boundary in order from a seed standing anywhere along it. A pair of components meeting in two separate places keeps the run its seed stands on, the rest being dropped rather than joined across the gap.
+    /// Walking out of one sample in both directions is what puts a boundary in order from a seed standing anywhere along it. A pair of components meeting in more than one place keeps its longest run, the rest being dropped rather than joined across the gaps. A run of two fragments where a form just grazes another would otherwise stand in for the whole silhouette of that form.
     func ordered() -> [SIMD2<Float>] {
         guard locations.count > 1 else { return locations }
 
         var remaining: [SIMD2<Int32>: SIMD2<Float>] = [:]
         for location in locations { remaining[Self.key(location)] = location }
 
-        let seed = seed()
-        guard let standing = remaining.removeValue(forKey: seed) else { return locations }
-        let forward = walk(from: seed, &remaining)
-        let backward = walk(from: seed, &remaining)
+        var longest: [SIMD2<Float>] = []
 
-        return backward.reversed() + [standing] + forward
+        while let seed = Self.seed(remaining) {
+            guard let standing = remaining.removeValue(forKey: seed) else { break }
+            let forward = walk(from: seed, &remaining)
+            let backward = walk(from: seed, &remaining)
+            let run = backward.reversed() + [standing] + forward
+
+            if run.count > longest.count { longest = run }
+        }
+
+        return longest.isEmpty ? locations : longest
     }
 
-    /// The sample farthest from the middle of the boundary, which is an end of it wherever the boundary is open and a corner of it wherever it closes.
-    private func seed() -> SIMD2<Int32> {
-        let centre = locations.reduce(SIMD2<Float>.zero, +) / Float(locations.count)
-        var chosen = Self.key(locations[0])
+    /// The sample farthest from the middle of what is left, which is an end of a run wherever the run is open and a corner of it wherever it closes.
+    private static func seed(_ remaining: [SIMD2<Int32>: SIMD2<Float>]) -> SIMD2<Int32>? {
+        guard remaining.isEmpty == false else { return nil }
+
+        let centre = remaining.values.reduce(SIMD2<Float>.zero, +) / Float(remaining.count)
+        var chosen: SIMD2<Int32>?
         var farthest: Float = -1
 
-        for location in locations {
+        for (key, location) in remaining {
             let offset = location - centre
             let distance = (offset * offset).sum()
-            let key = Self.key(location)
 
-            if distance > farthest || (distance == farthest && Self.precedes(key, chosen)) {
+            if distance > farthest || (distance == farthest && precedes(key, chosen ?? key)) {
                 farthest = distance
                 chosen = key
             }

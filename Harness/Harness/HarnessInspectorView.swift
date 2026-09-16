@@ -8,6 +8,9 @@ struct HarnessInspectorView: View {
             Section("Preset") {
                 PresetPickerView(kind: $model.kind)
                 PlotControlView(model: model)
+                if let refusal = model.plot.refusal {
+                    MeshRefusalReadoutView(refusal: refusal)
+                }
             }
             Section("Parameters") {
                 ParameterPanelView(model: model)

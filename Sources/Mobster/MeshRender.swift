@@ -1,11 +1,11 @@
 import Metal
 
 /// The identity pass. A mesh is drawn opaque with depth into a single sampled target of whole identities, so occlusion follows from the depth test and no hidden line is removed by hand.
-final class MeshRender {
+final class MeshRender: Sendable {
     private static let vertexName = "mobster_mesh_identity_vertex"
     private static let fragmentName = "mobster_mesh_identity_fragment"
     /// The identity is flat and integral through the whole pass, which is what holds it off being interpolated into a value that means nothing.
-    private static let source = """
+    static let source = """
     #include <metal_stdlib>
     using namespace metal;
 
@@ -35,12 +35,12 @@ final class MeshRender {
     private let pipeline: MTLRenderPipelineState
     private let depth: MTLDepthStencilState
 
-    /// The pass is compiled from source at construction: the package carries no resource bundle, and a twelve triangle draw does not earn a build plugin in front of every consumer's build.
-    init?(device: any MTLDevice) {
-        guard let library = try? device.makeLibrary(source: Self.source, options: nil),
+    /// The pass is compiled from source: the package carries no resource bundle, and a twelve triangle draw does not earn a build plugin in front of every consumer's build. A device compiles it once, which MeshRenderCache is what holds.
+    init(device: any MTLDevice, pass: String = MeshRender.source) throws(MeshRefusal) {
+        guard let library = try? device.makeLibrary(source: pass, options: nil),
               let vertexFunction = library.makeFunction(name: Self.vertexName),
               let fragmentFunction = library.makeFunction(name: Self.fragmentName),
-              let commands = device.makeCommandQueue() else { return nil }
+              let commands = device.makeCommandQueue() else { throw .pass }
 
         let description = MTLRenderPipelineDescriptor()
         description.vertexFunction = vertexFunction
@@ -53,17 +53,18 @@ final class MeshRender {
         test.isDepthWriteEnabled = true
 
         guard let state = try? device.makeRenderPipelineState(descriptor: description),
-              let comparison = device.makeDepthStencilState(descriptor: test) else { return nil }
+              let comparison = device.makeDepthStencilState(descriptor: test) else { throw .pass }
 
         queue = commands
         pipeline = state
         depth = comparison
     }
 
-    func raster(of mesh: Mesh, in frame: Frame, resolution: MeshResolution) -> MeshIdentityRaster? {
+    /// Nil where there is nothing to draw, which a Frame with no extent and a mesh of no triangles both are. A device that will not run the pass refuses instead, those two being different answers.
+    func raster(of mesh: Mesh, in frame: Frame, resolution: MeshResolution, perspective: MeshPerspective) throws(MeshRefusal) -> MeshIdentityRaster? {
         guard resolution.columns > 0, resolution.rows > 0, mesh.triangles.isEmpty == false else { return nil }
 
-        var locations = clipped(mesh, in: frame)
+        var locations = clipped(mesh, in: frame, through: perspective)
         var identities = mesh.triangles.map(\.identity.value)
         let device = queue.device
         let target = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .r32Uint, width: resolution.columns, height: resolution.rows, mipmapped: false)
@@ -74,10 +75,10 @@ final class MeshRender {
         test.storageMode = .private
 
         guard let surface = device.makeTexture(descriptor: target),
-              let depths = device.makeTexture(descriptor: test),
-              let locationBuffer = device.makeBuffer(bytes: &locations, length: MemoryLayout<SIMD3<Float>>.stride * locations.count, options: .storageModeShared),
-              let identityBuffer = device.makeBuffer(bytes: &identities, length: MemoryLayout<UInt32>.stride * identities.count, options: .storageModeShared),
-              let commands = queue.makeCommandBuffer() else { return nil }
+              let depths = device.makeTexture(descriptor: test) else { throw .target(columns: resolution.columns, rows: resolution.rows) }
+        guard let locationBuffer = device.makeBuffer(bytes: &locations, length: MemoryLayout<SIMD3<Float>>.stride * locations.count, options: .storageModeShared),
+              let identityBuffer = device.makeBuffer(bytes: &identities, length: MemoryLayout<UInt32>.stride * identities.count, options: .storageModeShared) else { throw .buffers(triangles: mesh.triangles.count) }
+        guard let commands = queue.makeCommandBuffer() else { throw .encoding }
 
         let pass = MTLRenderPassDescriptor()
         pass.colorAttachments[0].texture = surface
@@ -89,7 +90,7 @@ final class MeshRender {
         pass.depthAttachment.clearDepth = 1
         pass.depthAttachment.storeAction = .dontCare
 
-        guard let encoder = commands.makeRenderCommandEncoder(descriptor: pass) else { return nil }
+        guard let encoder = commands.makeRenderCommandEncoder(descriptor: pass) else { throw .encoding }
         encoder.setRenderPipelineState(pipeline)
         encoder.setDepthStencilState(depth)
         encoder.setVertexBuffer(locationBuffer, offset: 0, index: 0)
@@ -110,18 +111,22 @@ final class MeshRender {
         return MeshIdentityRaster(columns: resolution.columns, rows: resolution.rows, identities: read)
     }
 
-    /// The Frame fills the clip volume across and down, and the depth of the mesh is normalized against its own extent, the nearest fragment taking the least depth so that it wins the test.
-    private func clipped(_ mesh: Mesh, in frame: Frame) -> [SIMD3<Float>] {
-        let depths = mesh.triangles.flatMap { [$0.first.z, $0.second.z, $0.third.z] }
-        let near = depths.max() ?? 0
-        let extent = near - (depths.min() ?? 0)
+    /// The Frame fills the clip volume across and down, and the depth of the mesh is normalized against its own extent, the nearest fragment taking the least depth so that it wins the test. Across and down a location is carried through the perspective first, which is one divide a vertex, about the axis the construction's own bounds put the viewer on.
+    private func clipped(_ mesh: Mesh, in frame: Frame, through perspective: MeshPerspective) -> [SIMD3<Float>] {
+        let locations = mesh.triangles.flatMap { [$0.first, $0.second, $0.third] }
+        let least = SIMD3<Float>(locations.map(\.x).min() ?? 0, locations.map(\.y).min() ?? 0, locations.map(\.z).min() ?? 0)
+        let most = SIMD3<Float>(locations.map(\.x).max() ?? 0, locations.map(\.y).max() ?? 0, locations.map(\.z).max() ?? 0)
+        let axis = SIMD2<Float>(least.x + most.x, least.y + most.y) / 2
+        let across = max(most.x - least.x, most.y - least.y)
+        let extent = most.z - least.z
 
-        return mesh.triangles.flatMap { triangle in
-            [triangle.first, triangle.second, triangle.third].map { location in
-                SIMD3<Float>((location.x - frame.origin.x) / frame.size.x * 2 - 1,
-                             1 - (location.y - frame.origin.y) / frame.size.y * 2,
-                             extent > 0 ? Self.depthOrigin + (near - location.z) / extent * Self.depthBand : Self.depthOrigin + Self.depthBand / 2)
-            }
+        return locations.map { location in
+            let behind = most.z - location.z
+            let carried = axis + (SIMD2<Float>(location.x, location.y) - axis) * perspective.magnification(behind: behind, across: across)
+
+            return SIMD3<Float>((carried.x - frame.origin.x) / frame.size.x * 2 - 1,
+                                1 - (carried.y - frame.origin.y) / frame.size.y * 2,
+                                extent > 0 ? Self.depthOrigin + behind / extent * Self.depthBand : Self.depthOrigin + Self.depthBand / 2)
         }
     }
 }

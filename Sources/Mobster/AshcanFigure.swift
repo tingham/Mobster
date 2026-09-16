@@ -2,6 +2,8 @@
 struct AshcanFigure {
     /// Two thirds as wide as it is tall, measured across the plates.
     private static let headWidth: Float = 0.667
+    /// Glabella to opisthocranion over vertex to gnathion, which is Farkas's North American adult male mean of 195 over 232. No Loomis plate carries a depth; his female mean of 184 over 218 differs by four thousandths and the plates give one head whatever the sex.
+    private static let headDepth: Float = 0.840
     /// Fractions of the figure's width, which is a measure across the shoulders. The woman's plate prints a head and a half of hip and the man is given the same across his wider figure; the chest clears his one head of nipple span and stays inside her thighs.
     private static let ribcageWidth: Float = 0.65
     private static let malePelvisWidth: Float = 0.643
@@ -37,14 +39,18 @@ struct AshcanFigure {
 
     var head: AshcanEllipse {
         AshcanEllipse(center: SIMD2<Float>(center, canon.chin / 2),
-                      radii: SIMD2<Float>(Self.headWidth * headUnit / 2, canon.chin / 2))
+                      radii: SIMD3<Float>(Self.headWidth * headUnit / 2, canon.chin / 2, Self.headDepth * headUnit / 2))
     }
 
+    /// The depth follows the width, no canon carrying a torso depth and a form read as circular in section needing no new number, which is the licence the limbs take.
     var ribcage: AshcanEllipse {
-        AshcanEllipse(center: SIMD2<Float>(center, (canon.shoulder + canon.waist) / 2),
-                      radii: SIMD2<Float>(Self.ribcageWidth * figureWidth / 2, (canon.waist - canon.shoulder) / 2))
+        let width = Self.ribcageWidth * figureWidth
+
+        return AshcanEllipse(center: SIMD2<Float>(center, (canon.shoulder + canon.waist) / 2),
+                             radii: SIMD3<Float>(width / 2, (canon.waist - canon.shoulder) / 2, width / 2))
     }
 
+    /// The depth follows the width at each level for the reason the ribcage's does.
     var pelvis: AshcanWedge {
         let width = (sex == .male ? Self.malePelvisWidth : Self.femalePelvisWidth) * figureWidth
 
@@ -52,7 +58,9 @@ struct AshcanFigure {
                            top: canon.waist,
                            bottom: canon.crotch,
                            topWidth: width,
-                           bottomWidth: width * Self.pelvisTaper)
+                           bottomWidth: width * Self.pelvisTaper,
+                           topDepth: width,
+                           bottomDepth: width * Self.pelvisTaper)
     }
 
     /// Set in from the figure's width by the arm's own half girth, so the shoulder form ends on the width rather than beyond it.

@@ -20,11 +20,19 @@ struct MeshTraceTests {
         #expect(ordered == diagonal)
     }
 
-    /// A pair of components meeting in two separate places keeps the run its seed stands on rather than joining the two across the gap.
+    /// A pair of components meeting in two separate places keeps one run rather than joining the two across the gap.
     @Test func aRunIsNotJoinedAcrossAGap() {
         let split = [SIMD2<Float>(0.5, 1), SIMD2<Float>(1.5, 1), SIMD2<Float>(10.5, 1), SIMD2<Float>(11.5, 1)]
 
         #expect(MeshTrace(locations: split).ordered() == [SIMD2<Float>(0.5, 1), SIMD2<Float>(1.5, 1)])
+    }
+
+    /// A form grazing another leaves a run of two fragments beside the run that is its silhouette, and the sample farthest from the middle of the whole boundary stands on the graze. The longest run is what is kept, so the graze does not stand in for the silhouette.
+    @Test func theLongestRunIsKeptRatherThanTheOneTheSeedStandsOn() {
+        let grazed = (0 ..< 20).map { SIMD2<Float>(Float($0) + 0.5, 6) } + [SIMD2<Float>(9.5, 40), SIMD2<Float>(10.5, 40)]
+
+        #expect(MeshTrace(locations: grazed).ordered().count == 20)
+        #expect(MeshTrace(locations: grazed).ordered().first == SIMD2<Float>(0.5, 6))
     }
 
     @Test func aLoneSampleIsAlreadyInOrder() {

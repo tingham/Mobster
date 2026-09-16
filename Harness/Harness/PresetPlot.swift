@@ -2,22 +2,30 @@ import Foundation
 import Metal
 import Mobster
 
-/// The paths on screen and the time the preset took to produce those same paths.
+/// The paths on screen, what the device refused if it refused anything, and the time the preset took to produce those same paths.
 struct PresetPlot {
     let paths: [[SIMD2<Float>]]
+    /// Nil where nothing was refused. A mesh preset extracts through the device and a device can refuse, which no plotted preset can.
+    let refusal: MeshRefusal?
     let duration: Duration
 
     /// The device is the consumer's to supply and a mesh source is the only thing that needs one, so it arrives beside the parameters rather than inside the package.
     init(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus, device: (any MTLDevice)?) {
         var produced: [[SIMD2<Float>]] = []
+        var refused: MeshRefusal?
         let elapsed = ContinuousClock().measure {
-            produced = Self.generate(kind: kind, parameters: parameters, frame: frame, focus: focus, device: device)
+            do throws(MeshRefusal) {
+                produced = try Self.generate(kind: kind, parameters: parameters, frame: frame, focus: focus, device: device)
+            } catch {
+                refused = error
+            }
         }
         paths = produced
+        refusal = refused
         duration = elapsed
     }
 
-    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus, device: (any MTLDevice)?) -> [[SIMD2<Float>]] {
+    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
         switch kind {
         case .goldenRatio:
             GoldenRatioPreset(focus: focus).paths(in: frame)
@@ -42,30 +50,47 @@ struct PresetPlot {
                         control: parameters.curveControl,
                         resolution: parameters.curveResolution).paths(in: frame)
         case .head:
-            HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: roll(parameters.headRoll)).paths(in: frame)
+            try head(parameters: parameters, frame: frame, device: device)
         case .ashcan:
-            AshcanPreset(sex: parameters.ashcanSex,
-                         heads: parameters.ashcanHeads,
-                         leftHand: parameters.ashcanLeftHand,
-                         rightHand: parameters.ashcanRightHand,
-                         leftFoot: parameters.ashcanLeftFoot,
-                         rightFoot: parameters.ashcanRightFoot,
-                         leftElbowPole: pole(parameters.ashcanLeftElbowDegree),
-                         rightElbowPole: pole(parameters.ashcanRightElbowDegree),
-                         leftKneePole: pole(parameters.ashcanLeftKneeDegree),
-                         rightKneePole: pole(parameters.ashcanRightKneeDegree),
-                         headLines: parameters.ashcanHeadLines).paths(in: frame)
+            try ashcan(parameters: parameters, frame: frame, device: device)
         case .cube:
-            cube(parameters: parameters, frame: frame, device: device)
+            try cube(parameters: parameters, frame: frame, device: device)
         }
     }
 
+    private static func head(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+        guard let device else { return [] }
+        let construction = HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: roll(parameters.headRoll))
+
+        return try MeshExtraction(mesh: construction.mesh(in: frame), frame: frame, fit: parameters.meshFit, perspective: MeshPerspective(fieldOfView: parameters.meshFieldOfView)).paths(device: device)
+    }
+
+    /// The break lines measure the figure rather than belonging to it, so they are appended as paths after the extracted boundaries.
+    private static func ashcan(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+        guard let device else { return [] }
+        let figure = AshcanPreset(sex: parameters.ashcanSex,
+                                  heads: parameters.ashcanHeads,
+                                  target: parameters.ashcanTarget,
+                                  leftHand: parameters.ashcanLeftHand,
+                                  rightHand: parameters.ashcanRightHand,
+                                  leftFoot: parameters.ashcanLeftFoot,
+                                  rightFoot: parameters.ashcanRightFoot,
+                                  leftElbowPole: pole(parameters.ashcanLeftElbowDegree),
+                                  rightElbowPole: pole(parameters.ashcanRightElbowDegree),
+                                  leftKneePole: pole(parameters.ashcanLeftKneeDegree),
+                                  rightKneePole: pole(parameters.ashcanRightKneeDegree),
+                                  headLines: parameters.ashcanHeadLines)
+        let extracted = try MeshExtraction(mesh: figure.mesh(in: frame), frame: frame, fit: parameters.meshFit, perspective: MeshPerspective(fieldOfView: parameters.meshFieldOfView)).paths(device: device)
+
+        return extracted + figure.breakLines(in: frame)
+    }
+
     /// Every mac this harness runs on carries a device, so the absent case is the API's rather than a state the harness presents.
-    private static func cube(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) -> [[SIMD2<Float>]] {
+    private static func cube(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
         guard let device else { return [] }
         let box = CubeMesh(position: parameters.cubePosition, size: parameters.cubeSize, target: parameters.cubeTarget)
 
-        return MeshExtraction(mesh: box.mesh(in: frame), frame: frame).paths(device: device)
+        return try MeshExtraction(mesh: box.mesh(in: frame), frame: frame, fit: parameters.meshFit, perspective: MeshPerspective(fieldOfView: parameters.meshFieldOfView)).paths(device: device)
     }
 
     /// The panel dials a roll as a degree, which the preset takes in radians.
