@@ -12,22 +12,20 @@ public struct CurvePreset: Hashable, Preset {
     public let control: SIMD2<Float>
     /// Segments the curve is sampled into.
     public let resolution: Int
-    public let mode: PresetPlotMode
 
-    public init(center: SIMD2<Float>, firstDegree: Float, secondDegree: Float, distance: Float, control: SIMD2<Float>, resolution: Int, mode: PresetPlotMode = .aspect) {
+    public init(center: SIMD2<Float>, firstDegree: Float, secondDegree: Float, distance: Float, control: SIMD2<Float>, resolution: Int) {
         self.center = center
         self.firstDegree = firstDegree
         self.secondDegree = secondDegree
         self.distance = distance
         self.control = control
         self.resolution = resolution
-        self.mode = mode
     }
 
     public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
         // Clamped rather than trapped, because this arrives from a dial and a straight chord is a defensible answer where a trap is not.
         let segments = max(resolution, 1)
-        let projection = PresetProjection(mode: mode, frame: frame, designSize: Self.designSize)
+        let projection = PresetProjection(mode: .aspect, frame: frame, designSize: Self.designSize)
         let chord = PresetChord(center: center, firstDegree: firstDegree, secondDegree: secondDegree, designSize: Self.designSize)
         let curve = (0 ... segments).map { step in
             Self.location(at: Float(step) / Float(segments), start: chord.start, control: control, end: chord.end)

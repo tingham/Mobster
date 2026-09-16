@@ -3,18 +3,16 @@ public struct GridPreset: Hashable, Preset {
     private static let designSize = SIMD2<Float>(1, 1)
 
     public let count: Int
-    /// A fraction of the design extent of whichever axis it divides, which is the Frame extent of that axis in aspect mode.
+    /// A fraction of the Frame extent of whichever axis it divides.
     public let gutter: Float
-    public let mode: PresetPlotMode
 
-    public init(count: Int, gutter: Float, mode: PresetPlotMode = .aspect) {
+    public init(count: Int, gutter: Float) {
         self.count = count
         self.gutter = gutter
-        self.mode = mode
     }
 
     public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
-        let projection = PresetProjection(mode: mode, frame: frame, designSize: Self.designSize)
+        let projection = PresetProjection(mode: .aspect, frame: frame, designSize: Self.designSize)
         let columnEdges = PresetGutter(count: count, gutter: gutter, extent: Self.designSize.x).edges()
         let rowEdges = PresetGutter(count: count, gutter: gutter, extent: Self.designSize.y).edges()
 

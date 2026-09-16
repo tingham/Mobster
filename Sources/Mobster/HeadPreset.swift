@@ -11,19 +11,17 @@ public struct HeadPreset: Hashable, Preset {
     public let target: SIMD3<Float>
     /// Radians about forward.
     public let roll: Float
-    public let mode: PresetPlotMode
 
-    public init(sex: HeadSex, target: SIMD3<Float>, roll: Float, mode: PresetPlotMode = .aspect) {
+    public init(sex: HeadSex, target: SIMD3<Float>, roll: Float) {
         self.sex = sex
         self.target = target
         self.roll = roll
-        self.mode = mode
     }
 
     public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
         let canon = HeadCanon(sex: sex)
         let space = SpaceProjection(basis: SpaceBasis(target: target, roll: roll))
-        let projection = PresetProjection(mode: mode, frame: frame, designSize: Self.designSize)
+        let projection = PresetProjection(mode: .contain, frame: frame, designSize: Self.designSize)
         let solid = [Self.browLine(canon),
                      Self.centreLine(canon),
                      Self.sidePlane(canon, offset: canon.sidePlaneOffset),
@@ -111,7 +109,7 @@ public struct HeadPreset: Hashable, Preset {
         (0 ... ringSegments).map { step in location(Float(step) / Float(ringSegments) * 2 * .pi) }
     }
 
-    /// The construction is laid into the design rectangle by its full height, crown to shoulder line, and centred across it. Levels run from the centre of the cranial mass, which the brow level carries back to the crown. One scale serves both axes, so a square Frame carries true proportion and any other carries the Frame's aspect ratio as every aspect mode preset does.
+    /// The construction is laid into the design rectangle by its full height, crown to shoulder line, and centred across it. Levels run from the centre of the cranial mass, which the brow level carries back to the crown.
     private static func design(_ location: SIMD2<Float>, _ canon: HeadCanon) -> SIMD2<Float> {
         let scale = designSize.y / canon.neckLevel
 
