@@ -90,6 +90,15 @@ A mesh is rendered opaque with depth into an offscreen target, each fragment car
 **mesh.render.device**
 The consumer supplies the device. Mobster does not create one, and a preset that needs no mesh needs no device.
 
+**mesh.render.perspective**
+The projection carries a field of view, so a form pointing toward the viewer foreshortens. A narrow field reads as flat and a wide one reads as near.
+
+**mesh.render.perspective.fit**
+The distance the construction is viewed from follows from the field of view and the construction's own bounds, so it fits the Frame whatever the field is. The field of view is the only dial; distance is not a second one.
+
+**mesh.render.perspective.limit**
+The field of view is held within a range that reads. Wide enough and the near of a form swells into a fisheye, which is a distortion rather than a drawing reference.
+
 **mesh.render.resolution**
 The resolution of the identity target follows from the Frame rather than being supplied. It decides the fidelity of every path extracted, the way the field's texel size does.
 
