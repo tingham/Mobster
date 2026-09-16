@@ -86,10 +86,6 @@ struct GridPresetTests {
         #expect(rows.allSatisfy { $0 > frame.origin.y && $0 < frame.origin.y + frame.size.y })
     }
 
-    @Test func itConstructsInAspectMode() {
-        #expect(GridPreset(count: 4, gutter: 0.05).mode == .aspect)
-    }
-
     /// The origin is off zero so a sequence recorded from a preset that ignored it would not match.
     @Test func itMatchesItsRecordedSequence() {
         let offset = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(640, 480))

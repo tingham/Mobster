@@ -24,6 +24,20 @@ struct PresetProjectionTests {
         #expect(high.y >= frame.origin.y + frame.size.y)
     }
 
+    /// Two hundred by a hundred, so the lesser axis is the height and the design is inset a fifty either side of it.
+    @Test func containScalesByTheLesserAxisAndCentres() {
+        let projection = PresetProjection(mode: .contain, frame: frame, designSize: SIMD2<Float>(1, 1))
+        let low = projection.location(SIMD2<Float>(0, 0))
+        let high = projection.location(SIMD2<Float>(1, 1))
+
+        #expect(abs((high.x - low.x) - 100) < 0.001)
+        #expect(abs((high.y - low.y) - 100) < 0.001)
+        #expect(abs(low.x - 60) < 0.001)
+        #expect(abs(high.x - 160) < 0.001)
+        #expect(abs(low.y - 20) < 0.001)
+        #expect(abs(high.y - 120) < 0.001)
+    }
+
     @Test func boundsIsTheSmallestEncompassingScale() {
         let projection = PresetProjection(mode: .bounds, frame: frame, designSize: SIMD2<Float>(1, 1))
         let low = projection.location(SIMD2<Float>(0, 0))

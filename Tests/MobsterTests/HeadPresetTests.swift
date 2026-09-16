@@ -5,6 +5,8 @@ import Testing
 struct HeadPresetTests {
     /// A hundred square, so a design fraction reads as a percentage and the construction keeps true proportion.
     private let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(100, 100))
+    /// Half again wider than it is tall, so a construction stretched to the axes would read fifty percent broad.
+    private let wide = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
     /// Off level and off centre, so no axis of the basis falls out of the symmetry of the construction and no sample sits on the clip.
     private let oblique = SIMD3<Float>(0.8, 0.4, 1)
 
@@ -73,6 +75,20 @@ struct HeadPresetTests {
         #expect(abs(female[1].first!.y - 38.899) < 0.01)
         #expect(abs(male[8].map(\.x).max()! - 68.276) < 0.01)
         #expect(abs(female[8].map(\.x).max()! - 67.982) < 0.01)
+    }
+
+    /// Head breadth over head height is 151 over 232 and the shoulder drop lays that height into eight tenths of the design square, so a Frame six hundred by four hundred carries vertex to gnathion at 320 and the breadth at 208.276, the cranial mass standing from 195.862 to 404.138 about the middle. Stretching to the axes would put that breadth at 312.414.
+    @Test func theBreadthHoldsAgainstTheHeightOnAFrameWiderThanItIsTall() {
+        let paths = HeadPreset(sex: .male, target: SIMD3<Float>(0, 0, 1), roll: 0).paths(in: wide)
+        let cranium = paths[0]
+        let chin = paths[9]
+        let breadth = cranium.map(\.x).max()! - cranium.map(\.x).min()!
+        let height = chin.map(\.y).max()! - cranium.map(\.y).min()!
+
+        #expect(abs(cranium.map(\.x).min()! - 195.862) < 0.01)
+        #expect(abs(cranium.map(\.x).max()! - 404.138) < 0.01)
+        #expect(abs(height - 320) < 0.01)
+        #expect(abs(breadth - 208.276) < 0.01)
     }
 
     /// A great circle seen from the level of its own plane projects onto a line, so the half of it standing away folds back over the half standing near and each surviving stretch crosses once.
