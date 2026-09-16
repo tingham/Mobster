@@ -19,8 +19,10 @@ struct PresetParameters: Hashable, Sendable {
     var curveControl: SIMD2<Float> = SIMD2<Float>(0.5, 0.25)
     var curveResolution: Int = 32
     var headSex: HeadSex = .male
-    /// Opening at the middle of the range, which is the three quarter view.
-    var headView: Float = 0.5
+    /// Head space, measured from the centre of the cranial mass in head heights. Opening level with the head and off to the side, which is the three quarter view.
+    var headTarget = SIMD3<Float>(1, 0, 1)
+    /// Degrees about forward.
+    var headRoll: Float = 0
     var ashcanSex: AshcanSex = .male
     var ashcanHeads: Float = 8
     var ashcanLeftHand = SIMD2<Float>(0.31, 0.5)
