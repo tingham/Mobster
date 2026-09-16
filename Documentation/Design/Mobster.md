@@ -181,6 +181,15 @@ A projected construction is clipped to its near half by depth, so the far side o
 **preset.form.geometric**
 A figure or head preset plots geometric primitives rather than reproducing a drawn tradition. An ellipsoid, a frustum, a wedge and a great circle all have exact projections where a traced silhouette needs judgement. The result reading as robotic is acceptable; these are guides drawn over.
 
+**preset.cube**
+A box plotted from a mesh. It is the box construction a figure or an object is built inside, and it is the first thing the mesh source carries.
+
+**preset.cube.place**
+The cube is positioned and sized within the Frame rather than filling it.
+
+**preset.cube.target**
+The cube points at a location, as the head does, so it can be turned to any view.
+
 **preset.ashcan**
 A human figure plotted as construction forms against the Frame.
 
