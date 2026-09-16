@@ -16,8 +16,8 @@ struct PresetDeterminismTests {
         { frame in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, mode: .bounds).paths(in: frame) },
         { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame) },
         { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16, mode: .bounds).paths(in: frame) },
-        { frame in HeadPreset(sex: .male, view: 0.5).paths(in: frame) },
-        { frame in HeadPreset(sex: .male, view: 0.5, mode: .bounds).paths(in: frame) },
+        { frame in HeadPreset(sex: .male, target: SIMD3<Float>(0.8, 0.4, 1), roll: 0.25).paths(in: frame) },
+        { frame in HeadPreset(sex: .male, target: SIMD3<Float>(0.8, 0.4, 1), roll: 0.25, mode: .bounds).paths(in: frame) },
         { frame in PresetDeterminismTests.ashcan(mode: .aspect).paths(in: frame) },
         { frame in PresetDeterminismTests.ashcan(mode: .bounds).paths(in: frame) },
     ]
@@ -176,55 +176,49 @@ struct PresetDeterminismTests {
         ]))
     }
 
-    /// Taken at the middle of the view, where the recorded sequence stands on the view mapping as well as on the proportions.
+    /// Taken off level, off centre and rolled, so the recorded sequence stands on the basis and on the near clip as well as on the proportions.
     @Test func headMatchesItsRecordedSequence() {
-        let paths = HeadPreset(sex: .male, view: 0.5).paths(in: frame)
+        let paths = HeadPreset(sex: .male, target: SIMD3<Float>(0.8, 0.4, 1), roll: 0.25).paths(in: frame)
 
-        #expect(paths.map(\.count) == [65, 33, 33, 65, 65, 5, 5, 5])
+        #expect(paths.map(\.count) == [65, 11, 22, 27, 6, 5, 16, 17, 28, 3, 5, 5])
         #expect(matches(sampled(paths[0], at: [0, 16, 32, 48]), [[
-            SIMD2<Float>(479.39975, 195.4138),
-            SIMD2<Float>(290.0, 375.8276),
-            SIMD2<Float>(100.60025, 195.41382),
-            SIMD2<Float>(290.0, 15.0),
+            SIMD2<Float>(475.1556, 201.93372),
+            SIMD2<Float>(298.69324, 371.43658),
+            SIMD2<Float>(104.84439, 188.8939),
+            SIMD2<Float>(281.3068, 19.391006),
         ]]))
-        #expect(matches(sampled(paths[1], at: [0, 8, 16, 32]), [[
-            SIMD2<Float>(165.03448, 195.4138),
-            SIMD2<Float>(302.2737, 195.4138),
-            SIMD2<Float>(432.32315, 195.4138),
-            SIMD2<Float>(414.9655, 195.4138),
+        #expect(matches(sampled(paths[1], at: [0, 5, 10]), [[
+            SIMD2<Float>(418.30402, 243.5278),
+            SIMD2<Float>(466.1995, 223.93523),
+            SIMD2<Float>(472.48413, 197.6071),
         ]]))
-        #expect(matches(sampled(paths[2], at: [0, 8, 16, 32]), [[
-            SIMD2<Float>(290.0, 15.0),
-            SIMD2<Float>(390.63766, 67.841965),
-            SIMD2<Float>(432.32315, 195.41379),
-            SIMD2<Float>(290.00003, 375.8276),
+        #expect(matches(sampled(paths[2], at: [0, 10, 21]), [[
+            SIMD2<Float>(111.56816, 198.75928),
+            SIMD2<Float>(232.53238, 244.1209),
+            SIMD2<Float>(418.304, 243.52783),
         ]]))
-        #expect(matches(sampled(paths[3], at: [0, 16, 32, 48]), [[
-            SIMD2<Float>(478.35144, 195.4138),
-            SIMD2<Float>(381.86206, 317.72705),
-            SIMD2<Float>(285.37274, 195.41382),
-            SIMD2<Float>(381.86206, 73.10056),
+        #expect(matches(sampled(paths[3], at: [0, 13, 26]), [[
+            SIMD2<Float>(286.93732, 28.558525),
+            SIMD2<Float>(411.89026, 193.02051),
+            SIMD2<Float>(363.82846, 360.87958),
         ]]))
-        #expect(matches(sampled(paths[4], at: [0, 16, 32, 48]), [[
-            SIMD2<Float>(294.62726, 195.4138),
-            SIMD2<Float>(198.13794, 317.72705),
-            SIMD2<Float>(101.648575, 195.41382),
-            SIMD2<Float>(198.13794, 73.10056),
+        #expect(matches(sampled(paths[8], at: [0, 13, 27]), [[
+            SIMD2<Float>(113.99385, 135.01463),
+            SIMD2<Float>(206.6199, 112.523415),
+            SIMD2<Float>(278.67145, 249.72656),
         ]]))
-        #expect(matches([paths[5], paths[6], paths[7]], [
+        #expect(matches([paths[9], paths[10], paths[11]], [
             [
-                SIMD2<Float>(377.72415, 319.55176),
-                SIMD2<Float>(476.18524, 399.0),
-                SIMD2<Float>(388.46112, 399.0),
-                SIMD2<Float>(202.27585, 319.55176),
-                SIMD2<Float>(377.72415, 319.55176),
+                SIMD2<Float>(468.70255, 421.4559),
+                SIMD2<Float>(374.81763, 442.17215),
+                SIMD2<Float>(198.22241, 330.93872),
             ],
             [
-                SIMD2<Float>(476.18524, 326.17242),
-                SIMD2<Float>(476.18524, 399.0),
-                SIMD2<Float>(388.46112, 399.0),
-                SIMD2<Float>(388.46112, 326.17242),
-                SIMD2<Float>(476.18524, 326.17242),
+                SIMD2<Float>(467.46628, 354.10147),
+                SIMD2<Float>(468.70255, 421.4559),
+                SIMD2<Float>(374.81763, 442.17215),
+                SIMD2<Float>(373.5813, 374.81772),
+                SIMD2<Float>(467.46628, 354.10147),
             ],
             [
                 SIMD2<Float>(423.47064, 319.55176),
