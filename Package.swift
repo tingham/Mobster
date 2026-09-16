@@ -13,7 +13,7 @@ let package = Package(
     ],
     dependencies: [
         // Curve fitting and decimation, subscribed to rather than copied.
-        .package(path: "../Whiplash"),
+        .package(url: "git@github.com:tingham/Whiplash.git", exact: "1.0.0"),
     ],
     targets: [
         .target(
