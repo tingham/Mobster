@@ -103,7 +103,7 @@ A boundary location sits midway between the two differing fragments, because tha
 A traced boundary is fitted to a curve at a count Mobster asks for. Whiplash performs the fit and the decimation.
 
 **mesh.path.lossy**
-A fitted path need not reproduce the traced boundary exactly. Any silhouette of a form serves a person drawing over it better than none.
+A fitted path need not reproduce the traced boundary exactly. Any silhouette of a form serves a person drawing over it better than none. The slight curve a fit leaves on a straight edge is wanted, not tolerated; it reads as drawn rather than plotted and nothing should straighten it.
 
 ## Paths
 
