@@ -25,6 +25,8 @@ struct PresetParameters: Hashable, Sendable {
     var headRoll: Float = 0
     var ashcanSex: AshcanSex = .male
     var ashcanHeads: Float = 8
+    /// Figure space, measured from the middle of the figure: x across, y downward, z out of the chest. Opening straight out of the chest, which is the frontal view.
+    var ashcanTarget = SIMD3<Float>(0, 0, 1)
     var ashcanLeftHand = SIMD2<Float>(0.31, 0.5)
     var ashcanRightHand = SIMD2<Float>(0.69, 0.5)
     var ashcanLeftFoot = SIMD2<Float>(0.42, 1)

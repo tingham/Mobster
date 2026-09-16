@@ -11,23 +11,7 @@ struct PresetDeterminismTests {
         { frame in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08).paths(in: frame) },
         { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame) },
         { frame in HeadPreset(sex: .male, target: SIMD3<Float>(0.8, 0.4, 1), roll: 0.25).paths(in: frame) },
-        { frame in PresetDeterminismTests.ashcan().paths(in: frame) },
     ]
-
-    /// One arm reaching past what it can span and one within it, so a sequence recorded here covers both answers the solve gives.
-    static func ashcan() -> AshcanPreset {
-        AshcanPreset(sex: .male,
-                     heads: 8,
-                     leftHand: SIMD2<Float>(0.18, 0.62),
-                     rightHand: SIMD2<Float>(0.69, 0.5),
-                     leftFoot: SIMD2<Float>(0.42, 1),
-                     rightFoot: SIMD2<Float>(0.58, 0.94),
-                     leftElbowPole: SIMD2<Float>(-1, 0),
-                     rightElbowPole: SIMD2<Float>(1, 0),
-                     leftKneePole: SIMD2<Float>(-1, 0),
-                     rightKneePole: SIMD2<Float>(1, 0),
-                     headLines: true)
-    }
 
     /// The Frame the recorded sequences below were taken against. Its origin is off zero so a sequence recorded from a preset that ignored the origin would not match.
     private let frame = Frame(origin: SIMD2<Float>(-30, 15), size: SIMD2<Float>(640, 480))

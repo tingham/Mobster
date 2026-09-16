@@ -52,20 +52,30 @@ struct PresetPlot {
         case .head:
             HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: roll(parameters.headRoll)).paths(in: frame)
         case .ashcan:
-            AshcanPreset(sex: parameters.ashcanSex,
-                         heads: parameters.ashcanHeads,
-                         leftHand: parameters.ashcanLeftHand,
-                         rightHand: parameters.ashcanRightHand,
-                         leftFoot: parameters.ashcanLeftFoot,
-                         rightFoot: parameters.ashcanRightFoot,
-                         leftElbowPole: pole(parameters.ashcanLeftElbowDegree),
-                         rightElbowPole: pole(parameters.ashcanRightElbowDegree),
-                         leftKneePole: pole(parameters.ashcanLeftKneeDegree),
-                         rightKneePole: pole(parameters.ashcanRightKneeDegree),
-                         headLines: parameters.ashcanHeadLines).paths(in: frame)
+            try ashcan(parameters: parameters, frame: frame, device: device)
         case .cube:
             try cube(parameters: parameters, frame: frame, device: device)
         }
+    }
+
+    /// The break lines measure the figure rather than belonging to it, so they are appended as paths after the extracted boundaries.
+    private static func ashcan(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+        guard let device else { return [] }
+        let figure = AshcanPreset(sex: parameters.ashcanSex,
+                                  heads: parameters.ashcanHeads,
+                                  target: parameters.ashcanTarget,
+                                  leftHand: parameters.ashcanLeftHand,
+                                  rightHand: parameters.ashcanRightHand,
+                                  leftFoot: parameters.ashcanLeftFoot,
+                                  rightFoot: parameters.ashcanRightFoot,
+                                  leftElbowPole: pole(parameters.ashcanLeftElbowDegree),
+                                  rightElbowPole: pole(parameters.ashcanRightElbowDegree),
+                                  leftKneePole: pole(parameters.ashcanLeftKneeDegree),
+                                  rightKneePole: pole(parameters.ashcanRightKneeDegree),
+                                  headLines: parameters.ashcanHeadLines)
+        let extracted = try MeshExtraction(mesh: figure.mesh(in: frame), frame: frame, fit: parameters.meshFit, perspective: MeshPerspective(fieldOfView: parameters.meshFieldOfView)).paths(device: device)
+
+        return extracted + figure.breakLines(in: frame)
     }
 
     /// Every mac this harness runs on carries a device, so the absent case is the API's rather than a state the harness presents.

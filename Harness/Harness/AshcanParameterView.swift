@@ -1,3 +1,4 @@
+import Mobster
 import SwiftUI
 
 struct AshcanParameterView: View {
@@ -6,6 +7,11 @@ struct AshcanParameterView: View {
     var body: some View {
         AshcanSexPickerView(sex: $parameters.ashcanSex)
         ParameterSliderView(title: "Heads", value: $parameters.ashcanHeads, range: 4 ... 8)
+        ParameterSliderView(title: "Target X", value: $parameters.ashcanTarget.x, range: -2 ... 2)
+        ParameterSliderView(title: "Target Y", value: $parameters.ashcanTarget.y, range: -2 ... 2)
+        ParameterSliderView(title: "Target Z", value: $parameters.ashcanTarget.z, range: -2 ... 2)
+        IntegerParameterSliderView(title: "Fit", value: $parameters.meshFit, range: 4 ... 48)
+        ParameterSliderView(title: "Field Of View", value: $parameters.meshFieldOfView, range: MeshPerspective.range)
         Toggle("Head Lines", isOn: $parameters.ashcanHeadLines)
             .controlSize(.large)
         ParameterSliderView(title: "Left Hand X", value: $parameters.ashcanLeftHand.x, range: -0.5 ... 1.5)
