@@ -79,7 +79,6 @@ struct FieldToleranceTests {
         #expect(breaches(ThirdsPreset().paths(in: square), square, 64) == 0)
         #expect(breaches(RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08).paths(in: square), square, 64) == 0)
         #expect(breaches(CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 32).paths(in: square), square, 64) == 0)
-        #expect(breaches(HeadPreset(sex: .male, target: SIMD3<Float>(0.8, 0.4, 1), roll: 0.25).paths(in: square), square, 64) == 0)
     }
 
     /// Golden Ratio covers the Frame, keeping its own proportions, so against a square Frame part of the spiral is necessarily outside it.

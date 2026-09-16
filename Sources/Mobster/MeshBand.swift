@@ -3,12 +3,21 @@ struct MeshBand {
     let first: [SIMD3<Float>]
     let second: [SIMD3<Float>]
     let identity: MeshIdentity
+    /// A band between two rings closes around, the last facet joining the last location of each back to the first. A band between two arcs does not, the last location of an arc having nothing to join back to.
+    let closed: Bool
 
-    /// The band closed around, the last facet joining the last location of each ring back to the first. The place a location is carried to is the caller's, a construction having parts the view turns and parts it does not.
+    init(first: [SIMD3<Float>], second: [SIMD3<Float>], identity: MeshIdentity, closed: Bool = true) {
+        self.first = first
+        self.second = second
+        self.identity = identity
+        self.closed = closed
+    }
+
+    /// The place a location is carried to is the caller's, a construction having parts the view turns and parts it does not.
     func triangles(_ place: (SIMD3<Float>) -> SIMD3<Float>) -> [MeshTriangle] {
         guard first.count == second.count, first.count > 2 else { return [] }
 
-        return first.indices.flatMap { index -> [MeshTriangle] in
+        return (0 ..< (closed ? first.count : first.count - 1)).flatMap { index -> [MeshTriangle] in
             let next = (index + 1) % first.count
             let near = place(first[index])
             let along = place(first[next])

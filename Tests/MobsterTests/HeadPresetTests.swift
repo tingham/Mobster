@@ -7,107 +7,130 @@ struct HeadPresetTests {
     private let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(100, 100))
     /// Half again wider than it is tall, so a construction stretched to the axes would read fifty percent broad.
     private let wide = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
-    /// Off level and off centre, so no axis of the basis falls out of the symmetry of the construction and no sample sits on the clip.
-    private let oblique = SIMD3<Float>(0.8, 0.4, 1)
+    /// Level and out of the face, which reads the head frontally.
+    private let frontal = SIMD3<Float>(0, 0, 1)
 
-    private func climbs(_ run: [Float]) -> Bool {
-        zip(run, run.dropFirst()).allSatisfy { $1 >= $0 - 0.0001 }
+    /// The locations an identity carries, which reports rather than trapping where a division that should exist does not.
+    private func locations(_ mesh: Mesh, identities: ClosedRange<UInt32>) throws -> [SIMD3<Float>] {
+        let standing = mesh.triangles.filter { identities.contains($0.identity.value) }.flatMap { [$0.first, $0.second, $0.third] }
+
+        return try #require(standing.isEmpty ? nil : standing, "the construction carries these identities")
     }
 
-    private func level(_ paths: [[SIMD2<Float>]], _ y: Float) -> [[SIMD2<Float>]] {
-        paths.filter { path in path.allSatisfy { abs($0.y - y) < 0.01 } }
+    /// Four bands of breadth divided at the brow, a jaw, a chin and two halves of neck.
+    @Test func theConstructionIsAFewScoreTriangles() {
+        let mesh = HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square)
+
+        #expect(mesh.triangles.count == 90)
+        #expect(Set(mesh.triangles.map(\.identity.value)) == Set(1 ... 12))
     }
 
-    private func upright(_ paths: [[SIMD2<Float>]], _ x: Float) -> [[SIMD2<Float>]] {
-        paths.filter { path in path.allSatisfy { abs($0.x - x) < 0.01 } }
+    /// Head breadth over head height is 151 over 232, and the shoulder drop lays that height into eight tenths of the design square, so the mass stands 26.034 either side of the middle. Vertex to nasion puts the brow at 37.586 and the underside of the mass at 75.172, and head length puts it 33.621 deep.
+    @Test func theCranialMassStandsWhereTheCanonPutsIt() throws {
+        let mass = try locations(HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square), identities: 1 ... 8)
+
+        #expect(abs(mass.map(\.x).min()! - 23.966) < 0.01)
+        #expect(abs(mass.map(\.x).max()! - 76.034) < 0.01)
+        #expect(abs(mass.map(\.y).min()!) < 0.01)
+        #expect(abs(mass.map(\.y).max()! - 75.172) < 0.01)
+        #expect(abs(mass.map(\.z).max()! - 33.621) < 0.01)
     }
 
-    @Test func theConstructionEmitsItsPartsInOrder() {
-        let paths = HeadPreset(sex: .male, target: oblique, roll: 0.25).paths(in: square)
+    /// The cut at the temple breadth is a division rather than a truncation, so the mass keeps the euryon breadth. Frontotemporale over head height stands the side planes 19.138 either side of the middle, which is 0.678 of the mass across.
+    @Test func theSidePlanesDivideTheMassRatherThanTruncatingIt() throws {
+        let mesh = HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square)
+        let right = try locations(mesh, identities: 3 ... 4)
+        let cap = try locations(mesh, identities: 1 ... 2)
 
-        #expect(paths.count == 12)
-        #expect(paths.map(\.count) == [65, 11, 22, 27, 6, 5, 16, 17, 28, 3, 5, 5])
+        #expect(abs(right.map(\.x).max()! - 69.138) < 0.01)
+        #expect(abs(right.map(\.x).min()! - 50) < 0.01)
+        #expect(abs(cap.map(\.x).max()! - 76.034) < 0.01)
+        #expect(abs(cap.map(\.x).min()! - 69.138) < 0.01)
     }
 
-    /// Head breadth over head height puts the cranial mass 26.034 either side of the middle, vertex to nasion puts the brow line at 37.586 and the underside at 75.172, and the temple breadth puts a side plane at 69.138.
-    @Test func aTargetLevelAndInFrontReadsAsFrontal() {
-        let paths = HeadPreset(sex: .male, target: SIMD3<Float>(0, 0, 1), roll: 0).paths(in: square)
-        let brow = level(paths, 37.586)
-        let centre = upright(paths, 50)
+    /// The brow divides every band of breadth, so the half below it reaches the underside of the mass and the half above it reaches the crown, both meeting at the level of nasion.
+    @Test func theBrowDividesEveryBandOfBreadth() throws {
+        let mesh = HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square)
+        let under = try locations(mesh, identities: 5 ... 5)
+        let over = try locations(mesh, identities: 6 ... 6)
 
-        #expect(abs(paths[0].map(\.x).max()! - 76.034) < 0.01)
-        #expect(abs(paths[0].map(\.x).min()! - 23.966) < 0.01)
-        #expect(abs(paths[0].map(\.y).max()! - 75.172) < 0.01)
-        #expect(brow.count == 2)
-        #expect(abs(brow.flatMap { $0.map(\.x) }.max()! - 76.034) < 0.01)
-        #expect(abs(brow.flatMap { $0.map(\.x) }.min()! - 23.966) < 0.01)
-        #expect(centre.count == 1)
-        #expect(abs(centre[0].map(\.y).max()! - 75.172) < 0.01)
-        #expect(upright(paths, 69.138).count == 2)
-        #expect(upright(paths, 30.862).count == 2)
+
+        #expect(abs(under.map(\.y).min()! - 37.586) < 0.01)
+        #expect(abs(under.map(\.y).max()! - 75.172) < 0.01)
+        #expect(abs(over.map(\.y).min()!) < 0.01)
+        #expect(abs(over.map(\.y).max()! - 37.586) < 0.01)
     }
 
-    /// Head length over head height puts the cranial mass 33.621 either side of the middle, half of which the sagittal great circle stands in for, its plane standing edge on to the view. The brow circle flattens onto the level of nasion and crosses that depth once, gnathion at 80 and sublabiale at 64.828 stand at the front of it, the near side plane is cut to 0.678 of the cranial mass by the temple breadth, and the far side plane does not project at all.
-    @Test func aTargetLevelAndToTheSideReadsAsProfile() {
-        let paths = HeadPreset(sex: .male, target: SIMD3<Float>(1, 0, 0), roll: 0).paths(in: square)
+    /// Bigonial breadth carries the jaw angle 18.276 off the middle at a level of 63.448, cheilion to cheilion makes the chin 9.138 wide, and gnathion at 80 and sublabiale at 64.828 bound the chin face at the front of the mass.
+    @Test func theJawAndTheChinStandWhereTheCanonPutsThem() throws {
+        let mesh = HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square)
+        let jaw = try locations(mesh, identities: 9 ... 9)
+        let chin = try locations(mesh, identities: 10 ... 10)
 
-        #expect(paths.count == 7)
-        #expect(abs(paths[0].map(\.x).max()! - 83.621) < 0.01)
-        #expect(abs(paths[0].map(\.x).min()! - 16.379) < 0.01)
-        #expect(abs(paths[2].map(\.x).min()! - 16.379) < 0.01)
-        #expect(abs(paths[2].map(\.x).max()! - 50) < 0.01)
-        #expect(abs(paths[2].map(\.y).min()!) < 0.01)
-        #expect(paths[1].allSatisfy { abs($0.y - 37.586) < 0.01 })
-        #expect(climbs(paths[1].map(\.x)))
-        #expect(paths[5].allSatisfy { abs($0.x - 83.621) < 0.01 })
-        #expect(abs(paths[5].map(\.y).max()! - 80) < 0.01)
-        #expect(abs(paths[5].map(\.y).min()! - 64.828) < 0.01)
-        #expect(abs(paths[3].map(\.x).max()! - 72.793) < 0.01)
-        #expect(abs(paths[3].map(\.y).min()! - 12.104) < 0.01)
+        #expect(abs(jaw.map(\.x).max()! - 68.276) < 0.01)
+        #expect(abs(jaw.map(\.y).min()! - 63.448) < 0.01)
+        #expect(abs(jaw.map(\.y).max()! - 80) < 0.01)
+        #expect(abs(chin.map(\.x).max()! - 59.138) < 0.01)
+        #expect(abs(chin.map(\.y).min()! - 64.828) < 0.01)
+        #expect(abs(chin.map(\.y).max()! - 80) < 0.01)
+        #expect(abs(chin.map(\.z).min()! - 33.621) < 0.01)
+    }
+
+    /// The neck circumference read as a circular section puts its radius 20.855 off the middle, and it runs from the jaw angles to the shoulder line the design square is measured to.
+    @Test func theNeckStandsOnItsCircumferenceAlone() throws {
+        let neck = try locations(HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square), identities: 11 ... 12)
+
+        #expect(abs(neck.map(\.x).min()! - 29.145) < 0.01)
+        #expect(abs(neck.map(\.x).max()! - 70.855) < 0.01)
+        #expect(abs(neck.map(\.y).min()! - 63.448) < 0.01)
+        #expect(abs(neck.map(\.y).max()! - 100) < 0.01)
+    }
+
+    /// A neck does not turn when the head within it does, so it is the one part the basis does not carry.
+    @Test func theNeckDoesNotTurnWithTheHead() throws {
+        let straight = HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square)
+        let turned = HeadPreset(sex: .male, target: SIMD3<Float>(1, 0, 1), roll: 0.5).mesh(in: square)
+        let standing = try locations(straight, identities: 11 ... 12)
+        let carried = try locations(turned, identities: 11 ... 12)
+        let straightMass = try locations(straight, identities: 1 ... 8)
+        let turnedMass = try locations(turned, identities: 1 ... 8)
+
+        #expect(standing == carried)
+        #expect(straightMass != turnedMass)
     }
 
     /// The brow line sits at the vertex to nasion fraction of the head height, which is 0.470 of it for a man and 0.486 for a woman, and bigonial breadth carries the jaw angle 18.276 off the middle for a man and 17.982 for a woman.
-    @Test func sexChangesTheProportions() {
-        let male = HeadPreset(sex: .male, target: SIMD3<Float>(0, 0, 1), roll: 0).paths(in: square)
-        let female = HeadPreset(sex: .female, target: SIMD3<Float>(0, 0, 1), roll: 0).paths(in: square)
+    @Test func sexChangesTheProportions() throws {
+        let male = HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square)
+        let female = HeadPreset(sex: .female, target: frontal, roll: 0).mesh(in: square)
+        let maleBrow = try locations(male, identities: 6 ... 6)
+        let femaleBrow = try locations(female, identities: 6 ... 6)
+        let maleJaw = try locations(male, identities: 9 ... 9)
+        let femaleJaw = try locations(female, identities: 9 ... 9)
 
-        #expect(abs(male[1].first!.y - 37.586) < 0.01)
-        #expect(abs(female[1].first!.y - 38.899) < 0.01)
-        #expect(abs(male[8].map(\.x).max()! - 68.276) < 0.01)
-        #expect(abs(female[8].map(\.x).max()! - 67.982) < 0.01)
+        #expect(abs(maleBrow.map(\.y).max()! - 37.586) < 0.01)
+        #expect(abs(femaleBrow.map(\.y).max()! - 38.899) < 0.01)
+        #expect(abs(maleJaw.map(\.x).max()! - 68.276) < 0.01)
+        #expect(abs(femaleJaw.map(\.x).max()! - 67.982) < 0.01)
     }
 
-    /// Head breadth over head height is 151 over 232 and the shoulder drop lays that height into eight tenths of the design square, so a Frame six hundred by four hundred carries vertex to gnathion at 320 and the breadth at 208.276, the cranial mass standing from 195.862 to 404.138 about the middle. Stretching to the axes would put that breadth at 312.414.
-    @Test func theBreadthHoldsAgainstTheHeightOnAFrameWiderThanItIsTall() {
-        let paths = HeadPreset(sex: .male, target: SIMD3<Float>(0, 0, 1), roll: 0).paths(in: wide)
-        let cranium = paths[0]
-        let chin = paths[9]
-        let breadth = cranium.map(\.x).max()! - cranium.map(\.x).min()!
-        let height = chin.map(\.y).max()! - cranium.map(\.y).min()!
+    /// Head breadth over head height is 151 over 232 and the shoulder drop lays that height into eight tenths of the design square, so a Frame six hundred by four hundred carries vertex to gnathion at 320 and the breadth at 208.276, the mass standing from 195.862 to 404.138 about the middle. Stretching to the axes would put that breadth at 312.414.
+    @Test func theBreadthHoldsAgainstTheHeightOnAFrameWiderThanItIsTall() throws {
+        let mesh = HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: wide)
+        let mass = try locations(mesh, identities: 1 ... 8)
+        let chin = try locations(mesh, identities: 10 ... 10)
 
-        #expect(abs(cranium.map(\.x).min()! - 195.862) < 0.01)
-        #expect(abs(cranium.map(\.x).max()! - 404.138) < 0.01)
-        #expect(abs(height - 320) < 0.01)
-        #expect(abs(breadth - 208.276) < 0.01)
-    }
-
-    /// A great circle seen from the level of its own plane projects onto a line, so the half of it standing away folds back over the half standing near and each surviving stretch crosses once.
-    @Test func theFarHalfOfAGreatCircleDoesNotProject() {
-        let paths = HeadPreset(sex: .male, target: SIMD3<Float>(0, 0, 1), roll: 0).paths(in: square)
-        let brow = level(paths, 37.586)
-        let centre = upright(paths, 50)
-
-        #expect(brow.map(\.count).reduce(0, +) <= 34)
-        #expect(brow.allSatisfy { climbs($0.map(\.x)) })
-        #expect(centre.map(\.count).reduce(0, +) <= 34)
-        #expect(centre.allSatisfy { climbs($0.map(\.y)) })
+        #expect(abs(mass.map(\.x).min()! - 195.862) < 0.01)
+        #expect(abs(mass.map(\.x).max()! - 404.138) < 0.01)
+        #expect(abs(mass.map(\.x).max()! - mass.map(\.x).min()! - 208.276) < 0.01)
+        #expect(abs(chin.map(\.y).max()! - mass.map(\.y).min()! - 320) < 0.01)
     }
 
     /// A target forty five degrees above level and one steeper than it give the same construction, the steeper one being held at the limit, where one inside the limit gives another.
     @Test func forwardIsHeldWithinFortyFiveDegreesOfLevel() {
-        let held = HeadPreset(sex: .male, target: SIMD3<Float>(0, -1, 1), roll: 0).paths(in: square)
-        let steeper = HeadPreset(sex: .male, target: SIMD3<Float>(0, -4, 1), roll: 0).paths(in: square)
-        let shallower = HeadPreset(sex: .male, target: SIMD3<Float>(0, -0.5, 1), roll: 0).paths(in: square)
+        let held = HeadPreset(sex: .male, target: SIMD3<Float>(0, -1, 1), roll: 0).mesh(in: square)
+        let steeper = HeadPreset(sex: .male, target: SIMD3<Float>(0, -4, 1), roll: 0).mesh(in: square)
+        let shallower = HeadPreset(sex: .male, target: SIMD3<Float>(0, -0.5, 1), roll: 0).mesh(in: square)
 
         #expect(held == steeper)
         #expect(held != shallower)
@@ -116,23 +139,20 @@ struct HeadPresetTests {
     /// A target on the vertical through the head carries no azimuth to face, and one at the head's own location carries no direction at all. The held run stands both of them out along the depth, where an unheld run leaves every location of the construction a NaN.
     @Test(arguments: [SIMD3<Float>(0, -1, 0), SIMD3<Float>(0, 1, 0), SIMD3<Float>(0, 0, 0)])
     func aTargetWithNoRunIsHeldOffTheVertical(target: SIMD3<Float>) {
-        let paths = HeadPreset(sex: .male, target: target, roll: 0).paths(in: square)
+        let mesh = HeadPreset(sex: .male, target: target, roll: 0).mesh(in: square)
 
-        #expect(!paths.isEmpty)
-        #expect(paths.allSatisfy { $0.allSatisfy { $0.x.isFinite && $0.y.isFinite } })
+        #expect(mesh.triangles.count == 90)
+        #expect(mesh.triangles.allSatisfy { [$0.first, $0.second, $0.third].allSatisfy { $0.x.isFinite && $0.y.isFinite && $0.z.isFinite } })
     }
 
-    /// A quarter turn about forward stands the brow line up the middle of a frontal view and lays the centre line across it.
-    @Test func rollTurnsTheConstructionAboutForward() {
-        let paths = HeadPreset(sex: .male, target: SIMD3<Float>(0, 0, 1), roll: .pi / 2).paths(in: square)
-        let brow = upright(paths, 50)
-        let centre = level(paths, 37.586)
+    /// A quarter turn about forward stands the brow plane up the middle of a frontal view, so the mass reaches the design breadth down the middle rather than across it.
+    @Test func rollTurnsTheConstructionAboutForward() throws {
+        let rolled = HeadPreset(sex: .male, target: frontal, roll: .pi / 2).mesh(in: square)
+        let mass = try locations(rolled, identities: 1 ... 8)
 
-        #expect(brow.count == 2)
-        #expect(abs(brow.flatMap { $0.map(\.y) }.min()! - 11.552) < 0.01)
-        #expect(abs(brow.flatMap { $0.map(\.y) }.max()! - 63.621) < 0.01)
-        #expect(centre.count == 1)
-        #expect(abs(centre[0].map(\.x).min()! - 12.414) < 0.01)
-        #expect(abs(centre[0].map(\.x).max()! - 87.586) < 0.01)
+        #expect(abs(mass.map(\.y).min()! - 11.552) < 0.01)
+        #expect(abs(mass.map(\.y).max()! - 63.621) < 0.01)
+        #expect(abs(mass.map(\.x).min()! - 12.414) < 0.01)
+        #expect(abs(mass.map(\.x).max()! - 87.586) < 0.01)
     }
 }

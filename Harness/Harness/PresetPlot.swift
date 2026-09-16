@@ -50,12 +50,19 @@ struct PresetPlot {
                         control: parameters.curveControl,
                         resolution: parameters.curveResolution).paths(in: frame)
         case .head:
-            HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: roll(parameters.headRoll)).paths(in: frame)
+            try head(parameters: parameters, frame: frame, device: device)
         case .ashcan:
             try ashcan(parameters: parameters, frame: frame, device: device)
         case .cube:
             try cube(parameters: parameters, frame: frame, device: device)
         }
+    }
+
+    private static func head(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+        guard let device else { return [] }
+        let construction = HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: roll(parameters.headRoll))
+
+        return try MeshExtraction(mesh: construction.mesh(in: frame), frame: frame, fit: parameters.meshFit, perspective: MeshPerspective(fieldOfView: parameters.meshFieldOfView)).paths(device: device)
     }
 
     /// The break lines measure the figure rather than belonging to it, so they are appended as paths after the extracted boundaries.
