@@ -75,6 +75,9 @@ A Guide may take a mesh as its source. Its paths are extracted from a projection
 **mesh.component**
 Every triangle of a mesh belongs to a component and every component carries an identity. A limb segment, a ribcage and a pelvis are separate components.
 
+**mesh.component.section**
+A component may be divided to place a cross section where a form's roundness should read. The division is a construction element rather than a physical seam, and dividing a limb at its middle yields one boundary where a separate band would yield two.
+
 **mesh.component.structure**
 An identity marks structure rather than tessellation. A cube's six faces are six identities, because each is a plane a viewer reads as a distinct surface. A cylinder approximated by eight facets is one identity, because the facets approximate one surface rather than describing eight. Subdivision never multiplies identities.
 
@@ -183,6 +186,9 @@ A projected construction is clipped to its near half by depth, so the far side o
 
 **preset.form.geometric**
 A figure or head preset plots geometric primitives rather than reproducing a drawn tradition. An ellipsoid, a frustum, a wedge and a great circle all have exact projections where a traced silhouette needs judgement. The result reading as robotic is acceptable; these are guides drawn over.
+
+**preset.kind**
+A preset is a named source a user picks. Whether it plots analytically or extracts from a mesh is not something the user sees.
 
 **preset.cube**
 A box plotted from a mesh. It is the box construction a figure or an object is built inside, and it is the first thing the mesh source carries.
