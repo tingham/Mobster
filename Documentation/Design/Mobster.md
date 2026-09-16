@@ -164,14 +164,14 @@ A head plotted as the construction sphere with its side planes, brow line, centr
 **preset.head.sex**
 The head is proportioned as male or as female.
 
-**@removal(a target is dragged where a slider is dialled, it matches how the figure is already posed, and it carries tilt and roll that an angle could not) preset.head.view**
-A view angle runs from zero at full profile to one at face forward. The middle of the range is the three quarter view, which sits nearer forty degrees of yaw than forty five, so the mapping is not linear in angle.
-
 **preset.head.target**
 The head points at a location. It is not rotated by an angle.
 
 **preset.head.basis**
 Forward runs from the head toward its target. Up and right are derived from it.
+
+**preset.head.target.run**
+The target's horizontal run from the head is held above zero. A target directly above or below carries no direction to face, so the limit removes the case rather than answering it.
 
 **preset.head.tilt.limit**
 Forward is held within forty five degrees either side of level. Beyond that it approaches parallel with up and the derivation of a basis collapses, so the limit removes the case rather than answering it. A head tilted further is not a drawing reference anyway.
