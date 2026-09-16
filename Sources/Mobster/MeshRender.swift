@@ -61,10 +61,10 @@ final class MeshRender: Sendable {
     }
 
     /// Nil where there is nothing to draw, which a Frame with no extent and a mesh of no triangles both are. A device that will not run the pass refuses instead, those two being different answers.
-    func raster(of mesh: Mesh, in frame: Frame, resolution: MeshResolution) throws(MeshRefusal) -> MeshIdentityRaster? {
+    func raster(of mesh: Mesh, in frame: Frame, resolution: MeshResolution, perspective: MeshPerspective) throws(MeshRefusal) -> MeshIdentityRaster? {
         guard resolution.columns > 0, resolution.rows > 0, mesh.triangles.isEmpty == false else { return nil }
 
-        var locations = clipped(mesh, in: frame)
+        var locations = clipped(mesh, in: frame, through: perspective)
         var identities = mesh.triangles.map(\.identity.value)
         let device = queue.device
         let target = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .r32Uint, width: resolution.columns, height: resolution.rows, mipmapped: false)
@@ -111,18 +111,22 @@ final class MeshRender: Sendable {
         return MeshIdentityRaster(columns: resolution.columns, rows: resolution.rows, identities: read)
     }
 
-    /// The Frame fills the clip volume across and down, and the depth of the mesh is normalized against its own extent, the nearest fragment taking the least depth so that it wins the test.
-    private func clipped(_ mesh: Mesh, in frame: Frame) -> [SIMD3<Float>] {
-        let depths = mesh.triangles.flatMap { [$0.first.z, $0.second.z, $0.third.z] }
-        let near = depths.max() ?? 0
-        let extent = near - (depths.min() ?? 0)
+    /// The Frame fills the clip volume across and down, and the depth of the mesh is normalized against its own extent, the nearest fragment taking the least depth so that it wins the test. Across and down a location is carried through the perspective first, which is one divide a vertex, about the axis the construction's own bounds put the viewer on.
+    private func clipped(_ mesh: Mesh, in frame: Frame, through perspective: MeshPerspective) -> [SIMD3<Float>] {
+        let locations = mesh.triangles.flatMap { [$0.first, $0.second, $0.third] }
+        let least = SIMD3<Float>(locations.map(\.x).min() ?? 0, locations.map(\.y).min() ?? 0, locations.map(\.z).min() ?? 0)
+        let most = SIMD3<Float>(locations.map(\.x).max() ?? 0, locations.map(\.y).max() ?? 0, locations.map(\.z).max() ?? 0)
+        let axis = SIMD2<Float>(least.x + most.x, least.y + most.y) / 2
+        let across = max(most.x - least.x, most.y - least.y)
+        let extent = most.z - least.z
 
-        return mesh.triangles.flatMap { triangle in
-            [triangle.first, triangle.second, triangle.third].map { location in
-                SIMD3<Float>((location.x - frame.origin.x) / frame.size.x * 2 - 1,
-                             1 - (location.y - frame.origin.y) / frame.size.y * 2,
-                             extent > 0 ? Self.depthOrigin + (near - location.z) / extent * Self.depthBand : Self.depthOrigin + Self.depthBand / 2)
-            }
+        return locations.map { location in
+            let behind = most.z - location.z
+            let carried = axis + (SIMD2<Float>(location.x, location.y) - axis) * perspective.magnification(behind: behind, across: across)
+
+            return SIMD3<Float>((carried.x - frame.origin.x) / frame.size.x * 2 - 1,
+                                1 - (carried.y - frame.origin.y) / frame.size.y * 2,
+                                extent > 0 ? Self.depthOrigin + behind / extent * Self.depthBand : Self.depthOrigin + Self.depthBand / 2)
         }
     }
 }

@@ -1,3 +1,4 @@
+import Mobster
 import SwiftUI
 
 struct CubeParameterView: View {
@@ -11,5 +12,6 @@ struct CubeParameterView: View {
         ParameterSliderView(title: "Target Y", value: $parameters.cubeTarget.y, range: -2 ... 2)
         ParameterSliderView(title: "Target Z", value: $parameters.cubeTarget.z, range: -2 ... 2)
         IntegerParameterSliderView(title: "Fit", value: $parameters.meshFit, range: 4 ... 48)
+        ParameterSliderView(title: "Field Of View", value: $parameters.meshFieldOfView, range: MeshPerspective.range)
     }
 }

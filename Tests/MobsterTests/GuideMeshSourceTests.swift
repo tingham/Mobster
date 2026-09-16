@@ -13,7 +13,7 @@ struct GuideMeshSourceTests {
         let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal).mesh(in: square)
         let guide = Guide(frame: square)
 
-        try guide.initialize(source: .mesh(mesh, device: device, fit: fit), frame: square, adhesion: 1, duration: 1, settleEpsilon: 4, budget: .max)
+        try guide.initialize(source: .mesh(mesh, device: device, fit: fit, perspective: MeshPerspective()), frame: square, adhesion: 1, duration: 1, settleEpsilon: 4, budget: .max)
 
         #expect(guide.lines.count == 6)
         #expect(guide.lines.allSatisfy { $0.verts.count == fit })
@@ -25,7 +25,7 @@ struct GuideMeshSourceTests {
         let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal).mesh(in: square)
         let guide = Guide(frame: square)
 
-        try guide.initialize(source: .mesh(mesh, device: device, fit: fit), frame: square, adhesion: 1, duration: 1, settleEpsilon: 4, budget: .max)
+        try guide.initialize(source: .mesh(mesh, device: device, fit: fit, perspective: MeshPerspective()), frame: square, adhesion: 1, duration: 1, settleEpsilon: 4, budget: .max)
 
         #expect(guide.lines.allSatisfy { $0.identifier == nil })
         #expect(guide.lines.allSatisfy { line in line.verts.allSatisfy { $0.identifier == nil } })

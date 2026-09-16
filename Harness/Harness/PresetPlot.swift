@@ -73,7 +73,7 @@ struct PresetPlot {
         guard let device else { return [] }
         let box = CubeMesh(position: parameters.cubePosition, size: parameters.cubeSize, target: parameters.cubeTarget)
 
-        return try MeshExtraction(mesh: box.mesh(in: frame), frame: frame, fit: parameters.meshFit).paths(device: device)
+        return try MeshExtraction(mesh: box.mesh(in: frame), frame: frame, fit: parameters.meshFit, perspective: MeshPerspective(fieldOfView: parameters.meshFieldOfView)).paths(device: device)
     }
 
     /// The panel dials a roll as a degree, which the preset takes in radians.
