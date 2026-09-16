@@ -131,6 +131,12 @@ A gutter is a band with two edges. A count of four columns with one gutter width
 **preset.gutter.fraction**
 A gutter width is a fraction of the Frame extent along the axis it divides in aspect mode, which is the mode these presets construct in. In bounds mode the design rectangle is larger than the Frame and the gutter is a fraction of that instead.
 
+**form.space.depth**
+A construction may be expressed in three dimensions and projected. Nothing else in the package gains a third dimension by it; a preset opts in.
+
+**form.space.depth.near**
+A projected construction is clipped to its near half by depth, so the far side of a curve does not project as a second lobe over the near one.
+
 **preset.form.geometric**
 A figure or head preset plots geometric primitives rather than reproducing a drawn tradition. An ellipsoid, a frustum, a wedge and a great circle all have exact projections where a traced silhouette needs judgement. The result reading as robotic is acceptable; these are guides drawn over.
 
@@ -158,8 +164,17 @@ A head plotted as the construction sphere with its side planes, brow line, centr
 **preset.head.sex**
 The head is proportioned as male or as female.
 
-**preset.head.view**
+**@removal(a target is dragged where a slider is dialled, it matches how the figure is already posed, and it carries tilt and roll that an angle could not) preset.head.view**
 A view angle runs from zero at full profile to one at face forward. The middle of the range is the three quarter view, which sits nearer forty degrees of yaw than forty five, so the mapping is not linear in angle.
+
+**preset.head.target**
+The head points at a location. It is not rotated by an angle.
+
+**preset.head.basis**
+Forward runs from the head toward its target. Up and right are derived from it. Where forward runs parallel to up the derivation collapses, and a fallback axis answers rather than the construction snapping.
+
+**preset.head.roll**
+A scalar turns the head about its forward axis.
 
 **preset.ruler**
 Two circular degrees derive two locations on the edge of the Frame.
