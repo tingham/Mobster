@@ -98,6 +98,12 @@ A preset plotting in bounds mode plots paths scaled to a minimum bounds encompas
 **preset.frame.bounds.center**
 A preset scaled to a minimum bounds is centered within the Frame.
 
+**preset.frame.contain**
+A preset plotting in contain mode is scaled by the lesser of the Frame's axes and centered, so the whole of it sits inside the Frame with its own proportions intact.
+
+**preset.frame.mode.fixed**
+A preset whose proportions are the requirement fixes its own mode and takes none. The consumer does not choose a mode for a thing whose shape is the point of it.
+
 **preset.frame.mode.default**
 Thirds, Columns, Rows, Grid, Ruler and Curve construct in aspect mode. Each is defined relative to the Frame and a Frame relative quantity resolves against the Frame only in that mode.
 
@@ -143,6 +149,9 @@ A figure or head preset plots geometric primitives rather than reproducing a dra
 **preset.ashcan**
 A human figure plotted as construction forms against the Frame.
 
+**preset.ashcan.proportion**
+The figure plots contained and takes no mode. A figure stretched to an axis is not a figure, for the reason a stretched spiral is not the golden ratio.
+
 **preset.ashcan.sex**
 The figure is proportioned as male or as female.
 
@@ -160,6 +169,9 @@ Horizontal half width lines sit to either side of the figure at each head break.
 
 **preset.head**
 A head plotted as the construction sphere with its side planes, brow line, centre line, jaw, chin and a portion of the neck.
+
+**preset.head.proportion**
+The head plots contained and takes no mode, for the reason the figure does.
 
 **preset.head.sex**
 The head is proportioned as male or as female.
