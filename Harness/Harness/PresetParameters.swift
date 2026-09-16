@@ -21,4 +21,16 @@ struct PresetParameters: Hashable, Sendable {
     var headSex: HeadSex = .male
     /// Opening at the middle of the range, which is the three quarter view.
     var headView: Float = 0.5
+    var ashcanSex: AshcanSex = .male
+    var ashcanHeads: Float = 8
+    var ashcanLeftHand = SIMD2<Float>(0.31, 0.5)
+    var ashcanRightHand = SIMD2<Float>(0.69, 0.5)
+    var ashcanLeftFoot = SIMD2<Float>(0.42, 1)
+    var ashcanRightFoot = SIMD2<Float>(0.58, 1)
+    /// Degrees, cast the way the ruler casts them: zero along positive x, rising toward positive y.
+    var ashcanLeftElbowDegree: Float = 180
+    var ashcanRightElbowDegree: Float = 0
+    var ashcanLeftKneeDegree: Float = 180
+    var ashcanRightKneeDegree: Float = 0
+    var ashcanHeadLines = true
 }

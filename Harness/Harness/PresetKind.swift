@@ -8,6 +8,7 @@ enum PresetKind: String, CaseIterable, Identifiable, Hashable, Sendable {
     case ruler
     case curve
     case head
+    case ashcan
 
     var id: String { rawValue }
 
@@ -21,6 +22,7 @@ enum PresetKind: String, CaseIterable, Identifiable, Hashable, Sendable {
         case .ruler: "Ruler"
         case .curve: "Curve"
         case .head: "Head"
+        case .ashcan: "Ashcan"
         }
     }
 }
