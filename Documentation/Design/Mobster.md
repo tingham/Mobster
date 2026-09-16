@@ -131,6 +131,33 @@ A gutter is a band with two edges. A count of four columns with one gutter width
 **preset.gutter.fraction**
 A gutter width is a fraction of the Frame extent along the axis it divides in aspect mode, which is the mode these presets construct in. In bounds mode the design rectangle is larger than the Frame and the gutter is a fraction of that instead.
 
+**preset.ashcan**
+A human figure plotted as construction forms against the Frame.
+
+**preset.ashcan.sex**
+The figure is proportioned as male or as female.
+
+**preset.ashcan.heads**
+The figure's height is given in heads. Proportion at a given height follows published canon, so a shorter figure reads as a child rather than as a scaled adult.
+
+**preset.ashcan.pose**
+The figure is posed by a target for each hand and each foot. A two bone chain solves the limb between its shoulder or hip and that target.
+
+**preset.ashcan.pose.pole**
+Each limb carries a direction for its elbow or knee, so a solved chain does not choose one arbitrarily.
+
+**preset.ashcan.heads.lines**
+Horizontal half width lines sit to either side of the figure at each head break. They are optional.
+
+**preset.head**
+A head plotted as the construction sphere with its side planes, brow line, centre line, jaw, chin and a portion of the neck.
+
+**preset.head.sex**
+The head is proportioned as male or as female.
+
+**preset.head.view**
+A view angle runs from zero at full profile to one at face forward. The middle of the range is the three quarter view, which sits nearer forty degrees of yaw than forty five, so the mapping is not linear in angle.
+
 **preset.ruler**
 Two circular degrees derive two locations on the edge of the Frame.
 
