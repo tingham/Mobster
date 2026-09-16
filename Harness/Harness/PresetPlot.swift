@@ -1,3 +1,4 @@
+import Foundation
 import Mobster
 
 /// The paths on screen and the time the preset took to produce those same paths.
@@ -40,6 +41,26 @@ struct PresetPlot {
                         control: parameters.curveControl,
                         resolution: parameters.curveResolution,
                         mode: mode).paths(in: frame)
+        case .ashcan:
+            AshcanPreset(sex: parameters.ashcanSex,
+                         heads: parameters.ashcanHeads,
+                         leftHand: parameters.ashcanLeftHand,
+                         rightHand: parameters.ashcanRightHand,
+                         leftFoot: parameters.ashcanLeftFoot,
+                         rightFoot: parameters.ashcanRightFoot,
+                         leftElbowPole: pole(parameters.ashcanLeftElbowDegree),
+                         rightElbowPole: pole(parameters.ashcanRightElbowDegree),
+                         leftKneePole: pole(parameters.ashcanLeftKneeDegree),
+                         rightKneePole: pole(parameters.ashcanRightKneeDegree),
+                         headLines: parameters.ashcanHeadLines,
+                         mode: mode).paths(in: frame)
         }
+    }
+
+    /// The panel dials a pole as a degree, which the preset takes as the direction it points.
+    private static func pole(_ degree: Float) -> SIMD2<Float> {
+        let radians = degree * Float.pi / 180
+
+        return SIMD2<Float>(cos(radians), sin(radians))
     }
 }

@@ -17,6 +17,8 @@ struct ParameterPanelView: View {
             RulerParameterView(parameters: $model.parameters)
         case .curve:
             CurveParameterView(parameters: $model.parameters)
+        case .ashcan:
+            AshcanParameterView(parameters: $model.parameters)
         }
     }
 }

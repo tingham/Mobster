@@ -7,7 +7,7 @@ struct PlotControlView: View {
         switch model.kind {
         case .goldenRatio:
             PresetFocusPickerView(focus: $model.focus)
-        case .thirds, .columns, .rows, .grid, .ruler, .curve:
+        case .thirds, .columns, .rows, .grid, .ruler, .curve, .ashcan:
             PlotModePickerView(mode: $model.mode)
         }
     }
