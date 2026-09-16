@@ -45,16 +45,16 @@ struct HeadPresetTests {
         #expect(upright(paths, 30.862).count == 2)
     }
 
-    /// Head length over head height puts the cranial mass 33.621 either side of the middle, which is the outline the sagittal great circle stands in for. The brow circle flattens onto the level of nasion and crosses that depth once, gnathion at 80 and sublabiale at 64.828 stand at the front of it, the near side plane is cut to 0.678 of the cranial mass by the temple breadth, and the far side plane does not project at all.
+    /// Head length over head height puts the cranial mass 33.621 either side of the middle, half of which the sagittal great circle stands in for, its plane standing edge on to the view. The brow circle flattens onto the level of nasion and crosses that depth once, gnathion at 80 and sublabiale at 64.828 stand at the front of it, the near side plane is cut to 0.678 of the cranial mass by the temple breadth, and the far side plane does not project at all.
     @Test func aTargetLevelAndToTheSideReadsAsProfile() {
         let paths = HeadPreset(sex: .male, target: SIMD3<Float>(1, 0, 0), roll: 0).paths(in: square)
 
         #expect(paths.count == 7)
         #expect(abs(paths[0].map(\.x).max()! - 83.621) < 0.01)
         #expect(abs(paths[0].map(\.x).min()! - 16.379) < 0.01)
-        #expect(abs(paths[2].map(\.x).max()! - 83.621) < 0.01)
         #expect(abs(paths[2].map(\.x).min()! - 16.379) < 0.01)
-        #expect(abs(paths[2].map(\.y).max()! - 75.172) < 0.01)
+        #expect(abs(paths[2].map(\.x).max()! - 50) < 0.01)
+        #expect(abs(paths[2].map(\.y).min()!) < 0.01)
         #expect(paths[1].allSatisfy { abs($0.y - 37.586) < 0.01 })
         #expect(climbs(paths[1].map(\.x)))
         #expect(paths[5].allSatisfy { abs($0.x - 83.621) < 0.01 })
@@ -95,6 +95,15 @@ struct HeadPresetTests {
 
         #expect(held == steeper)
         #expect(held != shallower)
+    }
+
+    /// A target on the vertical through the head carries no azimuth to face, and one at the head's own location carries no direction at all. The held run stands both of them out along the depth, where an unheld run leaves every location of the construction a NaN.
+    @Test(arguments: [SIMD3<Float>(0, -1, 0), SIMD3<Float>(0, 1, 0), SIMD3<Float>(0, 0, 0)])
+    func aTargetWithNoRunIsHeldOffTheVertical(target: SIMD3<Float>) {
+        let paths = HeadPreset(sex: .male, target: target, roll: 0).paths(in: square)
+
+        #expect(!paths.isEmpty)
+        #expect(paths.allSatisfy { $0.allSatisfy { $0.x.isFinite && $0.y.isFinite } })
     }
 
     /// A quarter turn about forward stands the brow line up the middle of a frontal view and lays the centre line across it.
