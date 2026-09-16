@@ -33,7 +33,7 @@ struct MeshExtractionTests {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: target).mesh(in: square)
 
-        return MeshExtraction(mesh: mesh, frame: square).paths(device: device)
+        return try MeshExtraction(mesh: mesh, frame: square).paths(device: device)
     }
 
     private func meets(_ path: [SIMD2<Float>], _ first: SIMD2<Float>, _ second: SIMD2<Float>) -> Bool {

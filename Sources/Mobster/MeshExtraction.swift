@@ -10,12 +10,12 @@ public struct MeshExtraction: Sendable {
         self.frame = frame
     }
 
-    /// One path a boundary, in the order the pairs of identities that meet along them fall. The consumer supplies the device; Mobster creates none.
-    public func paths(device: any MTLDevice) -> [[SIMD2<Float>]] {
+    /// One path a boundary, in the order the pairs of identities that meet along them fall. The consumer supplies the device; Mobster creates none. A device that will not run the pass refuses, because no path and no render read the same on a canvas.
+    public func paths(device: any MTLDevice) throws(MeshRefusal) -> [[SIMD2<Float>]] {
         let resolution = MeshResolution(frame: frame)
+        let render = try MeshRender(device: device)
 
-        guard let render = MeshRender(device: device),
-              let raster = render.raster(of: mesh, in: frame, resolution: resolution) else { return [] }
+        guard let raster = try render.raster(of: mesh, in: frame, resolution: resolution) else { return [] }
 
         return MeshBoundary(raster: raster).seams().map { seam in
             MeshFit(locations: seam.locations.map { scene($0, raster) }).path()

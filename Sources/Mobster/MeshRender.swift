@@ -36,11 +36,11 @@ final class MeshRender {
     private let depth: MTLDepthStencilState
 
     /// The pass is compiled from source at construction: the package carries no resource bundle, and a twelve triangle draw does not earn a build plugin in front of every consumer's build.
-    init?(device: any MTLDevice) {
+    init(device: any MTLDevice) throws(MeshRefusal) {
         guard let library = try? device.makeLibrary(source: Self.source, options: nil),
               let vertexFunction = library.makeFunction(name: Self.vertexName),
               let fragmentFunction = library.makeFunction(name: Self.fragmentName),
-              let commands = device.makeCommandQueue() else { return nil }
+              let commands = device.makeCommandQueue() else { throw .pass }
 
         let description = MTLRenderPipelineDescriptor()
         description.vertexFunction = vertexFunction
@@ -53,14 +53,15 @@ final class MeshRender {
         test.isDepthWriteEnabled = true
 
         guard let state = try? device.makeRenderPipelineState(descriptor: description),
-              let comparison = device.makeDepthStencilState(descriptor: test) else { return nil }
+              let comparison = device.makeDepthStencilState(descriptor: test) else { throw .pass }
 
         queue = commands
         pipeline = state
         depth = comparison
     }
 
-    func raster(of mesh: Mesh, in frame: Frame, resolution: MeshResolution) -> MeshIdentityRaster? {
+    /// Nil where there is nothing to draw, which a Frame with no extent and a mesh of no triangles both are. A device that will not run the pass refuses instead, those two being different answers.
+    func raster(of mesh: Mesh, in frame: Frame, resolution: MeshResolution) throws(MeshRefusal) -> MeshIdentityRaster? {
         guard resolution.columns > 0, resolution.rows > 0, mesh.triangles.isEmpty == false else { return nil }
 
         var locations = clipped(mesh, in: frame)
@@ -74,10 +75,10 @@ final class MeshRender {
         test.storageMode = .private
 
         guard let surface = device.makeTexture(descriptor: target),
-              let depths = device.makeTexture(descriptor: test),
-              let locationBuffer = device.makeBuffer(bytes: &locations, length: MemoryLayout<SIMD3<Float>>.stride * locations.count, options: .storageModeShared),
-              let identityBuffer = device.makeBuffer(bytes: &identities, length: MemoryLayout<UInt32>.stride * identities.count, options: .storageModeShared),
-              let commands = queue.makeCommandBuffer() else { return nil }
+              let depths = device.makeTexture(descriptor: test) else { throw .target(columns: resolution.columns, rows: resolution.rows) }
+        guard let locationBuffer = device.makeBuffer(bytes: &locations, length: MemoryLayout<SIMD3<Float>>.stride * locations.count, options: .storageModeShared),
+              let identityBuffer = device.makeBuffer(bytes: &identities, length: MemoryLayout<UInt32>.stride * identities.count, options: .storageModeShared) else { throw .buffers(triangles: mesh.triangles.count) }
+        guard let commands = queue.makeCommandBuffer() else { throw .encoding }
 
         let pass = MTLRenderPassDescriptor()
         pass.colorAttachments[0].texture = surface
@@ -89,7 +90,7 @@ final class MeshRender {
         pass.depthAttachment.clearDepth = 1
         pass.depthAttachment.storeAction = .dontCare
 
-        guard let encoder = commands.makeRenderCommandEncoder(descriptor: pass) else { return nil }
+        guard let encoder = commands.makeRenderCommandEncoder(descriptor: pass) else { throw .encoding }
         encoder.setRenderPipelineState(pipeline)
         encoder.setDepthStencilState(depth)
         encoder.setVertexBuffer(locationBuffer, offset: 0, index: 0)

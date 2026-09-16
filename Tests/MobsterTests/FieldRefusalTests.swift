@@ -59,12 +59,19 @@ struct FieldRefusalTests {
         #expect(try bake(epsilon: refusal.affordable, budget: segments - 1).field().isEmpty)
     }
 
-    @Test func aGuideBakingItsSourceCarriesTheRefusalToItsCaller() {
+    /// A Guide refuses for the bake or for the mesh source, so what reaches the caller says which of the two it was and carries that one's own reasons.
+    @Test func aGuideBakingItsSourceCarriesTheRefusalToItsCaller() throws {
         let guide = Guide(frame: frame)
-
-        #expect(throws: FieldRefusal.self) {
+        let refusal = try #require(throws: GuideRefusal.self) {
             try guide.initialize(source: .lines(lines), frame: frame, adhesion: 1, duration: 1, settleEpsilon: 1, budget: 10_000)
         }
+
+        guard case let .field(bake) = refusal else {
+            #expect(Bool(false), "a refused bake reaches the caller as the field case")
+            return
+        }
+
+        #expect(bake.epsilon == 1)
     }
 
     /// A refused bake replaces nothing, so the Guide a consumer already holds keeps answering for the source it did bake.
@@ -72,7 +79,7 @@ struct FieldRefusalTests {
         let guide = Guide(frame: frame)
         try guide.initialize(source: .lines(lines), frame: frame, adhesion: 0.5, duration: 3, settleEpsilon: 4, budget: .max)
 
-        #expect(throws: FieldRefusal.self) {
+        #expect(throws: GuideRefusal.self) {
             try guide.initialize(source: .lines(lines), frame: frame, adhesion: 1, duration: 9, settleEpsilon: 1, budget: 10_000)
         }
 
