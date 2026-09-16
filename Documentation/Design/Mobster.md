@@ -131,6 +131,9 @@ A gutter is a band with two edges. A count of four columns with one gutter width
 **preset.gutter.fraction**
 A gutter width is a fraction of the Frame extent along the axis it divides in aspect mode, which is the mode these presets construct in. In bounds mode the design rectangle is larger than the Frame and the gutter is a fraction of that instead.
 
+**preset.form.geometric**
+A figure or head preset plots geometric primitives rather than reproducing a drawn tradition. An ellipsoid, a frustum, a wedge and a great circle all have exact projections where a traced silhouette needs judgement. The result reading as robotic is acceptable; these are guides drawn over.
+
 **preset.ashcan**
 A human figure plotted as construction forms against the Frame.
 
