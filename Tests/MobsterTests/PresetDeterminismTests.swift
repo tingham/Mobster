@@ -16,12 +16,14 @@ struct PresetDeterminismTests {
         { frame in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, mode: .bounds).paths(in: frame) },
         { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame) },
         { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16, mode: .bounds).paths(in: frame) },
+        { frame in HeadPreset(sex: .male, view: 0.5).paths(in: frame) },
+        { frame in HeadPreset(sex: .male, view: 0.5, mode: .bounds).paths(in: frame) },
         { frame in PresetDeterminismTests.ashcan(mode: .aspect).paths(in: frame) },
         { frame in PresetDeterminismTests.ashcan(mode: .bounds).paths(in: frame) },
     ]
 
     /// Indices in plotters whose immediate successor is the same preset in bounds mode.
-    static let aspectPlotters = [1, 3, 5, 7, 9, 11, 13]
+    static let aspectPlotters = [1, 3, 5, 7, 9, 11, 13, 15]
 
     /// One arm reaching past what it can span and one within it, so a sequence recorded here covers both answers the solve gives.
     static func ashcan(mode: PresetPlotMode) -> AshcanPreset {
@@ -171,6 +173,66 @@ struct PresetDeterminismTests {
             [SIMD2<Float>(610.0, 436.4006), SIMD2<Float>(306.0, 340.35852), SIMD2<Float>(-30.0, 159.03348)],
             [SIMD2<Float>(610.0, 385.29944), SIMD2<Float>(326.35956, 293.38058), SIMD2<Float>(-30.0, 99.3374)],
             [SIMD2<Float>(610.0, 487.5017), SIMD2<Float>(285.64038, 387.33643), SIMD2<Float>(-30.0, 218.72952)],
+        ]))
+    }
+
+    /// Taken at the middle of the view, where the recorded sequence stands on the view mapping as well as on the proportions.
+    @Test func headMatchesItsRecordedSequence() {
+        let paths = HeadPreset(sex: .male, view: 0.5).paths(in: frame)
+
+        #expect(paths.map(\.count) == [65, 33, 33, 65, 65, 5, 5, 5])
+        #expect(matches(sampled(paths[0], at: [0, 16, 32, 48]), [[
+            SIMD2<Float>(479.39975, 195.4138),
+            SIMD2<Float>(290.0, 375.8276),
+            SIMD2<Float>(100.60025, 195.41382),
+            SIMD2<Float>(290.0, 15.0),
+        ]]))
+        #expect(matches(sampled(paths[1], at: [0, 8, 16, 32]), [[
+            SIMD2<Float>(165.03448, 195.4138),
+            SIMD2<Float>(302.2737, 195.4138),
+            SIMD2<Float>(432.32315, 195.4138),
+            SIMD2<Float>(414.9655, 195.4138),
+        ]]))
+        #expect(matches(sampled(paths[2], at: [0, 8, 16, 32]), [[
+            SIMD2<Float>(290.0, 15.0),
+            SIMD2<Float>(390.63766, 67.841965),
+            SIMD2<Float>(432.32315, 195.41379),
+            SIMD2<Float>(290.00003, 375.8276),
+        ]]))
+        #expect(matches(sampled(paths[3], at: [0, 16, 32, 48]), [[
+            SIMD2<Float>(478.35144, 195.4138),
+            SIMD2<Float>(381.86206, 317.72705),
+            SIMD2<Float>(285.37274, 195.41382),
+            SIMD2<Float>(381.86206, 73.10056),
+        ]]))
+        #expect(matches(sampled(paths[4], at: [0, 16, 32, 48]), [[
+            SIMD2<Float>(294.62726, 195.4138),
+            SIMD2<Float>(198.13794, 317.72705),
+            SIMD2<Float>(101.648575, 195.41382),
+            SIMD2<Float>(198.13794, 73.10056),
+        ]]))
+        #expect(matches([paths[5], paths[6], paths[7]], [
+            [
+                SIMD2<Float>(377.72415, 319.55176),
+                SIMD2<Float>(476.18524, 399.0),
+                SIMD2<Float>(388.46112, 399.0),
+                SIMD2<Float>(202.27585, 319.55176),
+                SIMD2<Float>(377.72415, 319.55176),
+            ],
+            [
+                SIMD2<Float>(476.18524, 326.17242),
+                SIMD2<Float>(476.18524, 399.0),
+                SIMD2<Float>(388.46112, 399.0),
+                SIMD2<Float>(388.46112, 326.17242),
+                SIMD2<Float>(476.18524, 326.17242),
+            ],
+            [
+                SIMD2<Float>(423.47064, 319.55176),
+                SIMD2<Float>(423.47064, 495.0),
+                SIMD2<Float>(156.52936, 495.0),
+                SIMD2<Float>(156.52936, 319.55176),
+                SIMD2<Float>(423.47064, 319.55176),
+            ],
         ]))
     }
 

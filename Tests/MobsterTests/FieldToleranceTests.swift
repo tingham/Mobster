@@ -79,6 +79,7 @@ struct FieldToleranceTests {
         #expect(breaches(ThirdsPreset(mode: .aspect).paths(in: square), square, 64) == 0)
         #expect(breaches(RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, mode: .aspect).paths(in: square), square, 64) == 0)
         #expect(breaches(CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 32, mode: .aspect).paths(in: square), square, 64) == 0)
+        #expect(breaches(HeadPreset(sex: .male, view: 0.5, mode: .aspect).paths(in: square), square, 64) == 0)
         #expect(breaches(PresetDeterminismTests.ashcan(mode: .aspect).paths(in: square), square, 64) == 0)
     }
 

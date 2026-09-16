@@ -18,6 +18,9 @@ struct PresetParameters: Hashable, Sendable {
     var curveDistance: Float = 0.1
     var curveControl: SIMD2<Float> = SIMD2<Float>(0.5, 0.25)
     var curveResolution: Int = 32
+    var headSex: HeadSex = .male
+    /// Opening at the middle of the range, which is the three quarter view.
+    var headView: Float = 0.5
     var ashcanSex: AshcanSex = .male
     var ashcanHeads: Float = 8
     var ashcanLeftHand = SIMD2<Float>(0.31, 0.5)

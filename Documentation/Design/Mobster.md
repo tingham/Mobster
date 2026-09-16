@@ -131,6 +131,9 @@ A gutter is a band with two edges. A count of four columns with one gutter width
 **preset.gutter.fraction**
 A gutter width is a fraction of the Frame extent along the axis it divides in aspect mode, which is the mode these presets construct in. In bounds mode the design rectangle is larger than the Frame and the gutter is a fraction of that instead.
 
+**preset.form.geometric**
+A figure or head preset plots geometric primitives rather than reproducing a drawn tradition. An ellipsoid, a frustum, a wedge and a great circle all have exact projections where a traced silhouette needs judgement. The result reading as robotic is acceptable; these are guides drawn over.
+
 **preset.ashcan**
 A human figure plotted as construction forms against the Frame.
 
@@ -170,13 +173,22 @@ A degree of zero points along positive x within the Frame. Increasing degrees ro
 **preset.ruler.line**
 A line crosses the Frame between the two derived locations.
 
+**preset.ruler.control**
+Any number of interior control locations may sit between the two derived locations. None is the ordinary case.
+
+**preset.ruler.smooth**
+With no interior control the line is straight. With one or more it is smoothed through them, so the count of controls decides the order and nothing between is undefined.
+
+**preset.ruler.resolution**
+A smoothed line is sampled at a count the caller supplies. A straight line is its two endpoints and samples nothing.
+
 **preset.ruler.pair**
 A distance parameter creates a parallel line at that offset on each side of the line.
 
 **preset.ruler.pair.cross**
 A parallel line crosses the Frame. It is cast to the edge of the Frame rather than translated as a fixed length.
 
-**preset.curve**
+**@removal(a type defined as another type plus a field is a field; preset.ruler.control absorbs it, and Ruler keeps the name because nobody wants a curve to make a straight line) preset.curve**
 Identical in structure to the ruler, with a location between the start and the end controlling the tension of the curve. The curve is a quadratic Bezier sampled at a resolution the caller supplies.
 
 ## Field
