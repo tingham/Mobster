@@ -35,6 +35,8 @@ struct PresetParameters: Hashable, Sendable {
     var ashcanLeftKneeDegree: Float = 180
     var ashcanRightKneeDegree: Float = 0
     var ashcanHeadLines = true
+    /// Locations each extracted boundary is fitted to, which every mesh preset is read at.
+    var meshFit: Int = 12
     /// A fraction of the Frame, locating the centre of the box.
     var cubePosition = SIMD2<Float>(0.5, 0.5)
     /// The edge of the box as a fraction of the lesser axis of the Frame.

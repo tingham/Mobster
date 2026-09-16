@@ -9,6 +9,8 @@ struct MeshExtractionTests {
     private let axis = SIMD3<Float>(0, 0, 1)
     /// Down the body diagonal of the box: forty five degrees of rise on an azimuth whose sine is a third root, which stands all three visible faces at the same depth and so projects the regular hexagon.
     private let diagonal = SIMD3<Float>(1, Float(3).squareRoot(), Float(2).squareRoot())
+    /// Locations each boundary is fitted to.
+    private let fit = 12
     /// A boundary sample sits half a fragment from each of the fragments it separates and a fragment is a scene unit here, so a hand derived corner is met within a fragment and a half.
     private let tolerance: Float = 1.5
 
@@ -33,7 +35,7 @@ struct MeshExtractionTests {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: target).mesh(in: square)
 
-        return try MeshExtraction(mesh: mesh, frame: square).paths(device: device)
+        return try MeshExtraction(mesh: mesh, frame: square, fit: fit).paths(device: device)
     }
 
     private func meets(_ path: [SIMD2<Float>], _ first: SIMD2<Float>, _ second: SIMD2<Float>) -> Bool {
@@ -97,8 +99,8 @@ struct MeshExtractionTests {
     }
 
     @Test func everyPathHoldsTheCountAskedFor() throws {
-        #expect(try extracted(diagonal).allSatisfy { $0.count == MeshFit.count })
-        #expect(try extracted(axis).allSatisfy { $0.count == MeshFit.count })
+        #expect(try extracted(diagonal).allSatisfy { $0.count == fit })
+        #expect(try extracted(axis).allSatisfy { $0.count == fit })
     }
 
     /// The same three faces stand toward the viewer across the sweep, so what moves is where the paths are and not how many there are or how long each one is.

@@ -100,8 +100,8 @@ public final class Guide {
             return lines
         case let .preset(preset):
             return interpreted(preset.paths(in: frame))
-        case let .mesh(mesh, device):
-            return interpreted(try MeshExtraction(mesh: mesh, frame: frame).paths(device: device))
+        case let .mesh(mesh, device, fit):
+            return interpreted(try MeshExtraction(mesh: mesh, frame: frame, fit: fit).paths(device: device))
         }
     }
 

@@ -4,10 +4,13 @@ import Metal
 public struct MeshExtraction: Sendable {
     public let mesh: Mesh
     public let frame: Frame
+    /// Locations each boundary is fitted to. A count rather than a tolerance is what makes a turning form deform its path instead of rebuilding it with a different one each view.
+    public let fit: Int
 
-    public init(mesh: Mesh, frame: Frame) {
+    public init(mesh: Mesh, frame: Frame, fit: Int) {
         self.mesh = mesh
         self.frame = frame
+        self.fit = fit
     }
 
     /// One path a boundary, in the order the pairs of identities that meet along them fall. The consumer supplies the device; Mobster creates none. A device that will not run the pass refuses, because no path and no render read the same on a canvas.
@@ -18,7 +21,7 @@ public struct MeshExtraction: Sendable {
         guard let raster = try render.raster(of: mesh, in: frame, resolution: resolution) else { return [] }
 
         return MeshBoundary(raster: raster).seams().map { seam in
-            MeshFit(locations: seam.locations.map { scene($0, raster) }).path()
+            MeshFit(locations: seam.locations.map { scene($0, raster) }, count: fit).path()
         }
     }
 

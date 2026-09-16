@@ -5,7 +5,7 @@ final class MeshRender: Sendable {
     private static let vertexName = "mobster_mesh_identity_vertex"
     private static let fragmentName = "mobster_mesh_identity_fragment"
     /// The identity is flat and integral through the whole pass, which is what holds it off being interpolated into a value that means nothing.
-    private static let source = """
+    static let source = """
     #include <metal_stdlib>
     using namespace metal;
 
@@ -36,8 +36,8 @@ final class MeshRender: Sendable {
     private let depth: MTLDepthStencilState
 
     /// The pass is compiled from source: the package carries no resource bundle, and a twelve triangle draw does not earn a build plugin in front of every consumer's build. A device compiles it once, which MeshRenderCache is what holds.
-    init(device: any MTLDevice) throws(MeshRefusal) {
-        guard let library = try? device.makeLibrary(source: Self.source, options: nil),
+    init(device: any MTLDevice, pass: String = MeshRender.source) throws(MeshRefusal) {
+        guard let library = try? device.makeLibrary(source: pass, options: nil),
               let vertexFunction = library.makeFunction(name: Self.vertexName),
               let fragmentFunction = library.makeFunction(name: Self.fragmentName),
               let commands = device.makeCommandQueue() else { throw .pass }
