@@ -11,9 +11,14 @@ let package = Package(
         .library(name: "Mobster", targets: ["Mobster"]),
         .library(name: "MobsterFixture", targets: ["MobsterFixture"]),
     ],
+    dependencies: [
+        // Curve fitting and decimation, subscribed to rather than copied.
+        .package(path: "../Whiplash"),
+    ],
     targets: [
         .target(
             name: "Mobster",
+            dependencies: [.product(name: "Whiplash", package: "Whiplash")],
             resources: [.process("Resources")],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
