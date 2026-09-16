@@ -42,7 +42,7 @@ struct PresetPlot {
                         resolution: parameters.curveResolution,
                         mode: mode).paths(in: frame)
         case .head:
-            HeadPreset(sex: parameters.headSex, view: parameters.headView, mode: mode).paths(in: frame)
+            HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: roll(parameters.headRoll), mode: mode).paths(in: frame)
         case .ashcan:
             AshcanPreset(sex: parameters.ashcanSex,
                          heads: parameters.ashcanHeads,
@@ -57,6 +57,11 @@ struct PresetPlot {
                          headLines: parameters.ashcanHeadLines,
                          mode: mode).paths(in: frame)
         }
+    }
+
+    /// The panel dials a roll as a degree, which the preset takes in radians.
+    private static func roll(_ degree: Float) -> Float {
+        degree * Float.pi / 180
     }
 
     /// The panel dials a pole as a degree, which the preset takes as the direction it points.

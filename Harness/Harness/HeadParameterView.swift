@@ -5,7 +5,9 @@ struct HeadParameterView: View {
 
     var body: some View {
         HeadSexPickerView(sex: $parameters.headSex)
-        // Zero is full profile, one is face forward, and the middle is the three quarter view.
-        ParameterSliderView(title: "View", value: $parameters.headView, range: 0 ... 1)
+        ParameterSliderView(title: "Target X", value: $parameters.headTarget.x, range: -2 ... 2)
+        ParameterSliderView(title: "Target Y", value: $parameters.headTarget.y, range: -2 ... 2)
+        ParameterSliderView(title: "Target Z", value: $parameters.headTarget.z, range: -2 ... 2)
+        ParameterSliderView(title: "Roll", value: $parameters.headRoll, range: -180 ... 180)
     }
 }
