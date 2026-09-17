@@ -12,6 +12,7 @@ struct FigureExtractionTests {
         FigurePreset(sex: .male,
                      heads: 8,
                      target: target,
+                     headTarget: SIMD3<Float>(0, 0, 1),
                      leftHand: SIMD2<Float>(0.24, 0.62),
                      rightHand: SIMD2<Float>(0.76, 0.62),
                      leftFoot: SIMD2<Float>(0.42, 1),

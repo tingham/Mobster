@@ -9,10 +9,11 @@ struct FigurePresetTests {
     /// Straight out of the chest, which reads the figure frontally.
     private let frontal = SIMD3<Float>(0, 0, 1)
 
-    private func figure(sex: FigureSex, heads: Float, target: SIMD3<Float>? = nil, headLines: Bool = false) -> FigurePreset {
+    private func figure(sex: FigureSex, heads: Float, target: SIMD3<Float>? = nil, headTarget: SIMD3<Float>? = nil, headLines: Bool = false) -> FigurePreset {
         FigurePreset(sex: sex,
                      heads: heads,
                      target: target ?? frontal,
+                     headTarget: headTarget ?? frontal,
                      leftHand: SIMD2<Float>(0.31, 0.5),
                      rightHand: SIMD2<Float>(0.69, 0.5),
                      leftFoot: SIMD2<Float>(0.42, 1),
@@ -186,6 +187,28 @@ struct FigurePresetTests {
         #expect(turned.triangles.allSatisfy { [$0.first, $0.second, $0.third].allSatisfy { $0.x.isFinite && $0.y.isFinite && $0.z.isFinite } })
     }
 
+    /// The head points at a location of its own, so it turns within a figure the figure's own target leaves frontal. The mass is what turns and nothing else moves with it.
+    @Test func theHeadTargetTurnsTheHeadAndNothingElse() {
+        let ahead = figure(sex: .male, heads: 8).mesh(in: frame)
+        let looking = figure(sex: .male, heads: 8, headTarget: SIMD3<Float>(1, 0, 1)).mesh(in: frame)
+        let mass: Set<UInt32> = [1, 2]
+
+        #expect(ahead.triangles.count == looking.triangles.count)
+        #expect(ahead.triangles.filter { mass.contains($0.identity.value) } != looking.triangles.filter { mass.contains($0.identity.value) })
+        #expect(ahead.triangles.filter { mass.contains($0.identity.value) == false } == looking.triangles.filter { mass.contains($0.identity.value) == false })
+    }
+
+    /// The target is a location on the preview a consumer drags, so it stands somewhere in the Frame and a location in the Frame stands for a target. One head to the right of the head's centre is a twelfth of eight hundred across from it.
+    @Test func theHeadTargetStandsInTheFrameAndComesBackFromIt() {
+        let looking = figure(sex: .male, heads: 8, headTarget: SIMD3<Float>(1, 0, 1))
+        let standing = looking.headLocation(in: frame)
+
+        #expect(abs(standing.x - 500) < 0.01)
+        #expect(abs(standing.y - 50) < 0.01)
+        #expect(meets(SIMD3<Float>(looking.headTarget(at: standing, in: frame)), SIMD3<Float>(1, 0, 1)))
+        #expect(meets(SIMD3<Float>(looking.headTarget(at: SIMD2<Float>(400, 50), in: frame)), SIMD3<Float>(0, 0, 1)))
+    }
+
     @Test func headBreakLinesSitAtTheFractionsTheHeightImplies() {
         let measured = figure(sex: .male, heads: 8, headLines: true).breakLines(in: frame)
 
@@ -238,6 +261,7 @@ struct FigurePresetTests {
         let reaching = FigurePreset(sex: .male,
                                     heads: 8,
                                     target: frontal,
+                                    headTarget: frontal,
                                     leftHand: SIMD2<Float>(-4, -3),
                                     rightHand: SIMD2<Float>(6, 9),
                                     leftFoot: SIMD2<Float>(0.42, 1),

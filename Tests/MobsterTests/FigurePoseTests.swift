@@ -8,6 +8,7 @@ struct FigurePoseTests {
         FigurePreset(sex: .male,
                      heads: 8,
                      target: SIMD3<Float>(0, 0, 1),
+                     headTarget: SIMD3<Float>(0, 0, 1),
                      leftHand: pose.leftHand,
                      rightHand: pose.rightHand,
                      leftFoot: pose.leftFoot,

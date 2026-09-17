@@ -66,14 +66,16 @@ final class HarnessModel {
         }
     }
 
-    /// The four targets a figure is posed by, which it holds in design space.
+    /// The four targets a figure is posed by, which it holds in design space, and the location its head points at, which the preset vends in the Frame and takes back in it as the head preset does.
     private var figureHandles: [PresetHandle] {
         let square = DesignSquare(frame: Self.frame)
+        let figure = PresetPlot.construction(parameters)
 
         return [PresetHandle(id: "Left Hand", location: square.location(parameters.figureLeftHand), move: { [self] in parameters.figureLeftHand = square.design($0) }),
                 PresetHandle(id: "Right Hand", location: square.location(parameters.figureRightHand), move: { [self] in parameters.figureRightHand = square.design($0) }),
                 PresetHandle(id: "Left Foot", location: square.location(parameters.figureLeftFoot), move: { [self] in parameters.figureLeftFoot = square.design($0) }),
-                PresetHandle(id: "Right Foot", location: square.location(parameters.figureRightFoot), move: { [self] in parameters.figureRightFoot = square.design($0) })]
+                PresetHandle(id: "Right Foot", location: square.location(parameters.figureRightFoot), move: { [self] in parameters.figureRightFoot = square.design($0) }),
+                PresetHandle(id: "Head Target", location: figure.headLocation(in: Self.frame), move: { [self] in parameters.figureHeadTarget = figure.headTarget(at: $0, in: Self.frame) })]
     }
 
     /// The location the head points at, which the preset vends in the Frame and takes back in it. Its depth is not on the preview and the drag keeps whatever it stood at.

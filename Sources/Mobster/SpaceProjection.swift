@@ -20,6 +20,11 @@ struct SpaceProjection: Hashable, Sendable {
         SIMD2<Float>((across * location).sum(), (down * location).sum())
     }
 
+    /// A location carried onto the axes with its depth kept rather than flattened onto the plane, which is what a form turning within a construction that turns again needs.
+    func turned(_ location: SIMD3<Float>) -> SIMD3<Float> {
+        SIMD3<Float>((across * location).sum(), (down * location).sum(), (depth * location).sum())
+    }
+
     /// The stretches of a path that stand on the near side of the construction's centre, each projected. A curve reaching into the far side emits what is left of it on either side of that reach rather than one path folded over itself, and a lone sample is no stretch of a curve.
     func runs(_ path: [SIMD3<Float>]) -> [[SIMD2<Float>]] {
         var kept: [[SIMD2<Float>]] = []
