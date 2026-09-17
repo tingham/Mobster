@@ -1,3 +1,5 @@
+> **Superseded.** This is a historical record of what was asked for at the time. The authority is [Design/Mobster.md](../Design/Mobster.md). Requirement identifiers cited below may no longer exist.
+
 # Cut 4: Harness
 
 A macOS application that draws what Mobster produces, so magnitudes can be derived by eye instead of by projection.

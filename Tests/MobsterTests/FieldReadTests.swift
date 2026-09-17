@@ -75,7 +75,7 @@ struct FieldReadTests {
     }
 
     @Test func aLocationOnAPresetPathReportsWithinATexelOfZero() {
-        let preset = RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, mode: .aspect)
+        let preset = RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08)
         let paths = preset.paths(in: frame)
         let field = FieldFixture.field(paths: paths, frame: frame, count: 400)
 

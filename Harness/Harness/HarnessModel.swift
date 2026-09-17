@@ -1,3 +1,4 @@
+import Metal
 import Mobster
 import MobsterFixture
 import Observation
@@ -6,7 +7,7 @@ import Observation
 final class HarnessModel {
     /// Scene space is fitted to the canvas at draw time, so this is a shape rather than a pixel count.
     static let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
-    /// Texel segment products a bake may spend. A bake runs at roughly a nanosecond a product in release and a hundred times that in the debug build this harness is dragged in, so this opening holds a drag near a quarter second rather than near half a minute.
+    /// Texel segment products a bake may spend. A bake runs at roughly 1.2 nanoseconds a product in release and a hundred times that in the debug build this harness is dragged in, so this opening holds a drag near a quarter second.
     static let openingBudget = 2_000_000
     /// Three decades, the lower end being a bake no build stalls on and the upper end one a release consumer would still wait through.
     static let budgetRange = 100_000 ... 100_000_000
@@ -20,12 +21,15 @@ final class HarnessModel {
     static let openingEpsilon: Float = 1
     /// Minus one to one, carried by every vert in the population. The opening leaves the population moving independently, which is the reading the coupled ones are judged against.
     static let openingCoupling: Float = 0
+    /// The harness is the consumer, so the harness is what holds the device a mesh source is rendered on. Mobster creates none.
+    static let device = MTLCreateSystemDefaultDevice()
 
     var kind: PresetKind = .columns { didSet { replot() } }
-    var mode: PresetPlotMode = .aspect { didSet { replot() } }
     var focus: PresetFocus = .maxXMinY { didSet { replot() } }
     var parameters = PresetParameters() { didSet { replot() } }
     var fieldVisible = false
+    /// A second identity pass is what a raster costs, so it is taken only while it is shown.
+    var identityVisible = false { didSet { replot() } }
     var fixture = HarnessModel.openingFixture { didSet { repopulate() } }
     var adhesion = HarnessModel.openingAdhesion { didSet { retune() } }
     var run = HarnessModel.openingRun { didSet { retune() } }
@@ -48,8 +52,41 @@ final class HarnessModel {
         fieldVisible ? field.raster : nil
     }
 
+    /// Nil where the identities are hidden and where the preset plots its paths rather than extracting them.
+    var identityRaster: MeshIdentityRaster? {
+        identityVisible ? plot.raster : nil
+    }
+
+    /// The locations the user places, which are dragged on the preview rather than typed into two numbers.
+    var handles: [PresetHandle] {
+        switch kind {
+        case .figure: figureHandles
+        case .head: headHandles
+        case .goldenRatio, .thirds, .columns, .rows, .grid, .ruler, .curve, .cube: []
+        }
+    }
+
+    /// The four targets a figure is posed by, which it holds in design space, and the location its head points at, which the preset vends in the Frame and takes back in it as the head preset does.
+    private var figureHandles: [PresetHandle] {
+        let square = DesignSquare(frame: Self.frame)
+        let figure = PresetPlot.construction(parameters)
+
+        return [PresetHandle(id: "Left Hand", location: square.location(parameters.figureLeftHand), move: { [self] in parameters.figureLeftHand = square.design($0) }),
+                PresetHandle(id: "Right Hand", location: square.location(parameters.figureRightHand), move: { [self] in parameters.figureRightHand = square.design($0) }),
+                PresetHandle(id: "Left Foot", location: square.location(parameters.figureLeftFoot), move: { [self] in parameters.figureLeftFoot = square.design($0) }),
+                PresetHandle(id: "Right Foot", location: square.location(parameters.figureRightFoot), move: { [self] in parameters.figureRightFoot = square.design($0) }),
+                PresetHandle(id: "Head Target", location: figure.headLocation(in: Self.frame), move: { [self] in parameters.figureHeadTarget = figure.headTarget(at: $0, in: Self.frame) })]
+    }
+
+    /// The location the head points at, which the preset vends in the Frame and takes back in it. Its depth is not on the preview and the drag keeps whatever it stood at.
+    private var headHandles: [PresetHandle] {
+        let head = HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: PresetPlot.roll(parameters.headRoll))
+
+        return [PresetHandle(id: "View Target", location: head.location(in: Self.frame), move: { [self] in parameters.headTarget = head.target(at: $0, in: Self.frame) })]
+    }
+
     init() {
-        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, mode: .aspect, focus: .maxXMinY)
+        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, focus: .maxXMinY, identities: false, device: Self.device)
         let population = Self.coupled(LineFixture(parameters: Self.openingFixture).lines(in: Self.frame), coupling: Self.openingCoupling)
         let running = MotionEngine(frame: Self.frame,
                                    source: Self.source(opening.paths),
@@ -83,7 +120,7 @@ final class HarnessModel {
     }
 
     private func replot() {
-        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, mode: mode, focus: focus)
+        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, focus: focus, identities: identityVisible, device: Self.device)
         reload()
     }
 

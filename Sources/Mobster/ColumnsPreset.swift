@@ -3,18 +3,16 @@ public struct ColumnsPreset: Hashable, Preset {
     private static let designSize = SIMD2<Float>(1, 1)
 
     public let count: Int
-    /// A fraction of the design width, which is the Frame width in aspect mode.
+    /// A fraction of the Frame width.
     public let gutter: Float
-    public let mode: PresetPlotMode
 
-    public init(count: Int, gutter: Float, mode: PresetPlotMode = .aspect) {
+    public init(count: Int, gutter: Float) {
         self.count = count
         self.gutter = gutter
-        self.mode = mode
     }
 
     public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
-        let projection = PresetProjection(mode: mode, frame: frame, designSize: Self.designSize)
+        let projection = PresetProjection(mode: .aspect, frame: frame, designSize: Self.designSize)
         let edges = PresetGutter(count: count, gutter: gutter, extent: Self.designSize.x).edges()
 
         return projection.paths(edges.map { x in

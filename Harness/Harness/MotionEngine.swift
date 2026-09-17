@@ -12,7 +12,7 @@ final class MotionEngine {
     private var guide: Guide
     private var displaced: [Line] = []
     private var raster: FieldRaster?
-    private var refusal: FieldRefusal?
+    private var refusal: GuideRefusal?
     private var bake: Duration = .zero
     private var evaluation: Duration = .zero
     private var time: Double = 0
@@ -65,9 +65,9 @@ final class MotionEngine {
     /// A refused bake leaves a Guide that displaces nothing, which the readout says outright rather than leaving the canvas to imply it.
     private func build() {
         guide = Guide(frame: frame)
-        var refused: FieldRefusal?
+        var refused: GuideRefusal?
         bake = ContinuousClock().measure {
-            do throws(FieldRefusal) {
+            do throws(GuideRefusal) {
                 try guide.initialize(source: source, frame: frame, adhesion: adhesion, duration: run, settleEpsilon: epsilon, budget: budget)
             } catch {
                 refused = error

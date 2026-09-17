@@ -4,8 +4,8 @@ import Mobster
 struct FieldPlot {
     /// Nil for a field holding no path location, which vends no grayscale.
     let raster: FieldRaster?
-    /// What the bake refused, held so the harness can say so: an empty canvas cannot be told apart from a field nothing is drawn against.
-    let refusal: FieldRefusal?
+    /// What the Guide refused, held so the harness can say so: an empty canvas cannot be told apart from a field nothing is drawn against.
+    let refusal: GuideRefusal?
     let duration: Duration
 
     static let idle = FieldPlot(raster: nil, refusal: nil, duration: .zero)

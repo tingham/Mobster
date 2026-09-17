@@ -1,17 +1,32 @@
 # Mobster
 *A vertex manipulation toolset for OneBrush*
 
-## Purpose
+## What it does
 
-Documents in OneBrush are made up of renderable "nodes" in an ECS implementation that culminate in Layers that contain Strokes populated with Points.
+Mobster draws points toward guide paths. You give it a guide — lines you supply, or one of seven presets plotted against a frame — along with the content you want moved and a time. It gives that content back with its points displaced.
 
-These Points are the subject of this package's domain. Any Layer in OneBrush can have a series of Modifiers attached to them. These Modifiers alter the painting experience by providing alterations of two distinct types:
+```swift
+let guide = Guide(frame: frame)
+try guide.initialize(source: .preset(GridPreset(count: 4, gutter: 0.05)),
+                     frame: frame, adhesion: 0.4, duration: 1,
+                     settleEpsilon: 1, budget: budget)
+let moved = guide.evaluate(lines, at: t)
+```
 
-- Derived Point Creation
-- Applied Point Manipulation
+Adhesion between zero and one is the only control that decides how strongly points are drawn. A point far from every guide settles short of it rather than arriving; that is the dial doing its job, not a defect.
 
-Mobster serves both of these needs by providing "Modifier" types that are configured and consumed by OneBrush.
+## What it does not do
 
-## Requirements
+Mobster evaluates between two frames and retains nothing between calls. Carrying positions across successive guides is the consuming application's work.
 
-See [Mobster Design Document](./Documentation/Design/Mobster.md)
+It declares no document model and imports none. Identifiers cross the boundary as opaque integers it never dereferences and never mints. It does not interpret, smooth or decimate the geometry it is given.
+
+## Presets
+
+Golden Ratio, Thirds, Columns, Rows, Grid, Ruler, Curve.
+
+## Reading further
+
+[Design requirements](./Documentation/Design/Mobster.md) is the authority on what the package must do.
+[Integration](./Documentation/Integration.md) is the guide to consuming it, including what a guide costs to bake.
+[Generators](./Documentation/Design/Generators.md) is a problem statement for symmetry, which is not built.

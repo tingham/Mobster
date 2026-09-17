@@ -13,6 +13,10 @@ struct PresetProjection {
             let cover = max(frame.size.x / designSize.x, frame.size.y / designSize.y)
             scale = SIMD2<Float>(cover, cover)
             translation = frame.origin + (frame.size - designSize * cover) / 2
+        case .contain:
+            let fit = min(frame.size.x / designSize.x, frame.size.y / designSize.y)
+            scale = SIMD2<Float>(fit, fit)
+            translation = frame.origin + (frame.size - designSize * fit) / 2
         }
     }
 

@@ -2,7 +2,7 @@
 
 ## Mobster is a function
 
-You give it paths or a preset with its parameters, a configuration for the field, a set of strokes, and a time. It gives back the points, by identifier, and where they landed.
+You give it lines or a preset, a Frame, an adhesion, a duration, a settle epsilon and a budget. Then you give it content and a time, and it gives that content back with its verts displaced. Identifiers you supplied ride along untouched; Mobster never reads them.
 
 ```swift
 let guide = Guide(frame: frame)
@@ -21,7 +21,7 @@ let moved = guide.evaluate(lines, at: t)
 
 `initialize` bakes, once, and throws a `FieldRefusal` when the epsilon asked for costs more than the budget allows — the refusal carries an affordable epsilon, and a Guide whose initialize is refused stands exactly as it did rather than half replaced. `evaluate` retains nothing.
 
-The Guide outlives the call only to hold its baked field, which is the expensive part. It retains nothing about content. **Statefulness is the consumer's to derive**, not the package's to impose: a client that wants to hold the Guide between frames and animate may, and a client that wants one resolve and a committed result need not know the type persists anything.
+The Guide outlives the call to hold its baked field and the terms it was initialized with. It retains nothing about content. **Statefulness is the consumer's to derive**, not the package's to impose: a client that wants to hold the Guide between frames and animate may, and a client that wants one resolve and a committed result need not know the type persists anything.
 
 ## Which positions go back in
 
@@ -43,7 +43,11 @@ The field is a grid. The bake costs grid squares times guide segments.
 
 A finer settle epsilon means more grid squares. More verts means more segments. Both make the bake slower and they multiply.
 
-So there is no single limit on guide verts. At a fine epsilon a few hundred is what you can afford; at a coarse one, thousands. Measured on a Frame of 1000 by 700 in release, at an epsilon of one the grid is 351,168 squares and a fifth of a second buys about 285 segments. The same fifth of a second buys 4,000 segments at an epsilon of five.
+So there is no single limit on guide verts. At a fine epsilon a few hundred is what you can afford; at a coarse one, thousands.
+
+Measured on a Frame of 1000 by 700 in release: at an epsilon of one the grid is 351,168 squares, and Golden Ratio's 336 segments bake in 139 milliseconds. That is about a nanosecond per square per segment, and the cost is linear across three decades. A fifth of a second at that rate buys roughly 480 segments at that epsilon, or twelve thousand at an epsilon of five where the grid is 14,058 squares.
+
+A debug build is about a hundred times slower, which is why the harness carries a far smaller budget than a shipping consumer needs.
 
 The bake happens once, at `initialize`. Under the stroke lifecycle that is once per stroke, not once per frame.
 
@@ -55,7 +59,7 @@ The modes a client composes differ chiefly in **what the document persists** —
 
 ## Live stroke only
 
-The guide affects the stroke being drawn and nothing else. Its membership is the in progress stroke, not the layer. The result is captured to persistence when the stroke commits.
+The guide affects the stroke being drawn and nothing else. The client sends only the stroke in progress, not the layer. The result is captured to persistence when the stroke commits.
 
 Requires from Mobster: nothing special. Initialize at strokeBegin, evaluate the growing stroke at each strokeMoved, evaluate at the duration and persist at strokeEnd.
 
@@ -69,7 +73,7 @@ Requires from Mobster: nothing special. Evaluate the layer each frame for the pr
 
 The guide is placed as a modifier on a layer and driven by guide marks made on another layer. **The relationship is persisted, not the results.** Editing the source layer changes the target.
 
-Requires from Mobster: a source layer identity the client can store and hand back, and interpretation of that layer's stroke data into paths.
+Requires from Mobster: nothing special, and one thing it does not do. The client stores its own source layer identity and reduces that layer to lines before sending. Mobster does not interpret a layer.
 
 ## Dynamic modifier from a preset
 

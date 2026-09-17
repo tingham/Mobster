@@ -1,0 +1,150 @@
+import Metal
+import Testing
+@testable import Mobster
+
+struct MeshExtractionTests {
+    /// Five hundred and twelve square, which the derived resolution makes one fragment to the scene unit, so a hand derivation reads the same in fragments and in scene units.
+    private let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(512, 512))
+    /// Straight out of the near face of the box.
+    private let axis = SIMD3<Float>(0, 0, 1)
+    /// Down the body diagonal of the box: forty five degrees of rise on an azimuth whose sine is a third root, which stands all three visible faces at the same depth and so projects the regular hexagon.
+    private let diagonal = SIMD3<Float>(1, Float(3).squareRoot(), Float(2).squareRoot())
+    /// Locations each boundary is fitted to.
+    private let fit = 12
+    /// A boundary sample sits at the middle of the neighbourhood it was resolved from and a fragment is a scene unit here. Where the boundary turns, the sample nearest the turn stands off by a fragment on each axis of it, so a hand derived corner is met within three.
+    private let tolerance: Float = 3
+
+    // A half sized box in this Frame is two hundred and fifty six across, so its half edge is one hundred and twenty eight and its centre is the middle of the Frame. The diagonal view carries the plane axes 0.8165 across and 0.4082 in depth and breadth, and 0.7071 down for breadth and depth alike, which puts a corner of the box at one hundred and twenty eight times those sums: a hexagon of radius 209.023 about the centre, 418.046 across.
+
+    // The field of view then stands the viewer half that width over the tangent of half the field in front of the nearest corner, which at sixty degrees is 209.023 over 0.577350, or 362.039. The nearest corner stands at a depth of 221.703 and the six vertices of the hexagon at plus and minus 73.901, so three of them sit 147.802 behind the nearest and three sit 295.603 behind it, magnified by 362.039 over 509.840 and by 362.039 over 657.642: 0.710102 and 0.550510.
+
+    /// The corner of the box nearest the viewer, where the three visible faces meet. It stands at the nearest depth, so the perspective leaves it where the orthographic projection put it.
+    private static let nearCorner = SIMD2<Float>(256, 256)
+    /// The upper left vertex, 104.512 across and 181.019 down from the centre before the nearer magnification.
+    private static let a = SIMD2<Float>(181.786, 127.458)
+    /// The upper right vertex, at the further magnification.
+    private static let b = SIMD2<Float>(313.535, 156.347)
+    /// The right vertex, 209.023 across from the centre before the nearer magnification and level with it.
+    private static let c = SIMD2<Float>(404.428, 256)
+    /// The lower right vertex, at the further magnification.
+    private static let d = SIMD2<Float>(313.535, 355.653)
+    /// The lower left vertex, at the nearer magnification.
+    private static let e = SIMD2<Float>(181.786, 384.542)
+    /// The left vertex, at the further magnification.
+    private static let f = SIMD2<Float>(140.931, 256)
+
+    private func extracted(_ target: SIMD3<Float>, _ perspective: MeshPerspective = MeshPerspective()) throws -> [[SIMD2<Float>]] {
+        let device = try #require(MTLCreateSystemDefaultDevice())
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: target).mesh(in: square)
+
+        return try MeshExtraction(mesh: mesh, frame: square, fit: fit, perspective: perspective).paths(device: device)
+    }
+
+    private func width(_ paths: [[SIMD2<Float>]]) -> Float {
+        let across = paths.flatMap { $0.map(\.x) }
+
+        return (across.max() ?? 0) - (across.min() ?? 0)
+    }
+
+    private func meets(_ path: [SIMD2<Float>], _ first: SIMD2<Float>, _ second: SIMD2<Float>) -> Bool {
+        guard let start = path.first, let end = path.last else { return false }
+
+        return (near(start, first) && near(end, second)) || (near(start, second) && near(end, first))
+    }
+
+    private func holds(_ path: [SIMD2<Float>], _ location: SIMD2<Float>) -> Bool {
+        path.contains { near($0, location) }
+    }
+
+    private func near(_ location: SIMD2<Float>, _ other: SIMD2<Float>) -> Bool {
+        let offset = location - other
+
+        return (offset * offset).sum().squareRoot() < tolerance
+    }
+
+    /// The near face alone stands toward the viewer, so the only boundary is where it meets the background and it runs the square from one hundred and twenty eight to three hundred and eighty four on both axes.
+    @Test func aBoxViewedAlongAnAxisIsASquare() throws {
+        let paths = try extracted(axis)
+
+        #expect(paths.count == 1)
+        #expect(holds(paths[0], SIMD2<Float>(128, 128)))
+        #expect(holds(paths[0], SIMD2<Float>(384, 128)))
+        #expect(holds(paths[0], SIMD2<Float>(384, 384)))
+        #expect(holds(paths[0], SIMD2<Float>(128, 384)))
+        #expect(paths[0].allSatisfy { location in
+            abs(location.x - 128) < tolerance || abs(location.x - 384) < tolerance || abs(location.y - 128) < tolerance || abs(location.y - 384) < tolerance
+        })
+    }
+
+    /// Three faces stand toward the viewer and each meets the other two and the background, which is three interior seams and three stretches of outline.
+    @Test func aBoxViewedOnItsDiagonalIsAHexagonOfThreeSeams() throws {
+        let paths = try extracted(diagonal)
+
+        #expect(paths.count == 6)
+        #expect(meets(paths[0], Self.nearCorner, Self.a))
+        #expect(meets(paths[1], Self.nearCorner, Self.e))
+        #expect(meets(paths[3], Self.nearCorner, Self.c))
+    }
+
+    /// The seams are the three edges the visible faces share, so all three end at the corner those faces meet at.
+    @Test func theSeamsMeetAtTheNearCorner() throws {
+        let paths = try extracted(diagonal)
+        let seams = [paths[0], paths[1], paths[3]]
+
+        #expect(seams.allSatisfy { seam in near(seam.first ?? .zero, Self.nearCorner) || near(seam.last ?? .zero, Self.nearCorner) })
+    }
+
+    /// Each visible face contributes two edges of the hexagon, so each stretch of outline runs between two of the vertices the seams reach and turns at the one between them.
+    @Test func theOutlineIsTheHexagonOfTheBox() throws {
+        let paths = try extracted(diagonal)
+
+        #expect(meets(paths[2], Self.a, Self.e))
+        #expect(holds(paths[2], Self.f))
+        #expect(meets(paths[4], Self.a, Self.c))
+        #expect(holds(paths[4], Self.b))
+        #expect(meets(paths[5], Self.e, Self.c))
+        #expect(holds(paths[5], Self.d))
+    }
+
+    /// The raster is vended at the lattice the Frame derives, one whole identity a fragment. Viewed along the axis the box shows its near face, which is the sixth of the six and the last emitted, and nothing else: the rest of the Frame covers no component and carries the background.
+    @Test func theIdentityRasterIsVendedForDisplay() throws {
+        let device = try #require(MTLCreateSystemDefaultDevice())
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: axis).mesh(in: square)
+        let raster = try #require(try MeshExtraction(mesh: mesh, frame: square, fit: fit, perspective: MeshPerspective()).raster(device: device))
+
+        #expect(raster.columns == 512)
+        #expect(raster.rows == 512)
+        #expect(raster.identities.count == 512 * 512)
+        #expect(raster.identity(column: 256, row: 256) == 6)
+        #expect(raster.identity(column: 0, row: 0) == MeshIdentityRaster.background)
+        #expect(Set(raster.identities) == [6, MeshIdentityRaster.background])
+    }
+
+    @Test func everyPathHoldsTheCountAskedFor() throws {
+        #expect(try extracted(diagonal).allSatisfy { $0.count == fit })
+        #expect(try extracted(axis).allSatisfy { $0.count == fit })
+    }
+
+    /// At twenty degrees the viewer stands 209.023 over tan ten, or 1185.45, in front of the nearest corner, which magnifies the two ranks of vertices by 0.889137 and 0.800411 and leaves the outline 353.16 across. At ninety degrees the remove is 209.023 itself, the magnifications are 0.585786 and 0.414214, and the outline is 209.04 across.
+    @Test func aWiderFieldForeshortensFurther() throws {
+        #expect(abs(width(try extracted(diagonal, MeshPerspective(fieldOfView: 20))) - 353.16) < tolerance)
+        #expect(abs(width(try extracted(diagonal, MeshPerspective(fieldOfView: 90))) - 209.04) < tolerance)
+    }
+
+    /// The near face stands at the nearest depth on this view, where the magnification is one whatever the field is, so the square it projects does not move.
+    @Test func theNearestFaceDoesNotMoveWithTheField() throws {
+        #expect(try extracted(axis, MeshPerspective(fieldOfView: 20)) == extracted(axis, MeshPerspective(fieldOfView: 90)))
+    }
+
+    /// The same three faces stand toward the viewer across the sweep, so what moves is where the paths are rather than what each is fitted to. A face grazing another for a fragment or two puts its pair in contact twice, which yields a path for each meeting, so it is the paths at the full count that hold.
+    @Test func turningTheBoxMovesItsPathsWithoutRebuildingThem() throws {
+        let opening = try extracted(diagonal)
+
+        for run: Float in [0.8, 0.9, 1.1, 1.2, 1.3] {
+            let turned = try extracted(SIMD3<Float>(run, Float(3).squareRoot(), Float(2).squareRoot()))
+
+            #expect(turned.filter { $0.count == fit }.count == opening.count)
+            #expect(zip(turned, opening).contains(where: { pair in pair.0 != pair.1 }))
+        }
+    }
+}

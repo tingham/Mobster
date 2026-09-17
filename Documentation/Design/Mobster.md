@@ -15,6 +15,9 @@ Mobster declares no document model and imports none.
 **mobster.import.permitted**
 Imports other than a document model are permitted where they earn their cost.
 
+**mobster.dependency.whiplash**
+Mobster subscribes to Whiplash for curve fitting and decimation rather than carrying a copy. It is stateless, as Mobster is, and reimplementing what a maintained package already does is the cost this requirement exists to refuse.
+
 **mobster.identity.opaque**
 A point identifier and a stroke identifier each cross the boundary as an opaque unsigned integer.
 
@@ -35,8 +38,8 @@ The expensive work happens once, at initialize, where the field is baked. Evalua
 
 ## Space
 
-**guide.initialize**
-A Guide receives the Frame it operates within when it is constructed, so that no workload can run before it. Initialize supplies a new Frame and resets.
+**guide.frame.construct**
+A Guide receives the Frame it operates within when it is constructed, so that no workload can run before it.
 
 **guide.frame.region**
 The Frame is a region in scene space.
@@ -45,7 +48,7 @@ The Frame is a region in scene space.
 The Frame carries a position within scene space.
 
 **guide.initialize.again**
-Initializing again replaces the source, the Frame, the adhesion and the duration, and rebakes. A Guide retains nothing about content between evaluations, so there is nothing else to discard.
+Initializing again replaces the source, the Frame, the adhesion, the duration and the settle epsilon, and rebakes. A Guide retains nothing about content between evaluations, so there is nothing else to discard.
 
 **guide.space.scene**
 Locations, targets and returned rectangles are expressed in scene coordinates.
@@ -58,31 +61,84 @@ Normalization to a zero to one identity is applied only where a calculation requ
 **guide.target**
 A Guide is given content to evaluate rather than a layer to own. What the consumer chooses to send, whether the stroke in progress or the whole layer, is the consumer's decision and changes nothing here.
 
-**guide.source.layer**
-A Guide may name a layer as its source. Stroke data from that layer is interpreted by Mobster into paths.
+**guide.source.lines**
+A Guide may take lines as its source. They are vended back unchanged; Mobster does not reinterpret them.
 
 **guide.source.preset**
 A Guide may name a preset as its source. The preset plots paths against the Frame the Guide operates within.
 
-**guide.source.map.absolute**
-A source Frame differing from the target Frame maps absolutely. Mobster does not fit source bounds to target bounds.
+## Mesh
+
+**mesh.source**
+A Guide may take a mesh as its source. Its paths are extracted from a projection of that mesh rather than plotted analytically.
+
+**mesh.component**
+Every triangle of a mesh belongs to a component and every component carries an identity. A limb segment, a ribcage and a pelvis are separate components.
+
+**mesh.component.section**
+A component may be divided to place a cross section where a form's roundness should read. The division is a construction element rather than a physical seam, and dividing a limb at its middle yields one boundary where a separate band would yield two.
+
+**mesh.component.structure**
+An identity marks structure rather than tessellation. A cube's six faces are six identities, because each is a plane a viewer reads as a distinct surface. A cylinder approximated by eight facets is one identity, because the facets approximate one surface rather than describing eight. Subdivision never multiplies identities.
+
+**mesh.low**
+A mesh is low in triangles. An arm segment is a ring of eight points joined into a cylinder; no anatomy is modelled. Two levels of subdivision serve a form that mixes hard and soft surfaces.
+
+**mesh.render**
+A mesh is rendered opaque with depth into an offscreen target, each fragment carrying the identity of the component it belongs to. Occlusion follows from the depth test rather than from removing hidden lines.
+
+**mesh.render.device**
+The consumer supplies the device. Mobster does not create one, and a preset that needs no mesh needs no device.
+
+**mesh.render.perspective**
+The projection carries a field of view, so a form pointing toward the viewer foreshortens. A narrow field reads as flat and a wide one reads as near.
+
+**mesh.render.perspective.fit**
+The distance the construction is viewed from follows from the field of view and the construction's own bounds, so it fits the Frame whatever the field is. The field of view is the only dial; distance is not a second one.
+
+**mesh.render.perspective.limit**
+The field of view is held within a range that reads, opening at sixty degrees. Sixty is the cone of vision a drawing stays inside before it reads as distorted, so it is the convention rather than a chosen number. Wide enough and the near of a form swells into a fisheye, which is a distortion rather than a drawing reference.
+
+**mesh.raster.vend**
+The identity raster is vended for display on demand, as the field's grayscale is. A consumer diagnosing a boundary that comes and goes cannot do it blind.
+
+**mesh.render.resolution**
+The resolution of the identity target follows from the Frame rather than being supplied. It decides the fidelity of every path extracted, the way the field's texel size does.
+
+**mesh.boundary**
+A boundary runs wherever adjacent fragments carry different identities, including where a component meets the background. An interior seam is a boundary as much as a silhouette is, so the join of an upper arm to a forearm is a path without anything drawing it.
+
+**mesh.boundary.identity**
+An identity is never interpolated, averaged or filtered. The target is point sampled and every fragment reads as one whole identity.
+
+**mesh.boundary.runs**
+A pair of components meeting in more than one place yields a path for each meeting. Only a run shorter than a floor is dropped, which is what protects against a graze of one or two fragments standing in for a whole silhouette. Keeping one run per pair discards real geometry.
+
+**mesh.boundary.sample**
+A boundary is resolved from a neighbourhood of fragments rather than from a single pair, so a form grazing another for one or two fragments still produces a boundary that holds as the view turns. The neighbourhood resolves to one location.
+
+**mesh.boundary.midpoint**
+A boundary location sits midway between the two differing fragments, because that is where the boundary is. Nothing is estimated by it.
+
+**mesh.path.fit**
+A traced boundary is fitted to a curve at a count Mobster asks for. Whiplash performs the fit and the decimation.
+
+**mesh.path.lossy**
+A fitted path need not reproduce the traced boundary exactly. Any silhouette of a form serves a person drawing over it better than none. The slight curve a fit leaves on a straight edge is wanted, not tolerated; it reads as drawn rather than plotted and nothing should straighten it.
 
 ## Paths
 
-**path.interpret**
-Source locations are interpreted into paths with curvature. The interpretation is Mobster's own and does not reproduce the source representation.
-
-**path.decimate**
-Interpreted paths are decimated before they are baked.
+**path.supplied**
+A path is supplied by the consumer or plotted by a preset. Mobster does not interpret source geometry into paths; a consumer wanting a layer as a source reduces it before sending.
 
 **path.smooth.never**
 Mobster does not smooth supplied geometry and does not decimate it. The consumer has already interpreted the stroke and interpreting it again discards a decision made with more context. Detail below what the field can resolve is wasted work rather than a wrong answer, and the refusal on bake cost is what guards against paying for too much of it.
 
 **path.vend**
-Interpreted paths are vended to the consumer on demand.
+A Guide vends the lines of its source on demand.
 
-**path.role**
-A vended path carries what it is. A consumer can distinguish a ruler's base line from its parallels, and a spiral from the rectangles it was derived from, without relying on the order they arrive in.
+**path.order**
+A preset emits its paths in a defined order and that order is how a consumer tells them apart. A ruler emits its base line then the offset pair; Golden Ratio emits the spiral then its quadlines outermost first. Nothing on a path says what it is, so a consumer that wants to draw a quadline differently from a spiral indexes by position. That is brittle and it is the contract until something asks for better.
 
 ## Presets
 
@@ -93,25 +149,28 @@ A preset whose paths are fixed is stored as a JSON resource.
 A preset whose paths are computed from parameters is a code function.
 
 **preset.frame.mode**
-A preset holds its plot mode. The mode is set when the preset is constructed and is not a parameter of the request.
+A preset decides how it meets the Frame. The mode is not a parameter, not a construction argument and not visible to the consumer, because how a preset answers a Frame is a property of what that preset is.
 
 **preset.frame.aspect**
-A preset plotting in aspect mode plots paths consistent to the aspect ratio of the Frame. The Frame is its design rectangle, so a quantity the preset expresses relative to the Frame resolves against the Frame.
+A preset defined relative to the Frame takes the Frame as its design rectangle, so a quantity it expresses relative to the Frame resolves against the Frame.
 
 **preset.frame.bounds**
-A preset plotting in bounds mode plots paths scaled to a minimum bounds encompassing the Frame, preserving its own proportions.
+A preset that covers the Frame is scaled to a minimum bounds encompassing it, preserving its own proportions.
 
 **preset.frame.bounds.center**
 A preset scaled to a minimum bounds is centered within the Frame.
 
-**preset.frame.mode.default**
-Thirds, Columns, Rows, Ruler and Curve construct in aspect mode. Each is defined relative to the Frame and a Frame relative quantity resolves against the Frame only in that mode.
+**preset.frame.contain**
+A preset that fits inside the Frame is scaled by the lesser of its axes and centered, so the whole of it sits within the Frame with its own proportions intact.
+
+**preset.frame.mode.each**
+Thirds, Columns, Rows, Grid and Ruler are defined relative to the Frame and take it as their design rectangle. Golden Ratio covers the Frame. Head and Figure fit inside it. None of them is asked which.
 
 **preset.goldenRatio**
 A spiral populating the standard ratio frame.
 
 **preset.goldenRatio.proportion**
-Golden Ratio preserves its own proportions. It constructs in bounds mode and does not plot in aspect mode, because a distorted spiral is not the golden ratio.
+Golden Ratio preserves its own proportions, because a distorted spiral is not the golden ratio.
 
 **preset.goldenRatio.quadlines**
 Golden Ratio plots the nested rectangles the spiral is derived from alongside the spiral.
@@ -120,7 +179,7 @@ Golden Ratio plots the nested rectangles the spiral is derived from alongside th
 The corner the spiral converges toward is selectable.
 
 **preset.thirds**
-Three columns and three rows conforming to the aspect ratio of the Frame. It is a grid with a zero gutter and is kept separate regardless, because an editorial illustrator expects to find thirds by name.
+Three columns and three rows conforming to the aspect ratio of the Frame. A grid of three with a zero gutter is not the same thing, because a gutter is a band with two edges whatever its width and so emits eight lines where thirds emits four. It also stays separate because an editorial illustrator expects to find thirds by name.
 
 **preset.columns**
 Columnar dividers spread evenly across the Frame with a parameterized gutter.
@@ -135,7 +194,88 @@ Columnar dividers and row lines together across the Frame, one count and one gut
 A gutter is a band with two edges. A count of four columns with one gutter width yields six lines.
 
 **preset.gutter.fraction**
-A gutter width is a fraction of the Frame extent along the axis it divides. Its meaning does not change with plot mode.
+A gutter width is a fraction of the Frame extent along the axis it divides.
+
+**form.space.depth**
+A construction may be expressed in three dimensions and projected. Nothing else in the package gains a third dimension by it; a preset opts in.
+
+**form.space.depth.near**
+A projected construction is clipped to its near half by depth, so the far side of a curve does not project as a second lobe over the near one.
+
+**preset.form.geometric**
+A figure or head preset plots geometric primitives rather than reproducing a drawn tradition. An ellipsoid, a frustum, a wedge and a great circle all have exact projections where a traced silhouette needs judgement. The result reading as robotic is acceptable; these are guides drawn over.
+
+**preset.kind**
+A preset is a named source a user picks. Whether it plots analytically or extracts from a mesh is not something the user sees.
+
+**preset.cube**
+A box plotted from a mesh. It is the box construction a figure or an object is built inside, and it is the first thing the mesh source carries.
+
+**preset.cube.place**
+The cube is positioned and sized within the Frame rather than filling it.
+
+**preset.cube.target**
+The cube points at a location, as the head does, so it can be turned to any view.
+
+**preset.figure**
+A human figure plotted as construction forms against the Frame. It was named Ashcan while it was a mugshot; it is a figure now.
+
+**preset.figure.proportion**
+The figure fits inside the Frame with its proportions intact. A figure stretched to an axis is not a figure, for the reason a stretched spiral is not the golden ratio.
+
+**preset.figure.sex**
+The figure is proportioned as male or as female.
+
+**preset.figure.heads**
+The figure's height is given in heads. Proportion at a given height follows published canon, so a shorter figure reads as a child rather than as a scaled adult.
+
+**preset.figure.pose**
+The figure is posed by a target for each hand and each foot. A two bone chain solves the limb between its shoulder or hip and that target.
+
+**preset.figure.head.target**
+The figure's head points at a location of its own, as the head preset's does.
+
+**preset.figure.pose.named**
+A set of named poses each set every target at once. A figure that opens in a T pose is one the user has to build before they can begin, and a named pose is somewhere to start and nudge from. A pose is named by a string and held as data, so adding one is a line rather than a case.
+
+**preset.figure.bend**
+An elbow bends back and a knee bends forward. The direction is anatomical rather than a control, because a figure whose elbow can bend either way is asking a question that has one answer.
+
+**preset.figure.hand**
+A hand is a tapered cuboid about the length of the face.
+
+**preset.figure.foot**
+A foot is a tapered cuboid about one head long.
+
+**preset.figure.heads.lines**
+Horizontal half width lines sit to either side of the figure at each head break. They are optional.
+
+**preset.head**
+A head plotted as the construction sphere with its side planes, brow line, centre line, jaw, chin and a portion of the neck.
+
+**preset.head.proportion**
+The head fits inside the Frame with its proportions intact, for the reason the figure does.
+
+**preset.head.sex**
+The head is proportioned as male or as female.
+
+**preset.head.target**
+The head points at a location. It is not rotated by an angle.
+
+**preset.head.basis**
+Forward runs from the head toward its target. Up and right are derived from it.
+
+**preset.head.target.run**
+The target's horizontal run from the head is held above zero. A target directly above or below carries no direction to face, so the limit removes the case rather than answering it.
+
+**preset.head.tilt.limit**
+Forward is held within forty five degrees either side of level. Beyond that it approaches parallel with up and the derivation of a basis collapses, so the limit removes the case rather than answering it. A head tilted further is not a drawing reference anyway.
+
+**preset.head.chin**
+The chin block centres vertically on the underside of the cranial mass and rises halfway to its middle. It is as wide as the jaw angles where it meets them and as wide as the mouth at its base, which is a stronger taper than it looks: seven tenths of the head's breadth above and three and a half tenths below, and the sexes differ by less than a hundredth at either end.
+
+**preset.head.roll**
+A scalar turns the head about its forward axis.
 
 **preset.ruler**
 Two circular degrees derive two locations on the edge of the Frame.
@@ -149,14 +289,23 @@ A degree of zero points along positive x within the Frame. Increasing degrees ro
 **preset.ruler.line**
 A line crosses the Frame between the two derived locations.
 
+**preset.ruler.control**
+Any number of interior control locations may sit between the two derived locations. None is the ordinary case.
+
+**preset.ruler.smooth**
+With no interior control the line is straight. With one or more it is smoothed through them, so the count of controls decides the order and nothing between is undefined.
+
+**preset.ruler.resolution**
+A smoothed line is sampled at a count the caller supplies. A straight line is its two endpoints and samples nothing.
+
 **preset.ruler.pair**
 A distance parameter creates a parallel line at that offset on each side of the line.
 
 **preset.ruler.pair.cross**
 A parallel line crosses the Frame. It is cast to the edge of the Frame rather than translated as a fixed length.
 
-**preset.curve**
-Identical in structure to the ruler, with a location between the start and the end controlling the tension of the interpreted spline.
+**@removal(a type defined as another type plus a field is a field; preset.ruler.control absorbs it, and Ruler keeps the name because nobody wants a curve to make a straight line) preset.curve**
+Identical in structure to the ruler, with a location between the start and the end controlling the tension of the curve. The curve is a quadratic Bezier sampled at a resolution the caller supplies.
 
 ## Field
 
@@ -164,10 +313,10 @@ Identical in structure to the ruler, with a location between the start and the e
 The field resolution follows from the Frame and the settle epsilon. It is not supplied. A read snaps to the containing texel, so a texel larger than the epsilon carries more error than the tolerance the points are settling within.
 
 **field.resolution.refuse**
-A derived resolution whose bake exceeds what the package will spend is refused, reporting the epsilon asked for and the epsilon that would be affordable. The consumer chooses again rather than discovering the cost.
+A derived resolution whose bake exceeds the budget the consumer supplies is refused, reporting the epsilon asked for and the epsilon that would be affordable. The consumer chooses again rather than discovering the cost.
 
 **field.bake**
-The field is baked from the interpreted paths in Swift on the host.
+The field is baked from the source's paths in Swift on the host.
 
 **field.bake.exterior**
 A path location outside the Frame participates in the field. A query inside the Frame resolves to the true nearest path location whether that location lies inside the Frame or not.
@@ -234,11 +383,8 @@ A point far from every path settles short of the path rather than arriving at it
 **guide.adherence.reach.full.derive**
 The reach satisfying full adherence follows from the worst case distance in the Frame and the settle epsilon. Mobster vends it. It grows faster than the Frame does, so a fixed multiple of the Frame extent does not serve.
 
-**guide.adherence.change**
-Changing adherence resolves every target again from each point's current location, and ends the segment in flight as a field change does.
-
 **guide.adherence.curve**
-The mapping from the adherence dial to a reach is derived in the harness, between zero and the reach that satisfies full adherence.
+The Guide maps the adhesion dial onto a reach, between zero and the reach that satisfies full adhesion. The mapping is linear until the principal has a reason for it not to be.
 
 ## Types
 
@@ -293,7 +439,7 @@ At the duration every vert has arrived, so a consumer wanting the settled result
 A Guide vends a rasterization of its field on demand. The field itself is not exposed.
 
 **guide.lines.vend**
-A Guide vends the lines interpreted from its source on demand.
+A Guide vends the lines of its source on demand.
 
 **guide.pass.single**
 An evaluation resolves one Guide. Two Guides on a layer are two evaluations, sequenced by the consumer.
@@ -302,10 +448,10 @@ An evaluation resolves one Guide. Two Guides on a layer are two evaluations, seq
 An evaluation is a pure function of the content, the Guide and the time. No wall clock and no drawn random state participate.
 
 **guide.determinism.seed**
-A seed required by a vert attribute is derived from the vert identifier.
+A seed, wherever one is needed, is derived from an identifier rather than drawn. The fixture's per vert spread is the only thing that currently needs one.
 
 **guide.settle.epsilon**
-A vert has arrived when it is nearer its target than the settle epsilon. The epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth. It sets the field resolution and the reach that full adhesion requires; it is not a control the consumer tunes for feel.
+The settle epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth. It derives the field resolution and it sets the reach that full adhesion requires. It does not decide arrival; arrival is the duration. It is not a control the consumer tunes for feel.
 
 ## Body
 
@@ -314,12 +460,12 @@ A vert has arrived when it is nearer its target than the settle epsilon. The eps
 A vert carries three optional attributes the consumer contributes during reduction. A consumer sending a guide needs none of them; a consumer sending target content may send all of them.
 
 - A weight. It moves less per tick.
-- A counter influence. It appears stochastic across a canvas. It is derived from the vert identifier rather than drawn, or determinism is lost.
+- A drag. It shapes the approach, running down from the plain travel through held back to repelled.
 - A coupling. It says how much of this vert's motion its peers take, signed, so that peers may oppose rather than follow.
 
 Coupling is a vert property rather than a line property. Propagation through neighbours gives the falloff along the line for free, so how far coupling reaches is not a separate parameter. A line stiff at one end and loose at the other is expressible, and a uniform line is the case where every vert carries the same value. No rule is needed for which vert's target wins on a stiff line, because the motion emerges from propagation rather than being arbitrated.
 
-The outcomes that fall out, across the range: verts moving independently; a vert dragging its peers along weakly or strongly; a vert dragging near peers more than far ones; a vert pushing its peers away from their own targets; and a whole line moving as one body.
+The outcomes that fall out, across the range: verts moving independently; a vert advancing its peers along their own travel, weakly or strongly; a vert advancing near peers more than far ones; and a vert retarding its peers instead. A whole line moving as one body preserving its shape is NOT among them, because coupling shifts a peer along its own travel and cannot carry it toward another vert's target.
 
 A line carries an identity and nothing else.
 
@@ -349,13 +495,16 @@ It is not merely a convenience. A guide used as an ITERATION TOOL rather than as
 The harness is an Xcode project targeting macOS.
 
 **harness.fixture**
-The harness carries a nominally complex dataset as a fixture.
+The harness carries a nominally complex dataset as a fixture. It is a separate target and a separate product, because it mints identifiers and the library must not, and because an Xcode project links a package product rather than a bare target.
 
 **harness.preview**
 The harness presents a preview to the screen.
 
 **harness.timing**
 The harness reports performance timing.
+
+**harness.handle**
+A location a user places is dragged on the preview, not typed into two numbers. A target with no mark on screen is a coordinate rather than a handle, and it makes a usable model read as an unusable one.
 
 **harness.sliders**
 The harness exposes each derived magnitude as a slider.

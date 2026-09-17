@@ -17,6 +17,12 @@ struct ParameterPanelView: View {
             RulerParameterView(parameters: $model.parameters)
         case .curve:
             CurveParameterView(parameters: $model.parameters)
+        case .head:
+            HeadParameterView(parameters: $model.parameters)
+        case .figure:
+            FigureParameterView(parameters: $model.parameters)
+        case .cube:
+            CubeParameterView(parameters: $model.parameters)
         }
     }
 }

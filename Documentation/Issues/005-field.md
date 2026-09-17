@@ -1,3 +1,5 @@
+> **Superseded.** This is a historical record of what was asked for at the time. The authority is [Design/Mobster.md](../Design/Mobster.md). Requirement identifiers cited below may no longer exist.
+
 # Cut 5: Field
 
 Bakes guide paths into a field that answers two questions at a location: how far, and which way.

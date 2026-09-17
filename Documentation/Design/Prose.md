@@ -1,3 +1,5 @@
+> **Superseded and kept deliberately.** This is the original narrative the requirements were distilled from, preserved verbatim as a record of intent. It is NOT current and must not be cited as authority on any requirement. The authority is [Mobster.md](./Mobster.md).
+
 # Mobster
 *Because he pushes things around*
 

@@ -1,3 +1,5 @@
+> **Superseded.** This is a historical record of what was asked for at the time. The authority is [Design/Mobster.md](../Design/Mobster.md). Requirement identifiers cited below may no longer exist.
+
 # Cut 3: Presets
 
 Region frame responsive prototypes that plot guide paths from a Frame. No source layer, no field, no tokens.
