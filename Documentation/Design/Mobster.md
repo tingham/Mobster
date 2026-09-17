@@ -99,6 +99,9 @@ The distance the construction is viewed from follows from the field of view and 
 **mesh.render.perspective.limit**
 The field of view is held within a range that reads, opening at sixty degrees. Sixty is the cone of vision a drawing stays inside before it reads as distorted, so it is the convention rather than a chosen number. Wide enough and the near of a form swells into a fisheye, which is a distortion rather than a drawing reference.
 
+**mesh.raster.vend**
+The identity raster is vended for display on demand, as the field's grayscale is. A consumer diagnosing a boundary that comes and goes cannot do it blind.
+
 **mesh.render.resolution**
 The resolution of the identity target follows from the Frame rather than being supplied. It decides the fidelity of every path extracted, the way the field's texel size does.
 
@@ -107,6 +110,9 @@ A boundary runs wherever adjacent fragments carry different identities, includin
 
 **mesh.boundary.identity**
 An identity is never interpolated, averaged or filtered. The target is point sampled and every fragment reads as one whole identity.
+
+**mesh.boundary.sample**
+A boundary is resolved from a neighbourhood of fragments rather than from a single pair, so a form grazing another for one or two fragments still produces a boundary that holds as the view turns. The neighbourhood resolves to one location.
 
 **mesh.boundary.midpoint**
 A boundary location sits midway between the two differing fragments, because that is where the boundary is. Nothing is estimated by it.
@@ -155,7 +161,7 @@ A preset scaled to a minimum bounds is centered within the Frame.
 A preset that fits inside the Frame is scaled by the lesser of its axes and centered, so the whole of it sits within the Frame with its own proportions intact.
 
 **preset.frame.mode.each**
-Thirds, Columns, Rows, Grid and Ruler are defined relative to the Frame and take it as their design rectangle. Golden Ratio covers the Frame. Head and Ashcan fit inside it. None of them is asked which.
+Thirds, Columns, Rows, Grid and Ruler are defined relative to the Frame and take it as their design rectangle. Golden Ratio covers the Frame. Head and Figure fit inside it. None of them is asked which.
 
 **preset.goldenRatio**
 A spiral populating the standard ratio frame.
@@ -208,25 +214,31 @@ The cube is positioned and sized within the Frame rather than filling it.
 **preset.cube.target**
 The cube points at a location, as the head does, so it can be turned to any view.
 
-**preset.ashcan**
-A human figure plotted as construction forms against the Frame.
+**preset.figure**
+A human figure plotted as construction forms against the Frame. It was named Ashcan while it was a mugshot; it is a figure now.
 
-**preset.ashcan.proportion**
+**preset.figure.proportion**
 The figure fits inside the Frame with its proportions intact. A figure stretched to an axis is not a figure, for the reason a stretched spiral is not the golden ratio.
 
-**preset.ashcan.sex**
+**preset.figure.sex**
 The figure is proportioned as male or as female.
 
-**preset.ashcan.heads**
+**preset.figure.heads**
 The figure's height is given in heads. Proportion at a given height follows published canon, so a shorter figure reads as a child rather than as a scaled adult.
 
-**preset.ashcan.pose**
+**preset.figure.pose**
 The figure is posed by a target for each hand and each foot. A two bone chain solves the limb between its shoulder or hip and that target.
 
-**preset.ashcan.pose.pole**
-Each limb carries a direction for its elbow or knee, so a solved chain does not choose one arbitrarily.
+**preset.figure.bend**
+An elbow bends back and a knee bends forward. The direction is anatomical rather than a control, because a figure whose elbow can bend either way is asking a question that has one answer.
 
-**preset.ashcan.heads.lines**
+**preset.figure.hand**
+A hand is a tapered cuboid about the length of the face.
+
+**preset.figure.foot**
+A foot is a tapered cuboid about one head long.
+
+**preset.figure.heads.lines**
 Horizontal half width lines sit to either side of the figure at each head break. They are optional.
 
 **preset.head**
@@ -249,6 +261,9 @@ The target's horizontal run from the head is held above zero. A target directly 
 
 **preset.head.tilt.limit**
 Forward is held within forty five degrees either side of level. Beyond that it approaches parallel with up and the derivation of a basis collapses, so the limit removes the case rather than answering it. A head tilted further is not a drawing reference anyway.
+
+**preset.head.chin**
+The chin block centres vertically on the underside of the cranial mass and rises halfway to its middle. It is as wide as the jaw angles where it meets them and as wide as the mouth at its base, which is a stronger taper than it looks: seven tenths of the head's breadth above and three and a half tenths below, and the sexes differ by less than a hundredth at either end.
 
 **preset.head.roll**
 A scalar turns the head about its forward axis.
