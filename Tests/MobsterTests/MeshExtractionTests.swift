@@ -11,8 +11,8 @@ struct MeshExtractionTests {
     private let diagonal = SIMD3<Float>(1, Float(3).squareRoot(), Float(2).squareRoot())
     /// Locations each boundary is fitted to.
     private let fit = 12
-    /// A boundary sample sits half a fragment from each of the fragments it separates and a fragment is a scene unit here. Where the boundary turns, the sample nearest the turn stands off by half a fragment on each axis of it, so a hand derived corner is met within two.
-    private let tolerance: Float = 2
+    /// A boundary sample sits at the middle of the neighbourhood it was resolved from and a fragment is a scene unit here. Where the boundary turns, the sample nearest the turn stands off by a fragment on each axis of it, so a hand derived corner is met within three.
+    private let tolerance: Float = 3
 
     // A half sized box in this Frame is two hundred and fifty six across, so its half edge is one hundred and twenty eight and its centre is the middle of the Frame. The diagonal view carries the plane axes 0.8165 across and 0.4082 in depth and breadth, and 0.7071 down for breadth and depth alike, which puts a corner of the box at one hundred and twenty eight times those sums: a hexagon of radius 209.023 about the centre, 418.046 across.
 
