@@ -28,6 +28,8 @@ final class HarnessModel {
     var focus: PresetFocus = .maxXMinY { didSet { replot() } }
     var parameters = PresetParameters() { didSet { replot() } }
     var fieldVisible = false
+    /// A second identity pass is what a raster costs, so it is taken only while it is shown.
+    var identityVisible = false { didSet { replot() } }
     var fixture = HarnessModel.openingFixture { didSet { repopulate() } }
     var adhesion = HarnessModel.openingAdhesion { didSet { retune() } }
     var run = HarnessModel.openingRun { didSet { retune() } }
@@ -50,8 +52,13 @@ final class HarnessModel {
         fieldVisible ? field.raster : nil
     }
 
+    /// Nil where the identities are hidden and where the preset plots its paths rather than extracting them.
+    var identityRaster: MeshIdentityRaster? {
+        identityVisible ? plot.raster : nil
+    }
+
     init() {
-        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, focus: .maxXMinY, device: Self.device)
+        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, focus: .maxXMinY, identities: false, device: Self.device)
         let population = Self.coupled(LineFixture(parameters: Self.openingFixture).lines(in: Self.frame), coupling: Self.openingCoupling)
         let running = MotionEngine(frame: Self.frame,
                                    source: Self.source(opening.paths),
@@ -85,7 +92,7 @@ final class HarnessModel {
     }
 
     private func replot() {
-        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, focus: focus, device: Self.device)
+        plot = PresetPlot(kind: kind, parameters: parameters, frame: Self.frame, focus: focus, identities: identityVisible, device: Self.device)
         reload()
     }
 

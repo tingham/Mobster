@@ -18,14 +18,18 @@ public struct MeshExtraction: Sendable {
 
     /// One path a boundary, in the order the pairs of identities that meet along them fall. The consumer supplies the device; Mobster creates none. A device that will not run the pass refuses, because no path and no render read the same on a canvas.
     public func paths(device: any MTLDevice) throws(MeshRefusal) -> [[SIMD2<Float>]] {
-        let resolution = MeshResolution(frame: frame)
-        let render = try MeshRenderCache.shared.render(device: device)
-
-        guard let raster = try render.raster(of: mesh, in: frame, resolution: resolution, perspective: perspective) else { return [] }
+        guard let raster = try raster(device: device) else { return [] }
 
         return MeshBoundary(raster: raster).seams().map { seam in
             MeshFit(locations: seam.locations.map { scene($0, raster) }, count: fit).path()
         }
+    }
+
+    /// The identity target the paths are traced from, vended on demand for display as the field's grayscale is. Nil where there is nothing to draw, which a Frame with no extent and a mesh of no triangles both are.
+    public func raster(device: any MTLDevice) throws(MeshRefusal) -> MeshIdentityRaster? {
+        let render = try MeshRenderCache.shared.render(device: device)
+
+        return try render.raster(of: mesh, in: frame, resolution: MeshResolution(frame: frame), perspective: perspective)
     }
 
     /// A fragment coordinate is a location in the identity target, whose lattice covers the Frame.

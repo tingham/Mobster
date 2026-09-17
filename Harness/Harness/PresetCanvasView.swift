@@ -5,6 +5,8 @@ struct PresetCanvasView: View {
     let frame: Frame
     /// Nil where the field is hidden and where it holds no path location, which are drawn the same way: not at all.
     let raster: FieldRaster?
+    /// Nil where the identities are hidden and where the preset extracts nothing.
+    let identities: MeshIdentityRaster?
     let paths: [[SIMD2<Float>]]
     /// The anchors, held undisplaced by the consumer's stand in.
     let lines: [Line]
@@ -21,6 +23,8 @@ struct PresetCanvasView: View {
     private static let fixtureColor = Color(red: 1, green: 0.62, blue: 0.04)
     /// The field stays achromatic and dim, so hue belongs to the cyan and the amber alone and neither loses its contrast over a lit texel.
     private static let fieldOpacity: Double = 0.45
+    /// The identity raster is the one thing here that is hued, and it is dim enough that the cyan of the paths still reads over it.
+    private static let identityOpacity: Double = 0.4
     /// Where a vert started reads as a dim amber ring and where it stands now as a solid amber disc, so the run is legible without a second hue.
     private static let originOpacity: CGFloat = 0.3
     private static let originWidth: CGFloat = 1
@@ -33,6 +37,11 @@ struct PresetCanvasView: View {
                 var fog = context
                 fog.opacity = Self.fieldOpacity
                 fog.draw(Image(decorative: image, scale: 1).interpolation(.none), in: frameRect(scale: scale, origin: origin))
+            }
+            if let image = identityImage() {
+                var lit = context
+                lit.opacity = Self.identityOpacity
+                lit.draw(Image(decorative: image, scale: 1).interpolation(.none), in: frameRect(scale: scale, origin: origin))
             }
             context.stroke(framePath(scale: scale, origin: origin), with: .color(.secondary), lineWidth: Self.frameWidth)
             for path in paths {
@@ -95,6 +104,50 @@ struct PresetCanvasView: View {
                        decode: nil,
                        shouldInterpolate: false,
                        intent: .defaultIntent)
+    }
+
+    /// One colour an identity, laid down a fragment at a time. A fragment covering no component is left clear, so the background of the canvas still reads as the background.
+    private func identityImage() -> CGImage? {
+        guard let identities, identities.columns > 0, identities.rows > 0, identities.identities.count == identities.columns * identities.rows else { return nil }
+
+        var pixels = [UInt8]()
+        pixels.reserveCapacity(identities.identities.count * 4)
+        for identity in identities.identities {
+            guard identity != MeshIdentityRaster.background else {
+                pixels.append(contentsOf: [0, 0, 0, 0])
+                continue
+            }
+            let colour = Self.colour(identity)
+            pixels.append(contentsOf: [colour.x, colour.y, colour.z, .max])
+        }
+
+        guard let provider = CGDataProvider(data: Data(pixels) as CFData) else { return nil }
+
+        return CGImage(width: identities.columns,
+                       height: identities.rows,
+                       bitsPerComponent: 8,
+                       bitsPerPixel: 32,
+                       bytesPerRow: identities.columns * 4,
+                       space: CGColorSpaceCreateDeviceRGB(),
+                       bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+                       provider: provider,
+                       decode: nil,
+                       shouldInterpolate: false,
+                       intent: .defaultIntent)
+    }
+
+    /// Hues spaced by the golden angle, so that identities emitted one after another never land on the same colour and a boundary between two of them reads.
+    private static func colour(_ identity: UInt32) -> SIMD3<UInt8> {
+        let turn = Float(identity) * 0.6180339
+
+        return SIMD3<UInt8>(channel(turn), channel(turn + 1.0 / 3), channel(turn + 2.0 / 3))
+    }
+
+    /// A triangle wave of the turn, which three channels a third of a turn apart carry around a colour wheel.
+    private static func channel(_ turn: Float) -> UInt8 {
+        let fraction = turn - turn.rounded(.down)
+
+        return UInt8(min(255, max(0, (abs(fraction * 2 - 1) * 255).rounded())))
     }
 
     private func dots(_ scene: [SIMD2<Float>], scale: CGFloat, origin: CGPoint) -> Path {

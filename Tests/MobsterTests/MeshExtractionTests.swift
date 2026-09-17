@@ -106,6 +106,20 @@ struct MeshExtractionTests {
         #expect(holds(paths[5], Self.d))
     }
 
+    /// The raster is vended at the lattice the Frame derives, one whole identity a fragment. Viewed along the axis the box shows its near face, which is the sixth of the six and the last emitted, and nothing else: the rest of the Frame covers no component and carries the background.
+    @Test func theIdentityRasterIsVendedForDisplay() throws {
+        let device = try #require(MTLCreateSystemDefaultDevice())
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: axis).mesh(in: square)
+        let raster = try #require(try MeshExtraction(mesh: mesh, frame: square, fit: fit, perspective: MeshPerspective()).raster(device: device))
+
+        #expect(raster.columns == 512)
+        #expect(raster.rows == 512)
+        #expect(raster.identities.count == 512 * 512)
+        #expect(raster.identity(column: 256, row: 256) == 6)
+        #expect(raster.identity(column: 0, row: 0) == MeshIdentityRaster.background)
+        #expect(Set(raster.identities) == [6, MeshIdentityRaster.background])
+    }
+
     @Test func everyPathHoldsTheCountAskedFor() throws {
         #expect(try extracted(diagonal).allSatisfy { $0.count == fit })
         #expect(try extracted(axis).allSatisfy { $0.count == fit })

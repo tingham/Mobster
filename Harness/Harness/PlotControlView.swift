@@ -7,7 +7,10 @@ struct PlotControlView: View {
         switch model.kind {
         case .goldenRatio:
             PresetFocusPickerView(focus: $model.focus)
-        case .thirds, .columns, .rows, .grid, .ruler, .curve, .head, .figure, .cube:
+        case .head, .figure, .cube:
+            Toggle("Show Identities", isOn: $model.identityVisible)
+                .controlSize(.large)
+        case .thirds, .columns, .rows, .grid, .ruler, .curve:
             EmptyView()
         }
     }

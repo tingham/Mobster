@@ -10,6 +10,7 @@ struct HarnessView: View {
         HStack(spacing: 0) {
             PresetCanvasView(frame: HarnessModel.frame,
                              raster: model.raster,
+                             identities: model.identityRaster,
                              paths: model.plot.paths,
                              lines: model.lines,
                              displaced: model.motion.lines)
