@@ -5,7 +5,7 @@ struct MeshBoundary {
 
     let raster: MeshIdentityRaster
 
-    /// One seam a pair of identities, ordered by that pair. A neighbourhood carrying a pair resolves to the one location at its middle, so a graze that wanders between the fragments of a neighbourhood as the view turns is the same boundary throughout.
+    /// A seam for each place a pair of identities meets, ordered by that pair. A neighbourhood carrying a pair resolves to the one location at its middle, so a graze that wanders between the fragments of a neighbourhood as the view turns is the same boundary throughout.
     func seams() -> [MeshSeam] {
         var gathered: [SIMD2<UInt32>: [SIMD2<Float>]] = [:]
 
@@ -24,8 +24,8 @@ struct MeshBoundary {
             }
         }
 
-        return gathered.keys.sorted { $0.x != $1.x ? $0.x < $1.x : $0.y < $1.y }.map { pair in
-            MeshSeam(identities: pair, locations: MeshTrace(locations: gathered[pair] ?? []).ordered())
+        return gathered.keys.sorted { $0.x != $1.x ? $0.x < $1.x : $0.y < $1.y }.flatMap { pair in
+            MeshTrace(locations: gathered[pair] ?? []).ordered().map { MeshSeam(identities: pair, locations: $0) }
         }
     }
 
