@@ -1,9 +1,11 @@
-/// A human figure built as construction solids and extracted from a projection of them. The masses are emitted first, head then ribcage then pelvis, and then the limbs: left arm, right arm, left leg, right leg. A limb carries four identities and a mass carries two, the division of each being where its cross section reads.
+/// A human figure built as construction solids and extracted from a projection of them. The masses are emitted first, head then ribcage then pelvis, then the limbs: left arm, right arm, left leg, right leg, and last the two hands and the two feet. A limb carries four identities and a mass carries two, the division of each being where its cross section reads.
 public struct FigurePreset: Hashable, Sendable {
     private static let headIdentity: UInt32 = 1
     private static let ribcageIdentity: UInt32 = 3
     private static let pelvisIdentity: UInt32 = 5
     private static let limbIdentity: UInt32 = 6
+    private static let handIdentity: UInt32 = 22
+    private static let footIdentity: UInt32 = 24
     /// The level of the figure the view turns about, so a target off level tips the figure about its own middle rather than about its crown.
     private static let pivotLevel: Float = 0.5
 
@@ -44,10 +46,12 @@ public struct FigurePreset: Hashable, Sendable {
         var bands = figure.head.bands(upper: MeshIdentity(Self.headIdentity), lower: MeshIdentity(Self.headIdentity + 1))
         bands += figure.ribcage.bands(upper: MeshIdentity(Self.ribcageIdentity), lower: MeshIdentity(Self.ribcageIdentity + 1))
         bands += pelvis.bands(identity: MeshIdentity(Self.pelvisIdentity))
-        bands += figure.arm(root: figure.leftShoulder, target: leftHand).bands(from: Self.limbIdentity)
-        bands += figure.arm(root: figure.rightShoulder, target: rightHand).bands(from: Self.limbIdentity + FigureLimb.identities)
-        bands += figure.leg(root: pelvis.leftCorner, target: leftFoot).bands(from: Self.limbIdentity + FigureLimb.identities * 2)
-        bands += figure.leg(root: pelvis.rightCorner, target: rightFoot).bands(from: Self.limbIdentity + FigureLimb.identities * 3)
+        let arms = [figure.arm(root: figure.leftShoulder, target: leftHand), figure.arm(root: figure.rightShoulder, target: rightHand)]
+        let legs = [figure.leg(root: pelvis.leftCorner, target: leftFoot), figure.leg(root: pelvis.rightCorner, target: rightFoot)]
+        bands += arms.indices.flatMap { arms[$0].bands(from: Self.limbIdentity + FigureLimb.identities * UInt32($0)) }
+        bands += legs.indices.flatMap { legs[$0].bands(from: Self.limbIdentity + FigureLimb.identities * UInt32($0 + 2)) }
+        bands += arms.indices.flatMap { figure.hand(arms[$0]).bands(identity: MeshIdentity(Self.handIdentity + UInt32($0))) }
+        bands += legs.indices.flatMap { figure.foot(legs[$0]).bands(identity: MeshIdentity(Self.footIdentity + UInt32($0))) }
 
         return Mesh(triangles: bands.flatMap { $0.triangles(placement.location) })
     }

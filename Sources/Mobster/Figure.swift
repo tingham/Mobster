@@ -16,6 +16,9 @@ struct Figure {
     private static let hipGirth: Float = 0.46
     private static let kneeGirth: Float = 0.30
     private static let ankleGirth: Float = 0.16
+    /// A hand and a foot taper as the pelvis does, no canon carrying the block of either.
+    private static let handTaper: Float = 0.6
+    private static let footTaper: Float = 0.6
 
     let canon: FigureCanon
     let sex: FigureSex
@@ -117,6 +120,38 @@ struct Figure {
                    rootWidth: Self.hipGirth * headUnit,
                    jointWidth: Self.kneeGirth * headUnit,
                    endWidth: Self.ankleGirth * headUnit)
+    }
+
+    /// Nasion to gnathion over vertex to gnathion, which is the length of the face in head units.
+    private var face: Float {
+        let head = HeadCanon(sex: sex == .male ? .male : .female)
+
+        return head.faceHeight / head.headHeight
+    }
+
+    /// A hand hangs off the wrist the limb ends at, carrying on the line of the forearm.
+    func hand(_ limb: FigureLimb) -> FigureBlock {
+        let run = limb.lower.end - limb.lower.start
+        let length = (run.x * run.x + run.y * run.y).squareRoot()
+        let forward = length > 0 ? run / length : SIMD2<Float>(0, 1)
+        let wrist = SIMD3<Float>(limb.lower.end.x, limb.lower.end.y, 0)
+        let width = Self.wristGirth * headUnit
+
+        return FigureBlock(start: wrist,
+                           end: wrist + SIMD3<Float>(forward.x, forward.y, 0) * face * headUnit,
+                           startWidth: width,
+                           endWidth: width * Self.handTaper)
+    }
+
+    /// A foot runs forward out of the ankle rather than on the line of the shin, a figure standing on its soles pointing its feet the way it faces.
+    func foot(_ limb: FigureLimb) -> FigureBlock {
+        let ankle = SIMD3<Float>(limb.lower.end.x, limb.lower.end.y, 0)
+        let width = Self.ankleGirth * headUnit
+
+        return FigureBlock(start: ankle,
+                           end: ankle + SIMD3<Float>(0, 0, headUnit),
+                           startWidth: width,
+                           endWidth: width * Self.footTaper)
     }
 
     /// A partial head at the soles has no break of its own, so the last break is the last whole head.

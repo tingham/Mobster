@@ -92,16 +92,33 @@ struct FigurePresetTests {
         #expect(rightLeg.upper.end.x > standing.pelvis.rightCorner.x)
     }
 
-    /// Two masses of four bands each, a pelvis of a side band and two caps, and four limbs of two segments each divided in two. A facet with no area is dropped, which is what a ring closing onto a pole costs a fan rather than a band.
+    /// Two masses of four bands each, a pelvis of a side band and two caps, four limbs of two segments each divided in two, and four blocks of a side band and two caps. A facet with no area is dropped, which is what a ring closing onto a pole costs a fan rather than a band.
     @Test func theWholeFigureIsAFewHundredTriangles() {
-        #expect(figure(sex: .male, heads: 8).mesh(in: frame).triangles.count == 368)
+        #expect(figure(sex: .male, heads: 8).mesh(in: frame).triangles.count == 432)
     }
 
-    /// An identity marks structure. A mass carries two for the division at its equator, a pelvis one, and a limb four: two a segment.
+    /// An identity marks structure. A mass carries two for the division at its equator, a pelvis one, a limb four being two a segment, and a hand or a foot one.
     @Test func anIdentityMarksStructureRatherThanTessellation() {
         let identities = Set(figure(sex: .male, heads: 8).mesh(in: frame).triangles.map(\.identity.value))
 
-        #expect(identities == Set(1 ... 21))
+        #expect(identities == Set(1 ... 25))
+    }
+
+    /// Farkas puts nasion to gnathion at 123 of the 232 of head height, so the hand is 0.5302 of a head long, and the foot is one head. Both taper, and the foot runs out of the ankle along the depth where the hand carries on the line of the forearm.
+    @Test func theHandIsTheLengthOfTheFaceAndTheFootOneHead() {
+        let standing = Figure(heads: 8, sex: .male)
+        let arm = standing.arm(root: standing.leftShoulder, target: SIMD2<Float>(0.31, 0.45))
+        let leg = standing.leg(root: standing.pelvis.leftCorner, target: SIMD2<Float>(0.42, 0.95))
+        let hand = standing.hand(arm)
+        let foot = standing.foot(leg)
+        let reach = hand.end - hand.start
+
+        #expect(abs((reach * reach).sum().squareRoot() - Float(123) / 232 * standing.headUnit) < 0.0001)
+        #expect(hand.start == SIMD3<Float>(arm.lower.end.x, arm.lower.end.y, 0))
+        #expect(hand.endWidth < hand.startWidth)
+        #expect(foot.start == SIMD3<Float>(leg.lower.end.x, leg.lower.end.y, 0))
+        #expect(foot.end == SIMD3<Float>(leg.lower.end.x, leg.lower.end.y, standing.headUnit))
+        #expect(foot.endWidth < foot.startWidth)
     }
 
     /// Two thirds as wide as tall puts the head mass 0.0416875 of the stature either side of the middle, its own height is the eighth of the stature the chin level gives, and Farkas's head length puts it 0.0525 deep. Eight hundred of stature carries those to 366.65 through 433.35, zero through a hundred, and forty two either side of the plane.
@@ -227,7 +244,7 @@ struct FigurePresetTests {
                                     rightFoot: SIMD2<Float>(0.58, 1),
                                     headLines: false).mesh(in: frame)
 
-        #expect(reaching.triangles.count == 368)
+        #expect(reaching.triangles.count == 432)
         #expect(reaching.triangles.allSatisfy { [$0.first, $0.second, $0.third].allSatisfy { $0.x.isFinite && $0.y.isFinite } })
     }
 }
