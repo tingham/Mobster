@@ -20,7 +20,7 @@ struct FigurePoseTests {
     @Test func thePosesAreNamedAndHeldAsData() {
         let names = FigurePose.named.map(\.name)
 
-        #expect(names == ["Standing", "Contrapposto", "Seated", "Reaching"])
+        #expect(names == ["Standing", "Contrapposto", "Seated", "Reach", "Wave"])
         #expect(Set(names).count == names.count)
     }
 
@@ -32,6 +32,18 @@ struct FigurePoseTests {
             #expect(pose.leftHand.y < pose.leftFoot.y)
             #expect(pose.rightHand.y < pose.rightFoot.y)
         }
+    }
+
+    /// Reach carries both hands overhead, which is above the level the head ends at, where Wave raises one of them and leaves the other down.
+    @Test func reachRaisesBothHandsAndWaveOneOfThem() throws {
+        let chin = Figure(heads: 8, sex: .male).canon.chin
+        let reach = try #require(FigurePose.named.first { $0.name == "Reach" })
+        let wave = try #require(FigurePose.named.first { $0.name == "Wave" })
+
+        #expect(reach.leftHand.y < chin)
+        #expect(reach.rightHand.y < chin)
+        #expect(wave.leftHand.y < chin)
+        #expect(wave.rightHand.y > chin)
     }
 
     /// A pose sets every target at once, so no two of them plot the same figure.
