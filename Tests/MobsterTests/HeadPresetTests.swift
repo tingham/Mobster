@@ -154,6 +154,19 @@ struct HeadPresetTests {
         #expect(abs(chin.map(\.y).max()! - mass.map(\.y).min()! - 320) < 0.01)
     }
 
+    /// A target is a location a user places, so it is vended as one and taken back as one. Level and off to the side by one head height, on a hundred square whose eight tenths carry the construction, stands one head height of run at eighty of the Frame from the middle: 50 across and 37.586 down carry to 130 and 37.586.
+    @Test func theTargetIsVendedAsALocationAndTakenBackAsOne() {
+        let head = HeadPreset(sex: .male, target: SIMD3<Float>(1, 0, 1), roll: 0)
+        let location = head.location(in: square)
+
+        #expect(abs(location.x - 130) < 0.01)
+        #expect(abs(location.y - 37.586) < 0.01)
+        #expect(abs(head.target(at: location, in: square).x - head.target.x) < 0.001)
+        #expect(abs(head.target(at: location, in: square).y - head.target.y) < 0.001)
+        #expect(head.target(at: location, in: square).z == head.target.z)
+        #expect(abs(head.target(at: SIMD2<Float>(50, 37.586), in: square).x) < 0.001)
+    }
+
     /// A target forty five degrees above level and one steeper than it give the same construction, the steeper one being held at the limit, where one inside the limit gives another.
     @Test func forwardIsHeldWithinFortyFiveDegreesOfLevel() {
         let held = HeadPreset(sex: .male, target: SIMD3<Float>(0, -1, 1), roll: 0).mesh(in: square)

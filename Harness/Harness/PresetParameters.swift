@@ -2,6 +2,9 @@ import Mobster
 
 /// Every dial the harness offers. Each preset keeps its own values so switching presets does not disturb a magnitude already dialled in on another.
 struct PresetParameters: Hashable, Sendable {
+    /// The figure opens in the first of the named poses rather than in a T pose, which the user would have to undo before beginning.
+    private static let opening = FigurePose.named[0]
+
     var columnCount: Int = 4
     var columnGutter: Float = 0.02
     var rowCount: Int = 4
@@ -27,10 +30,11 @@ struct PresetParameters: Hashable, Sendable {
     var figureHeads: Float = 8
     /// Figure space, measured from the middle of the figure: x across, y downward, z out of the chest. Opening straight out of the chest, which is the frontal view.
     var figureTarget = SIMD3<Float>(0, 0, 1)
-    var figureLeftHand = SIMD2<Float>(0.31, 0.5)
-    var figureRightHand = SIMD2<Float>(0.69, 0.5)
-    var figureLeftFoot = SIMD2<Float>(0.42, 1)
-    var figureRightFoot = SIMD2<Float>(0.58, 1)
+    var figurePose = PresetParameters.opening.name
+    var figureLeftHand = PresetParameters.opening.leftHand
+    var figureRightHand = PresetParameters.opening.rightHand
+    var figureLeftFoot = PresetParameters.opening.leftFoot
+    var figureRightFoot = PresetParameters.opening.rightFoot
     var figureHeadLines = true
     /// Locations each extracted boundary is fitted to, which every mesh preset is read at.
     var meshFit: Int = 12
@@ -42,4 +46,13 @@ struct PresetParameters: Hashable, Sendable {
     var cubeSize: Float = 0.5
     /// Box space, measured from its centre: x across, y downward, z out of the near face. Opening down the body diagonal, which is the view three faces read from.
     var cubeTarget = SIMD3<Float>(1, 1.7320508, 1.4142135)
+
+    /// A pose sets every target at once, which is the only way the four of them are set together.
+    mutating func pose(_ pose: FigurePose) {
+        figurePose = pose.name
+        figureLeftHand = pose.leftHand
+        figureRightHand = pose.rightHand
+        figureLeftFoot = pose.leftFoot
+        figureRightFoot = pose.rightFoot
+    }
 }

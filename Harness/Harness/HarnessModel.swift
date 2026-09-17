@@ -57,6 +57,32 @@ final class HarnessModel {
         identityVisible ? plot.raster : nil
     }
 
+    /// The locations the user places, which are dragged on the preview rather than typed into two numbers.
+    var handles: [PresetHandle] {
+        switch kind {
+        case .figure: figureHandles
+        case .head: headHandles
+        case .goldenRatio, .thirds, .columns, .rows, .grid, .ruler, .curve, .cube: []
+        }
+    }
+
+    /// The four targets a figure is posed by, which it holds in design space.
+    private var figureHandles: [PresetHandle] {
+        let square = DesignSquare(frame: Self.frame)
+
+        return [PresetHandle(id: "Left Hand", location: square.location(parameters.figureLeftHand), move: { [self] in parameters.figureLeftHand = square.design($0) }),
+                PresetHandle(id: "Right Hand", location: square.location(parameters.figureRightHand), move: { [self] in parameters.figureRightHand = square.design($0) }),
+                PresetHandle(id: "Left Foot", location: square.location(parameters.figureLeftFoot), move: { [self] in parameters.figureLeftFoot = square.design($0) }),
+                PresetHandle(id: "Right Foot", location: square.location(parameters.figureRightFoot), move: { [self] in parameters.figureRightFoot = square.design($0) })]
+    }
+
+    /// The location the head points at, which the preset vends in the Frame and takes back in it. Its depth is not on the preview and the drag keeps whatever it stood at.
+    private var headHandles: [PresetHandle] {
+        let head = HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: PresetPlot.roll(parameters.headRoll))
+
+        return [PresetHandle(id: "View Target", location: head.location(in: Self.frame), move: { [self] in parameters.headTarget = head.target(at: $0, in: Self.frame) })]
+    }
+
     init() {
         let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, focus: .maxXMinY, identities: false, device: Self.device)
         let population = Self.coupled(LineFixture(parameters: Self.openingFixture).lines(in: Self.frame), coupling: Self.openingCoupling)

@@ -8,10 +8,15 @@ struct PresetCanvasView: View {
     /// Nil where the identities are hidden and where the preset extracts nothing.
     let identities: MeshIdentityRaster?
     let paths: [[SIMD2<Float>]]
+    /// The locations the user places, drawn as rings and dragged by their nearest.
+    let handles: [PresetHandle]
     /// The anchors, held undisplaced by the consumer's stand in.
     let lines: [Line]
     /// What the Guide returned for the time on screen, in the order the anchors were supplied.
     let displaced: [Line]
+
+    /// Which handle the drag in progress took hold of, kept for the whole of the drag so a fast one does not hand over to a nearer handle it passes.
+    @State private var dragging: String?
 
     private static let margin: CGFloat = 24
     private static let guideWidth: CGFloat = 1.5
@@ -28,8 +33,23 @@ struct PresetCanvasView: View {
     /// Where a vert started reads as a dim amber ring and where it stands now as a solid amber disc, so the run is legible without a second hue.
     private static let originOpacity: CGFloat = 0.3
     private static let originWidth: CGFloat = 1
+    private static let handleRadius: CGFloat = 7
+    private static let handleWidth: CGFloat = 1.5
+    /// Points. Forty four across, which is the least a hit target reads at, and generous for a cursor.
+    private static let handleReach: CGFloat = 22
 
     var body: some View {
+        GeometryReader { proxy in
+            canvas
+                .gesture(DragGesture(minimumDistance: 0)
+                    .onChanged { drag($0, in: proxy.size) }
+                    .onEnded { _ in dragging = nil })
+        }
+        .background(Color.black)
+        .frame(minWidth: 480, minHeight: 360)
+    }
+
+    private var canvas: some View {
         Canvas { context, size in
             let scale = scale(for: size)
             let origin = origin(for: size, scale: scale)
@@ -57,9 +77,51 @@ struct PresetCanvasView: View {
                 context.stroke(guidePath(carried, scale: scale, origin: origin), with: .color(Self.fixtureColor.opacity(Self.strokeOpacity)), lineWidth: Self.strokeWidth)
                 context.fill(dots(carried, scale: scale, origin: origin), with: .color(Self.fixtureColor))
             }
+            for handle in handles {
+                let ring = ring(at: handle.location, scale: scale, origin: origin)
+                if handle.id == dragging {
+                    context.fill(ring, with: .color(.white))
+                } else {
+                    context.stroke(ring, with: .color(.white), lineWidth: Self.handleWidth)
+                }
+            }
         }
-        .background(Color.black)
-        .frame(minWidth: 480, minHeight: 360)
+    }
+
+    /// The handle a drag took hold of stays held, so what moves is the one the drag started on and not whichever is nearest now.
+    private func drag(_ value: DragGesture.Value, in size: CGSize) {
+        let scale = scale(for: size)
+        let origin = origin(for: size, scale: scale)
+
+        if dragging == nil {
+            dragging = nearest(to: value.startLocation, scale: scale, origin: origin)?.id
+        }
+
+        guard let dragging, let handle = handles.first(where: { $0.id == dragging }) else { return }
+
+        handle.move(scene(value.location, scale: scale, origin: origin))
+    }
+
+    /// The nearest handle within reach of the point, and none where the drag started on empty canvas.
+    private func nearest(to point: CGPoint, scale: CGFloat, origin: CGPoint) -> PresetHandle? {
+        handles.map { handle in (handle, distance(location(handle.location, scale: scale, origin: origin), point)) }
+            .filter { $0.1 <= Self.handleReach }
+            .min { $0.1 < $1.1 }?.0
+    }
+
+    private func distance(_ first: CGPoint, _ second: CGPoint) -> CGFloat {
+        ((first.x - second.x) * (first.x - second.x) + (first.y - second.y) * (first.y - second.y)).squareRoot()
+    }
+
+    /// A point on the canvas read back into the scene the Frame is measured in.
+    private func scene(_ point: CGPoint, scale: CGFloat, origin: CGPoint) -> SIMD2<Float> {
+        scale > 0 ? SIMD2<Float>(Float((point.x - origin.x) / scale), Float((point.y - origin.y) / scale)) : .zero
+    }
+
+    private func ring(at scene: SIMD2<Float>, scale: CGFloat, origin: CGPoint) -> Path {
+        let centre = location(scene, scale: scale, origin: origin)
+
+        return Path(ellipseIn: CGRect(x: centre.x - Self.handleRadius, y: centre.y - Self.handleRadius, width: Self.handleRadius * 2, height: Self.handleRadius * 2))
     }
 
     private func scale(for size: CGSize) -> CGFloat {

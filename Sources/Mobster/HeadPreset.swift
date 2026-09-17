@@ -110,6 +110,30 @@ public struct HeadPreset: Hashable, Sendable {
         }
     }
 
+    /// Where the target stands in the Frame, so a consumer can put a handle on it rather than two numbers. The depth of it is not drawn.
+    public func location(in frame: Frame) -> SIMD2<Float> {
+        let canon = HeadCanon(sex: sex)
+
+        return Self.placement(canon, target: target, roll: roll, frame: frame).flat(Self.design(target, canon))
+    }
+
+    /// The target a location in the Frame stands for. The depth is kept, a location on the preview carrying no third axis.
+    public func target(at location: SIMD2<Float>, in frame: Frame) -> SIMD3<Float> {
+        let canon = HeadCanon(sex: sex)
+        let unit = 1 / canon.neckLevel
+        let design = Self.placement(canon, target: target, roll: roll, frame: frame).design(location)
+        let run = (design - SIMD2<Float>(Self.designCentre, canon.browLevel * unit)) / unit
+
+        return SIMD3<Float>(run.x, run.y, target.z)
+    }
+
+    /// The target laid into the design rectangle, measured in head heights from the centre of the cranial mass that the construction pivots about.
+    private static func design(_ target: SIMD3<Float>, _ canon: HeadCanon) -> SIMD2<Float> {
+        let unit = 1 / canon.neckLevel
+
+        return SIMD2<Float>(designCentre, canon.browLevel * unit) + SIMD2<Float>(target.x, target.y) * unit
+    }
+
     /// Levels run from the centre of the cranial mass, which the brow level carries back to the crown, and the shoulder line is what the full height is measured to.
     private static func placement(_ canon: HeadCanon, target: SIMD3<Float>, roll: Float, frame: Frame) -> MeshPlacement {
         let unit = 1 / canon.neckLevel

@@ -121,7 +121,7 @@ struct PresetPlot {
     }
 
     /// The panel dials a roll as a degree, which the preset takes in radians.
-    private static func roll(_ degree: Float) -> Float {
+    static func roll(_ degree: Float) -> Float {
         degree * Float.pi / 180
     }
 }

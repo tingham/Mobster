@@ -6,6 +6,7 @@ struct FigureParameterView: View {
 
     var body: some View {
         FigureSexPickerView(sex: $parameters.figureSex)
+        FigurePosePickerView(parameters: $parameters)
         ParameterSliderView(title: "Heads", value: $parameters.figureHeads, range: 4 ... 8)
         ParameterSliderView(title: "Target X", value: $parameters.figureTarget.x, range: -2 ... 2)
         ParameterSliderView(title: "Target Y", value: $parameters.figureTarget.y, range: -2 ... 2)
@@ -14,13 +15,5 @@ struct FigureParameterView: View {
         ParameterSliderView(title: "Field Of View", value: $parameters.meshFieldOfView, range: MeshPerspective.range)
         Toggle("Head Lines", isOn: $parameters.figureHeadLines)
             .controlSize(.large)
-        ParameterSliderView(title: "Left Hand X", value: $parameters.figureLeftHand.x, range: -0.5 ... 1.5)
-        ParameterSliderView(title: "Left Hand Y", value: $parameters.figureLeftHand.y, range: -0.5 ... 1.5)
-        ParameterSliderView(title: "Right Hand X", value: $parameters.figureRightHand.x, range: -0.5 ... 1.5)
-        ParameterSliderView(title: "Right Hand Y", value: $parameters.figureRightHand.y, range: -0.5 ... 1.5)
-        ParameterSliderView(title: "Left Foot X", value: $parameters.figureLeftFoot.x, range: -0.5 ... 1.5)
-        ParameterSliderView(title: "Left Foot Y", value: $parameters.figureLeftFoot.y, range: -0.5 ... 1.5)
-        ParameterSliderView(title: "Right Foot X", value: $parameters.figureRightFoot.x, range: -0.5 ... 1.5)
-        ParameterSliderView(title: "Right Foot Y", value: $parameters.figureRightFoot.y, range: -0.5 ... 1.5)
     }
 }
