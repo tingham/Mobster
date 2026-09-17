@@ -1,7 +1,7 @@
 import Foundation
 
 /// An ellipsoid mass, divided at its equator so the cross section showing the form's roundness falls out of the division rather than out of a band of its own.
-struct AshcanEllipse {
+struct FigureEllipse {
     /// Locations to a ring, the division every form of the figure takes.
     static let points = 8
     /// Rings of latitude either side of the equator. Two puts the equator halfway from pole to pole, which is where a mass is divided.

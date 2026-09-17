@@ -1,7 +1,7 @@
 import Testing
 @testable import Mobster
 
-struct AshcanPresetTests {
+struct FigurePresetTests {
     /// Eight hundred on a side, so a fraction of the height reads as a round number of scene units.
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(800, 800))
     /// Half again wider than it is tall, so a figure stretched to the axes would read fifty percent broad.
@@ -9,8 +9,8 @@ struct AshcanPresetTests {
     /// Straight out of the chest, which reads the figure frontally.
     private let frontal = SIMD3<Float>(0, 0, 1)
 
-    private func figure(sex: AshcanSex, heads: Float, target: SIMD3<Float>? = nil, headLines: Bool = false) -> AshcanPreset {
-        AshcanPreset(sex: sex,
+    private func figure(sex: FigureSex, heads: Float, target: SIMD3<Float>? = nil, headLines: Bool = false) -> FigurePreset {
+        FigurePreset(sex: sex,
                      heads: heads,
                      target: target ?? frontal,
                      leftHand: SIMD2<Float>(0.31, 0.5),
@@ -58,8 +58,8 @@ struct AshcanPresetTests {
 
     /// Lengths of three and four to a target five away is the right triangle whose joint lies eighteen thirtieths of the way along the line and eight tenths of three across it.
     @Test func aTwoBoneSolveMatchesTheTriangleTheLawOfCosinesGives() {
-        let above = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, 1))
-        let below = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, -1))
+        let above = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, 1))
+        let below = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, -1))
 
         #expect(abs(above.joint.x - 1.8) < 0.01)
         #expect(abs(above.joint.y - 2.4) < 0.01)
@@ -68,15 +68,15 @@ struct AshcanPresetTests {
     }
 
     @Test func aPoleAcrossTheLineDecidesWhichWayTheJointTurns() {
-        let leaning = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(3, 1))
-        let along = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(1, 0))
+        let leaning = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(3, 1))
+        let along = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(1, 0))
 
         #expect(abs(leaning.joint.y - 2.4) < 0.01)
         #expect(abs(along.joint.y - 2.4) < 0.01)
     }
 
     @Test func aTargetOutOfReachExtendsTheLimbTowardIt() {
-        let solve = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(10, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, 1))
+        let solve = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(10, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, 1))
 
         #expect(abs(solve.joint.x - 3) < 0.01)
         #expect(abs(solve.end.x - 7) < 0.01)
@@ -179,8 +179,8 @@ struct AshcanPresetTests {
 
     /// The shorter table is a child's rather than the adult's scaled down, so its cranium takes a quarter of the height where the adult's takes an eighth and its legs are the shorter for it.
     @Test func theShorterTableIsAChildsRatherThanASmallAdults() {
-        let child = AshcanFigure(heads: 4, sex: .male)
-        let adult = AshcanFigure(heads: 8, sex: .male)
+        let child = Figure(heads: 4, sex: .male)
+        let adult = Figure(heads: 8, sex: .male)
 
         #expect(child.canon.chin == 0.25)
         #expect(adult.canon.chin == 0.125)
@@ -208,7 +208,7 @@ struct AshcanPresetTests {
     }
 
     @Test func aFigureReachingBeyondItsLimbsPlotsTheSameFormsAsOneWithinReach() {
-        let reaching = AshcanPreset(sex: .male,
+        let reaching = FigurePreset(sex: .male,
                                     heads: 8,
                                     target: frontal,
                                     leftHand: SIMD2<Float>(-4, -3),

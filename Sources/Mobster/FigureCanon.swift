@@ -1,5 +1,5 @@
 /// One row of a published proportion table. Each landmark is a fraction of the figure's height measured down from the top of the head, and the width is the figure's widest measure in head units.
-struct AshcanCanon {
+struct FigureCanon {
     let heads: Float
     let chin: Float
     let shoulder: Float
@@ -15,8 +15,8 @@ struct AshcanCanon {
         (nipple + crotch) / 2
     }
 
-    static func blended(_ lower: AshcanCanon, _ upper: AshcanCanon, _ travel: Float) -> AshcanCanon {
-        AshcanCanon(heads: mix(lower.heads, upper.heads, travel),
+    static func blended(_ lower: FigureCanon, _ upper: FigureCanon, _ travel: Float) -> FigureCanon {
+        FigureCanon(heads: mix(lower.heads, upper.heads, travel),
                     chin: mix(lower.chin, upper.chin, travel),
                     shoulder: mix(lower.shoulder, upper.shoulder, travel),
                     nipple: mix(lower.nipple, upper.nipple, travel),

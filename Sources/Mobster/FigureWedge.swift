@@ -1,5 +1,5 @@
 /// A wedge, which the pelvis is. Its lower corners are where the legs are hung. A wedge reads by its edges rather than by a cross section, so nothing divides it.
-struct AshcanWedge {
+struct FigureWedge {
     let center: Float
     let top: Float
     let bottom: Float

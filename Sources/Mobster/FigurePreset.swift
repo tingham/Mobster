@@ -1,5 +1,5 @@
 /// A human figure built as construction solids and extracted from a projection of them. The masses are emitted first, head then ribcage then pelvis, and then the limbs: left arm, right arm, left leg, right leg. A limb carries four identities and a mass carries two, the division of each being where its cross section reads.
-public struct AshcanPreset: Hashable, Sendable {
+public struct FigurePreset: Hashable, Sendable {
     private static let headIdentity: UInt32 = 1
     private static let ribcageIdentity: UInt32 = 3
     private static let pelvisIdentity: UInt32 = 5
@@ -7,7 +7,7 @@ public struct AshcanPreset: Hashable, Sendable {
     /// The level of the figure the view turns about, so a target off level tips the figure about its own middle rather than about its crown.
     private static let pivotLevel: Float = 0.5
 
-    public let sex: AshcanSex
+    public let sex: FigureSex
     /// A height outside the tabled four through eight is plotted at the nearest tabled height, there being no canon beyond them.
     public let heads: Float
     /// The location the whole figure is turned toward, measured from its middle: x across, y downward, z out of the chest. One target orbits the construction; the pose is not turned with it.
@@ -24,7 +24,7 @@ public struct AshcanPreset: Hashable, Sendable {
     public let rightKneePole: SIMD2<Float>
     public let headLines: Bool
 
-    public init(sex: AshcanSex,
+    public init(sex: FigureSex,
                 heads: Float,
                 target: SIMD3<Float>,
                 leftHand: SIMD2<Float>,
@@ -51,16 +51,16 @@ public struct AshcanPreset: Hashable, Sendable {
     }
 
     public func mesh(in frame: Frame) -> Mesh {
-        let figure = AshcanFigure(heads: heads, sex: sex)
+        let figure = Figure(heads: heads, sex: sex)
         let pelvis = figure.pelvis
         let placement = Self.placement(figure, target: target, frame: frame)
         var bands = figure.head.bands(upper: MeshIdentity(Self.headIdentity), lower: MeshIdentity(Self.headIdentity + 1))
         bands += figure.ribcage.bands(upper: MeshIdentity(Self.ribcageIdentity), lower: MeshIdentity(Self.ribcageIdentity + 1))
         bands += pelvis.bands(identity: MeshIdentity(Self.pelvisIdentity))
         bands += figure.arm(root: figure.leftShoulder, target: leftHand, pole: leftElbowPole).bands(from: Self.limbIdentity)
-        bands += figure.arm(root: figure.rightShoulder, target: rightHand, pole: rightElbowPole).bands(from: Self.limbIdentity + AshcanLimb.identities)
-        bands += figure.leg(root: pelvis.leftCorner, target: leftFoot, pole: leftKneePole).bands(from: Self.limbIdentity + AshcanLimb.identities * 2)
-        bands += figure.leg(root: pelvis.rightCorner, target: rightFoot, pole: rightKneePole).bands(from: Self.limbIdentity + AshcanLimb.identities * 3)
+        bands += figure.arm(root: figure.rightShoulder, target: rightHand, pole: rightElbowPole).bands(from: Self.limbIdentity + FigureLimb.identities)
+        bands += figure.leg(root: pelvis.leftCorner, target: leftFoot, pole: leftKneePole).bands(from: Self.limbIdentity + FigureLimb.identities * 2)
+        bands += figure.leg(root: pelvis.rightCorner, target: rightFoot, pole: rightKneePole).bands(from: Self.limbIdentity + FigureLimb.identities * 3)
 
         return Mesh(triangles: bands.flatMap { $0.triangles(placement.location) })
     }
@@ -69,13 +69,13 @@ public struct AshcanPreset: Hashable, Sendable {
     public func breakLines(in frame: Frame) -> [[SIMD2<Float>]] {
         guard headLines else { return [] }
 
-        let figure = AshcanFigure(heads: heads, sex: sex)
+        let figure = Figure(heads: heads, sex: sex)
         let placement = Self.placement(figure, target: target, frame: frame)
 
         return figure.breakLines.map { line in line.map(placement.flat) }
     }
 
-    private static func placement(_ figure: AshcanFigure, target: SIMD3<Float>, frame: Frame) -> MeshPlacement {
+    private static func placement(_ figure: Figure, target: SIMD3<Float>, frame: Frame) -> MeshPlacement {
         MeshPlacement(target: target,
                       roll: 0,
                       origin: SIMD2<Float>(figure.center, pivotLevel),

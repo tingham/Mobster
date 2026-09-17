@@ -2,14 +2,14 @@ import Metal
 import Testing
 @testable import Mobster
 
-struct AshcanExtractionTests {
+struct FigureExtractionTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(800, 800))
     private let fit = 12
     /// The left arm's four identities, in the order a limb emits them: the upper segment's two halves then the forearm's two.
     private static let leftArm: UInt32 = 6
 
-    private func figure(target: SIMD3<Float>) -> AshcanPreset {
-        AshcanPreset(sex: .male,
+    private func figure(target: SIMD3<Float>) -> FigurePreset {
+        FigurePreset(sex: .male,
                      heads: 8,
                      target: target,
                      leftHand: SIMD2<Float>(0.24, 0.62),

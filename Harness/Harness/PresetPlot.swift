@@ -51,8 +51,8 @@ struct PresetPlot {
                         resolution: parameters.curveResolution).paths(in: frame)
         case .head:
             try head(parameters: parameters, frame: frame, device: device)
-        case .ashcan:
-            try ashcan(parameters: parameters, frame: frame, device: device)
+        case .figure:
+            try figure(parameters: parameters, frame: frame, device: device)
         case .cube:
             try cube(parameters: parameters, frame: frame, device: device)
         }
@@ -66,20 +66,20 @@ struct PresetPlot {
     }
 
     /// The break lines measure the figure rather than belonging to it, so they are appended as paths after the extracted boundaries.
-    private static func ashcan(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+    private static func figure(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
         guard let device else { return [] }
-        let figure = AshcanPreset(sex: parameters.ashcanSex,
-                                  heads: parameters.ashcanHeads,
-                                  target: parameters.ashcanTarget,
-                                  leftHand: parameters.ashcanLeftHand,
-                                  rightHand: parameters.ashcanRightHand,
-                                  leftFoot: parameters.ashcanLeftFoot,
-                                  rightFoot: parameters.ashcanRightFoot,
-                                  leftElbowPole: pole(parameters.ashcanLeftElbowDegree),
-                                  rightElbowPole: pole(parameters.ashcanRightElbowDegree),
-                                  leftKneePole: pole(parameters.ashcanLeftKneeDegree),
-                                  rightKneePole: pole(parameters.ashcanRightKneeDegree),
-                                  headLines: parameters.ashcanHeadLines)
+        let figure = FigurePreset(sex: parameters.figureSex,
+                                  heads: parameters.figureHeads,
+                                  target: parameters.figureTarget,
+                                  leftHand: parameters.figureLeftHand,
+                                  rightHand: parameters.figureRightHand,
+                                  leftFoot: parameters.figureLeftFoot,
+                                  rightFoot: parameters.figureRightFoot,
+                                  leftElbowPole: pole(parameters.figureLeftElbowDegree),
+                                  rightElbowPole: pole(parameters.figureRightElbowDegree),
+                                  leftKneePole: pole(parameters.figureLeftKneeDegree),
+                                  rightKneePole: pole(parameters.figureRightKneeDegree),
+                                  headLines: parameters.figureHeadLines)
         let extracted = try MeshExtraction(mesh: figure.mesh(in: frame), frame: frame, fit: parameters.meshFit, perspective: MeshPerspective(fieldOfView: parameters.meshFieldOfView)).paths(device: device)
 
         return extracted + figure.breakLines(in: frame)
