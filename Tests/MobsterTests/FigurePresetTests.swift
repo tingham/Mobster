@@ -1,7 +1,7 @@
 import Testing
 @testable import Mobster
 
-struct AshcanPresetTests {
+struct FigurePresetTests {
     /// Eight hundred on a side, so a fraction of the height reads as a round number of scene units.
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(800, 800))
     /// Half again wider than it is tall, so a figure stretched to the axes would read fifty percent broad.
@@ -9,18 +9,14 @@ struct AshcanPresetTests {
     /// Straight out of the chest, which reads the figure frontally.
     private let frontal = SIMD3<Float>(0, 0, 1)
 
-    private func figure(sex: AshcanSex, heads: Float, target: SIMD3<Float>? = nil, headLines: Bool = false) -> AshcanPreset {
-        AshcanPreset(sex: sex,
+    private func figure(sex: FigureSex, heads: Float, target: SIMD3<Float>? = nil, headLines: Bool = false) -> FigurePreset {
+        FigurePreset(sex: sex,
                      heads: heads,
                      target: target ?? frontal,
                      leftHand: SIMD2<Float>(0.31, 0.5),
                      rightHand: SIMD2<Float>(0.69, 0.5),
                      leftFoot: SIMD2<Float>(0.42, 1),
                      rightFoot: SIMD2<Float>(0.58, 1),
-                     leftElbowPole: SIMD2<Float>(-1, 0),
-                     rightElbowPole: SIMD2<Float>(1, 0),
-                     leftKneePole: SIMD2<Float>(-1, 0),
-                     rightKneePole: SIMD2<Float>(1, 0),
                      headLines: headLines)
     }
 
@@ -58,8 +54,8 @@ struct AshcanPresetTests {
 
     /// Lengths of three and four to a target five away is the right triangle whose joint lies eighteen thirtieths of the way along the line and eight tenths of three across it.
     @Test func aTwoBoneSolveMatchesTheTriangleTheLawOfCosinesGives() {
-        let above = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, 1))
-        let below = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, -1))
+        let above = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, 1))
+        let below = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, -1))
 
         #expect(abs(above.joint.x - 1.8) < 0.01)
         #expect(abs(above.joint.y - 2.4) < 0.01)
@@ -68,30 +64,61 @@ struct AshcanPresetTests {
     }
 
     @Test func aPoleAcrossTheLineDecidesWhichWayTheJointTurns() {
-        let leaning = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(3, 1))
-        let along = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(1, 0))
+        let leaning = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(3, 1))
+        let along = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(5, 0), upper: 3, lower: 4, pole: SIMD2<Float>(1, 0))
 
         #expect(abs(leaning.joint.y - 2.4) < 0.01)
         #expect(abs(along.joint.y - 2.4) < 0.01)
     }
 
     @Test func aTargetOutOfReachExtendsTheLimbTowardIt() {
-        let solve = AshcanSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(10, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, 1))
+        let solve = FigureSolve(root: SIMD2<Float>(0, 0), target: SIMD2<Float>(10, 0), upper: 3, lower: 4, pole: SIMD2<Float>(0, 1))
 
         #expect(abs(solve.joint.x - 3) < 0.01)
         #expect(abs(solve.end.x - 7) < 0.01)
     }
 
-    /// Two masses of four bands each, a pelvis of a side band and two caps, and four limbs of two segments each divided in two. A facet with no area is dropped, which is what a ring closing onto a pole costs a fan rather than a band.
-    @Test func theWholeFigureIsAFewHundredTriangles() {
-        #expect(figure(sex: .male, heads: 8).mesh(in: frame).triangles.count == 368)
+    /// An elbow and a knee turn away from the middle of the figure. Nothing is passed to say which way either bends, the direction being anatomical rather than a control.
+    @Test func aLimbBendsAwayFromTheMiddleAndNothingSaysWhichWay() {
+        let standing = Figure(heads: 8, sex: .male)
+        let leftArm = standing.arm(root: standing.leftShoulder, target: SIMD2<Float>(0.31, 0.45))
+        let rightArm = standing.arm(root: standing.rightShoulder, target: SIMD2<Float>(0.69, 0.45))
+        let leftLeg = standing.leg(root: standing.pelvis.leftCorner, target: SIMD2<Float>(0.42, 0.95))
+        let rightLeg = standing.leg(root: standing.pelvis.rightCorner, target: SIMD2<Float>(0.58, 0.95))
+
+        #expect(leftArm.upper.end.x < standing.leftShoulder.x)
+        #expect(rightArm.upper.end.x > standing.rightShoulder.x)
+        #expect(leftLeg.upper.end.x < standing.pelvis.leftCorner.x)
+        #expect(rightLeg.upper.end.x > standing.pelvis.rightCorner.x)
     }
 
-    /// An identity marks structure. A mass carries two for the division at its equator, a pelvis one, and a limb four: two a segment.
+    /// Two masses of four bands each, a pelvis of a side band and two caps, four limbs of two segments each divided in two, and four blocks of a side band and two caps. A facet with no area is dropped, which is what a ring closing onto a pole costs a fan rather than a band.
+    @Test func theWholeFigureIsAFewHundredTriangles() {
+        #expect(figure(sex: .male, heads: 8).mesh(in: frame).triangles.count == 432)
+    }
+
+    /// An identity marks structure. A mass carries two for the division at its equator, a pelvis one, a limb four being two a segment, and a hand or a foot one.
     @Test func anIdentityMarksStructureRatherThanTessellation() {
         let identities = Set(figure(sex: .male, heads: 8).mesh(in: frame).triangles.map(\.identity.value))
 
-        #expect(identities == Set(1 ... 21))
+        #expect(identities == Set(1 ... 25))
+    }
+
+    /// Farkas puts nasion to gnathion at 123 of the 232 of head height, so the hand is 0.5302 of a head long, and the foot is one head. Both taper, and the foot runs out of the ankle along the depth where the hand carries on the line of the forearm.
+    @Test func theHandIsTheLengthOfTheFaceAndTheFootOneHead() {
+        let standing = Figure(heads: 8, sex: .male)
+        let arm = standing.arm(root: standing.leftShoulder, target: SIMD2<Float>(0.31, 0.45))
+        let leg = standing.leg(root: standing.pelvis.leftCorner, target: SIMD2<Float>(0.42, 0.95))
+        let hand = standing.hand(arm)
+        let foot = standing.foot(leg)
+        let reach = hand.end - hand.start
+
+        #expect(abs((reach * reach).sum().squareRoot() - Float(123) / 232 * standing.headUnit) < 0.0001)
+        #expect(hand.start == SIMD3<Float>(arm.lower.end.x, arm.lower.end.y, 0))
+        #expect(hand.endWidth < hand.startWidth)
+        #expect(foot.start == SIMD3<Float>(leg.lower.end.x, leg.lower.end.y, 0))
+        #expect(foot.end == SIMD3<Float>(leg.lower.end.x, leg.lower.end.y, standing.headUnit))
+        #expect(foot.endWidth < foot.startWidth)
     }
 
     /// Two thirds as wide as tall puts the head mass 0.0416875 of the stature either side of the middle, its own height is the eighth of the stature the chin level gives, and Farkas's head length puts it 0.0525 deep. Eight hundred of stature carries those to 366.65 through 433.35, zero through a hundred, and forty two either side of the plane.
@@ -179,8 +206,8 @@ struct AshcanPresetTests {
 
     /// The shorter table is a child's rather than the adult's scaled down, so its cranium takes a quarter of the height where the adult's takes an eighth and its legs are the shorter for it.
     @Test func theShorterTableIsAChildsRatherThanASmallAdults() {
-        let child = AshcanFigure(heads: 4, sex: .male)
-        let adult = AshcanFigure(heads: 8, sex: .male)
+        let child = Figure(heads: 4, sex: .male)
+        let adult = Figure(heads: 8, sex: .male)
 
         #expect(child.canon.chin == 0.25)
         #expect(adult.canon.chin == 0.125)
@@ -208,20 +235,16 @@ struct AshcanPresetTests {
     }
 
     @Test func aFigureReachingBeyondItsLimbsPlotsTheSameFormsAsOneWithinReach() {
-        let reaching = AshcanPreset(sex: .male,
+        let reaching = FigurePreset(sex: .male,
                                     heads: 8,
                                     target: frontal,
                                     leftHand: SIMD2<Float>(-4, -3),
                                     rightHand: SIMD2<Float>(6, 9),
                                     leftFoot: SIMD2<Float>(0.42, 1),
                                     rightFoot: SIMD2<Float>(0.58, 1),
-                                    leftElbowPole: SIMD2<Float>(-1, 0),
-                                    rightElbowPole: SIMD2<Float>(1, 0),
-                                    leftKneePole: SIMD2<Float>(-1, 0),
-                                    rightKneePole: SIMD2<Float>(1, 0),
                                     headLines: false).mesh(in: frame)
 
-        #expect(reaching.triangles.count == 368)
+        #expect(reaching.triangles.count == 432)
         #expect(reaching.triangles.allSatisfy { [$0.first, $0.second, $0.third].allSatisfy { $0.x.isFinite && $0.y.isFinite } })
     }
 }

@@ -1,5 +1,5 @@
 /// Which published proportion table a figure is plotted from.
-public enum AshcanSex: Hashable, Sendable {
+public enum FigureSex: Hashable, Sendable {
     case male
     case female
 }

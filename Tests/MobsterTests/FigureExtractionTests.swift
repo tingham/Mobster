@@ -2,24 +2,20 @@ import Metal
 import Testing
 @testable import Mobster
 
-struct AshcanExtractionTests {
+struct FigureExtractionTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(800, 800))
     private let fit = 12
     /// The left arm's four identities, in the order a limb emits them: the upper segment's two halves then the forearm's two.
     private static let leftArm: UInt32 = 6
 
-    private func figure(target: SIMD3<Float>) -> AshcanPreset {
-        AshcanPreset(sex: .male,
+    private func figure(target: SIMD3<Float>) -> FigurePreset {
+        FigurePreset(sex: .male,
                      heads: 8,
                      target: target,
                      leftHand: SIMD2<Float>(0.24, 0.62),
                      rightHand: SIMD2<Float>(0.76, 0.62),
                      leftFoot: SIMD2<Float>(0.42, 1),
                      rightFoot: SIMD2<Float>(0.58, 1),
-                     leftElbowPole: SIMD2<Float>(-1, 0),
-                     rightElbowPole: SIMD2<Float>(1, 0),
-                     leftKneePole: SIMD2<Float>(-1, 0),
-                     rightKneePole: SIMD2<Float>(1, 0),
                      headLines: false)
     }
 
@@ -56,13 +52,13 @@ struct AshcanExtractionTests {
         #expect(slice.locations.count < silhouette.locations.count)
     }
 
-    /// The same forms stand toward the viewer across the sweep, so what moves is where the paths are and not how many there are or how long each one is.
+    /// The same forms stand toward the viewer across the sweep, so what moves is where the paths are and not how many there are or how long each one is. The sweep runs half a unit of run to either side of the frontal view, which is where the arms begin to cross the ribcage and put new forms in contact.
     @Test func turningTheFigureHoldsThePathCountAndMovesThem() throws {
         let opening = try extracted(SIMD3<Float>(0, 0, 1))
 
         #expect(opening.allSatisfy { $0.count == fit })
 
-        for run: Float in [-0.2, -0.1, 0.1, 0.2] {
+        for run: Float in [-0.5, -0.35, -0.2, -0.05, 0.05, 0.2, 0.35, 0.5] {
             let turned = try extracted(SIMD3<Float>(run, 0, 1))
 
             #expect(turned.count == opening.count)

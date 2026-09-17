@@ -1,13 +1,13 @@
 import Mobster
 import SwiftUI
 
-struct AshcanSexPickerView: View {
-    @Binding var sex: AshcanSex
+struct FigureSexPickerView: View {
+    @Binding var sex: FigureSex
 
     var body: some View {
         Picker("Sex", selection: $sex) {
-            Text("Male").tag(AshcanSex.male)
-            Text("Female").tag(AshcanSex.female)
+            Text("Male").tag(FigureSex.male)
+            Text("Female").tag(FigureSex.female)
         }
         .pickerStyle(.segmented)
         .controlSize(.large)

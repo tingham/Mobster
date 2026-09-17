@@ -39,4 +39,9 @@ struct MeshPlacement {
     func flat(_ design: SIMD2<Float>) -> SIMD2<Float> {
         design * fit + translation
     }
+
+    /// The design location a location in the Frame stands for, which is what a consumer dragging a handle hands back.
+    func design(_ scene: SIMD2<Float>) -> SIMD2<Float> {
+        fit > 0 ? (scene - translation) / fit : .zero
+    }
 }

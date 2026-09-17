@@ -1,5 +1,5 @@
 /// Two bone inverse kinematics in closed form. The law of cosines places the joint and the pole picks one solution out of the circle of them the two lengths admit.
-struct AshcanSolve {
+struct FigureSolve {
     let joint: SIMD2<Float>
     let end: SIMD2<Float>
 

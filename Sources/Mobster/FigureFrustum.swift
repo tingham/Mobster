@@ -1,7 +1,7 @@
 import Foundation
 
 /// A limb segment, standing as two stacked cylinders that share the ring at its middle. That shared ring is the cross section showing the form's roundness, and where two segments meet it is the joint seam, both falling out of the one division.
-struct AshcanFrustum {
+struct FigureFrustum {
     /// Locations to a ring. An arm segment is a ring of eight points joined into a cylinder and no anatomy is modelled.
     static let points = 8
 

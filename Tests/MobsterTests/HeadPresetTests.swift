@@ -17,6 +17,23 @@ struct HeadPresetTests {
         return try #require(standing.isEmpty ? nil : standing, "the construction carries these identities")
     }
 
+    /// The breadth a form spans at one of its levels.
+    private func width(_ locations: [SIMD3<Float>], at level: Float) -> Float {
+        let standing = locations.filter { abs($0.y - level) < 0.01 }.map(\.x)
+
+        return (standing.max() ?? 0) - (standing.min() ?? 0)
+    }
+
+    /// The breadth of the chin block where it meets the jaw angles and at its base, each as a fraction of the head's own breadth.
+    private func chinBreadths(_ sex: HeadSex) throws -> (top: Float, base: Float) {
+        let mesh = HeadPreset(sex: sex, target: frontal, roll: 0).mesh(in: square)
+        let block = try locations(mesh, identities: 10 ... 10)
+        let mass = try locations(mesh, identities: 1 ... 8).map(\.x)
+        let across = mass.max()! - mass.min()!
+
+        return (width(block, at: block.map(\.y).min()!) / across, width(block, at: block.map(\.y).max()!) / across)
+    }
+
     /// Four bands of breadth divided at the brow, a jaw, a chin and two halves of neck.
     @Test func theConstructionIsAFewScoreTriangles() {
         let mesh = HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square)
@@ -61,19 +78,30 @@ struct HeadPresetTests {
         #expect(abs(over.map(\.y).max()! - 37.586) < 0.01)
     }
 
-    /// Bigonial breadth carries the jaw angle 18.276 off the middle at a level of 63.448, cheilion to cheilion makes the chin 9.138 wide, and gnathion at 80 and sublabiale at 64.828 bound the chin face at the front of the mass.
+    /// Bigonial breadth carries the jaw angle 18.276 off the middle at a level of 63.448. The chin block stands at the front of the mass and runs from 56.379, which is halfway from the underside of the mass at 75.172 to its middle at 37.586, down to gnathion at 80.
     @Test func theJawAndTheChinStandWhereTheCanonPutsThem() throws {
         let mesh = HeadPreset(sex: .male, target: frontal, roll: 0).mesh(in: square)
         let jaw = try locations(mesh, identities: 9 ... 9)
         let chin = try locations(mesh, identities: 10 ... 10)
 
         #expect(abs(jaw.map(\.x).max()! - 68.276) < 0.01)
-        #expect(abs(jaw.map(\.y).min()! - 63.448) < 0.01)
+        #expect(abs(jaw.map(\.y).min()! - 56.379) < 0.01)
         #expect(abs(jaw.map(\.y).max()! - 80) < 0.01)
-        #expect(abs(chin.map(\.x).max()! - 59.138) < 0.01)
-        #expect(abs(chin.map(\.y).min()! - 64.828) < 0.01)
+        #expect(abs(chin.map(\.x).max()! - 68.276) < 0.01)
+        #expect(abs(chin.map(\.y).min()! - 56.379) < 0.01)
         #expect(abs(chin.map(\.y).max()! - 80) < 0.01)
         #expect(abs(chin.map(\.z).min()! - 33.621) < 0.01)
+    }
+
+    /// As fractions of the head's own breadth the jaw angles are 0.702 for a man and 0.681 for a woman and the mouth is 0.351 and 0.347, so the block is half again narrower at its base than where it meets the jaw angles and the sexes differ by less than a hundredth at either end.
+    @Test func theChinBlockIsAsWideAsTheJawAnglesAboveAndTheMouthBelow() throws {
+        let man = try chinBreadths(.male)
+        let woman = try chinBreadths(.female)
+
+        #expect(abs(man.top - 0.702) < 0.001)
+        #expect(abs(man.base - 0.351) < 0.001)
+        #expect(abs(woman.top - 0.681) < 0.001)
+        #expect(abs(woman.base - 0.347) < 0.001)
     }
 
     /// The neck circumference read as a circular section puts its radius 20.855 off the middle, and it runs from the jaw angles to the shoulder line the design square is measured to.
@@ -124,6 +152,19 @@ struct HeadPresetTests {
         #expect(abs(mass.map(\.x).max()! - 404.138) < 0.01)
         #expect(abs(mass.map(\.x).max()! - mass.map(\.x).min()! - 208.276) < 0.01)
         #expect(abs(chin.map(\.y).max()! - mass.map(\.y).min()! - 320) < 0.01)
+    }
+
+    /// A target is a location a user places, so it is vended as one and taken back as one. Level and off to the side by one head height, on a hundred square whose eight tenths carry the construction, stands one head height of run at eighty of the Frame from the middle: 50 across and 37.586 down carry to 130 and 37.586.
+    @Test func theTargetIsVendedAsALocationAndTakenBackAsOne() {
+        let head = HeadPreset(sex: .male, target: SIMD3<Float>(1, 0, 1), roll: 0)
+        let location = head.location(in: square)
+
+        #expect(abs(location.x - 130) < 0.01)
+        #expect(abs(location.y - 37.586) < 0.01)
+        #expect(abs(head.target(at: location, in: square).x - head.target.x) < 0.001)
+        #expect(abs(head.target(at: location, in: square).y - head.target.y) < 0.001)
+        #expect(head.target(at: location, in: square).z == head.target.z)
+        #expect(abs(head.target(at: SIMD2<Float>(50, 37.586), in: square).x) < 0.001)
     }
 
     /// A target forty five degrees above level and one steeper than it give the same construction, the steeper one being held at the limit, where one inside the limit gives another.

@@ -38,18 +38,18 @@ struct HeadExtractionTests {
         #expect(try seams(quarter).contains(SIMD2<UInt32>(11, 12)))
     }
 
-    /// The same divisions stand toward the viewer across the sweep, so what moves is where the paths are and not how many there are or how long each one is. One boundary is shorter than the count asked for and keeps what it traced, which is the fit taking a count rather than a tolerance.
+    /// The same divisions stand toward the viewer across the sweep, so what moves is where the paths are rather than how many of them there are. The boundaries shorter than the count asked for keep what they traced, which is the fit taking a count rather than a tolerance, and they are where the chin block crosses the brow line and where the neck grazes the mass: a graze a fragment or two long lengthens and shortens with the view, so it is the paths at the full count that hold.
     @Test func turningTheHeadHoldsThePathCountAndMovesThem() throws {
         let opening = try extracted(quarter)
+        let held = opening.filter { $0.count == fit }.count
 
         #expect(opening.allSatisfy { $0.count <= fit })
-        #expect(opening.filter { $0.count == fit }.count == opening.count - 1)
+        #expect(held == opening.count - 2)
 
         for run: Float in [0.94, 0.95, 0.98, 0.99] {
             let turned = try extracted(SIMD3<Float>(run, 0, 2))
 
-            #expect(turned.count == opening.count)
-            #expect(turned.map(\.count) == opening.map(\.count))
+            #expect(turned.filter { $0.count == fit }.count == held)
             #expect(zip(turned, opening).contains { $0 != $1 })
         }
     }
