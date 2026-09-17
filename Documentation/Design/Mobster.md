@@ -111,6 +111,9 @@ A boundary runs wherever adjacent fragments carry different identities, includin
 **mesh.boundary.identity**
 An identity is never interpolated, averaged or filtered. The target is point sampled and every fragment reads as one whole identity.
 
+**mesh.boundary.runs**
+A pair of components meeting in more than one place yields a path for each meeting. Only a run shorter than a floor is dropped, which is what protects against a graze of one or two fragments standing in for a whole silhouette. Keeping one run per pair discards real geometry.
+
 **mesh.boundary.sample**
 A boundary is resolved from a neighbourhood of fragments rather than from a single pair, so a form grazing another for one or two fragments still produces a boundary that holds as the view turns. The neighbourhood resolves to one location.
 
@@ -228,6 +231,9 @@ The figure's height is given in heads. Proportion at a given height follows publ
 
 **preset.figure.pose**
 The figure is posed by a target for each hand and each foot. A two bone chain solves the limb between its shoulder or hip and that target.
+
+**preset.figure.head.target**
+The figure's head points at a location of its own, as the head preset's does.
 
 **preset.figure.pose.named**
 A set of named poses each set every target at once. A figure that opens in a T pose is one the user has to build before they can begin, and a named pose is somewhere to start and nudge from. A pose is named by a string and held as data, so adding one is a line rather than a case.
