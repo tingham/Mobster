@@ -17,11 +17,6 @@ public struct FigurePreset: Hashable, Sendable {
     public let rightHand: SIMD2<Float>
     public let leftFoot: SIMD2<Float>
     public let rightFoot: SIMD2<Float>
-    /// Design space directions. Each says which way its elbow or knee turns out of the line between the joint it hangs from and its target.
-    public let leftElbowPole: SIMD2<Float>
-    public let rightElbowPole: SIMD2<Float>
-    public let leftKneePole: SIMD2<Float>
-    public let rightKneePole: SIMD2<Float>
     public let headLines: Bool
 
     public init(sex: FigureSex,
@@ -31,10 +26,6 @@ public struct FigurePreset: Hashable, Sendable {
                 rightHand: SIMD2<Float>,
                 leftFoot: SIMD2<Float>,
                 rightFoot: SIMD2<Float>,
-                leftElbowPole: SIMD2<Float>,
-                rightElbowPole: SIMD2<Float>,
-                leftKneePole: SIMD2<Float>,
-                rightKneePole: SIMD2<Float>,
                 headLines: Bool) {
         self.sex = sex
         self.heads = heads
@@ -43,10 +34,6 @@ public struct FigurePreset: Hashable, Sendable {
         self.rightHand = rightHand
         self.leftFoot = leftFoot
         self.rightFoot = rightFoot
-        self.leftElbowPole = leftElbowPole
-        self.rightElbowPole = rightElbowPole
-        self.leftKneePole = leftKneePole
-        self.rightKneePole = rightKneePole
         self.headLines = headLines
     }
 
@@ -57,10 +44,10 @@ public struct FigurePreset: Hashable, Sendable {
         var bands = figure.head.bands(upper: MeshIdentity(Self.headIdentity), lower: MeshIdentity(Self.headIdentity + 1))
         bands += figure.ribcage.bands(upper: MeshIdentity(Self.ribcageIdentity), lower: MeshIdentity(Self.ribcageIdentity + 1))
         bands += pelvis.bands(identity: MeshIdentity(Self.pelvisIdentity))
-        bands += figure.arm(root: figure.leftShoulder, target: leftHand, pole: leftElbowPole).bands(from: Self.limbIdentity)
-        bands += figure.arm(root: figure.rightShoulder, target: rightHand, pole: rightElbowPole).bands(from: Self.limbIdentity + FigureLimb.identities)
-        bands += figure.leg(root: pelvis.leftCorner, target: leftFoot, pole: leftKneePole).bands(from: Self.limbIdentity + FigureLimb.identities * 2)
-        bands += figure.leg(root: pelvis.rightCorner, target: rightFoot, pole: rightKneePole).bands(from: Self.limbIdentity + FigureLimb.identities * 3)
+        bands += figure.arm(root: figure.leftShoulder, target: leftHand).bands(from: Self.limbIdentity)
+        bands += figure.arm(root: figure.rightShoulder, target: rightHand).bands(from: Self.limbIdentity + FigureLimb.identities)
+        bands += figure.leg(root: pelvis.leftCorner, target: leftFoot).bands(from: Self.limbIdentity + FigureLimb.identities * 2)
+        bands += figure.leg(root: pelvis.rightCorner, target: rightFoot).bands(from: Self.limbIdentity + FigureLimb.identities * 3)
 
         return Mesh(triangles: bands.flatMap { $0.triangles(placement.location) })
     }

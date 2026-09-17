@@ -92,10 +92,15 @@ struct Figure {
         1 - canon.knee
     }
 
-    func arm(root: SIMD2<Float>, target: SIMD2<Float>, pole: SIMD2<Float>) -> FigureLimb {
+    /// Which way a joint turns out of the line to its target. The figure's own plane carries no forward, so the anatomical bend reads as the turn away from the middle and the side a limb hangs from is what decides it.
+    private func bend(_ root: SIMD2<Float>) -> SIMD2<Float> {
+        SIMD2<Float>(root.x < center ? -1 : 1, 0)
+    }
+
+    func arm(root: SIMD2<Float>, target: SIMD2<Float>) -> FigureLimb {
         FigureLimb(root: root,
                    target: target,
-                   pole: pole,
+                   pole: bend(root),
                    upperLength: upperArm,
                    lowerLength: forearm,
                    rootWidth: Self.shoulderGirth * headUnit,
@@ -103,10 +108,10 @@ struct Figure {
                    endWidth: Self.wristGirth * headUnit)
     }
 
-    func leg(root: SIMD2<Float>, target: SIMD2<Float>, pole: SIMD2<Float>) -> FigureLimb {
+    func leg(root: SIMD2<Float>, target: SIMD2<Float>) -> FigureLimb {
         FigureLimb(root: root,
                    target: target,
-                   pole: pole,
+                   pole: bend(root),
                    upperLength: thigh,
                    lowerLength: shin,
                    rootWidth: Self.hipGirth * headUnit,

@@ -17,10 +17,6 @@ struct FigurePresetTests {
                      rightHand: SIMD2<Float>(0.69, 0.5),
                      leftFoot: SIMD2<Float>(0.42, 1),
                      rightFoot: SIMD2<Float>(0.58, 1),
-                     leftElbowPole: SIMD2<Float>(-1, 0),
-                     rightElbowPole: SIMD2<Float>(1, 0),
-                     leftKneePole: SIMD2<Float>(-1, 0),
-                     rightKneePole: SIMD2<Float>(1, 0),
                      headLines: headLines)
     }
 
@@ -80,6 +76,20 @@ struct FigurePresetTests {
 
         #expect(abs(solve.joint.x - 3) < 0.01)
         #expect(abs(solve.end.x - 7) < 0.01)
+    }
+
+    /// An elbow and a knee turn away from the middle of the figure. Nothing is passed to say which way either bends, the direction being anatomical rather than a control.
+    @Test func aLimbBendsAwayFromTheMiddleAndNothingSaysWhichWay() {
+        let standing = Figure(heads: 8, sex: .male)
+        let leftArm = standing.arm(root: standing.leftShoulder, target: SIMD2<Float>(0.31, 0.45))
+        let rightArm = standing.arm(root: standing.rightShoulder, target: SIMD2<Float>(0.69, 0.45))
+        let leftLeg = standing.leg(root: standing.pelvis.leftCorner, target: SIMD2<Float>(0.42, 0.95))
+        let rightLeg = standing.leg(root: standing.pelvis.rightCorner, target: SIMD2<Float>(0.58, 0.95))
+
+        #expect(leftArm.upper.end.x < standing.leftShoulder.x)
+        #expect(rightArm.upper.end.x > standing.rightShoulder.x)
+        #expect(leftLeg.upper.end.x < standing.pelvis.leftCorner.x)
+        #expect(rightLeg.upper.end.x > standing.pelvis.rightCorner.x)
     }
 
     /// Two masses of four bands each, a pelvis of a side band and two caps, and four limbs of two segments each divided in two. A facet with no area is dropped, which is what a ring closing onto a pole costs a fan rather than a band.
@@ -215,10 +225,6 @@ struct FigurePresetTests {
                                     rightHand: SIMD2<Float>(6, 9),
                                     leftFoot: SIMD2<Float>(0.42, 1),
                                     rightFoot: SIMD2<Float>(0.58, 1),
-                                    leftElbowPole: SIMD2<Float>(-1, 0),
-                                    rightElbowPole: SIMD2<Float>(1, 0),
-                                    leftKneePole: SIMD2<Float>(-1, 0),
-                                    rightKneePole: SIMD2<Float>(1, 0),
                                     headLines: false).mesh(in: frame)
 
         #expect(reaching.triangles.count == 368)

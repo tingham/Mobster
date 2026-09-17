@@ -31,11 +31,6 @@ struct PresetParameters: Hashable, Sendable {
     var figureRightHand = SIMD2<Float>(0.69, 0.5)
     var figureLeftFoot = SIMD2<Float>(0.42, 1)
     var figureRightFoot = SIMD2<Float>(0.58, 1)
-    /// Degrees, cast the way the ruler casts them: zero along positive x, rising toward positive y.
-    var figureLeftElbowDegree: Float = 180
-    var figureRightElbowDegree: Float = 0
-    var figureLeftKneeDegree: Float = 180
-    var figureRightKneeDegree: Float = 0
     var figureHeadLines = true
     /// Locations each extracted boundary is fitted to, which every mesh preset is read at.
     var meshFit: Int = 12

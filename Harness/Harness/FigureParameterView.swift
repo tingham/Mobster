@@ -22,9 +22,5 @@ struct FigureParameterView: View {
         ParameterSliderView(title: "Left Foot Y", value: $parameters.figureLeftFoot.y, range: -0.5 ... 1.5)
         ParameterSliderView(title: "Right Foot X", value: $parameters.figureRightFoot.x, range: -0.5 ... 1.5)
         ParameterSliderView(title: "Right Foot Y", value: $parameters.figureRightFoot.y, range: -0.5 ... 1.5)
-        ParameterSliderView(title: "Left Elbow Pole", value: $parameters.figureLeftElbowDegree, range: 0 ... 360)
-        ParameterSliderView(title: "Right Elbow Pole", value: $parameters.figureRightElbowDegree, range: 0 ... 360)
-        ParameterSliderView(title: "Left Knee Pole", value: $parameters.figureLeftKneeDegree, range: 0 ... 360)
-        ParameterSliderView(title: "Right Knee Pole", value: $parameters.figureRightKneeDegree, range: 0 ... 360)
     }
 }

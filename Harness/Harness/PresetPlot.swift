@@ -75,10 +75,6 @@ struct PresetPlot {
                                   rightHand: parameters.figureRightHand,
                                   leftFoot: parameters.figureLeftFoot,
                                   rightFoot: parameters.figureRightFoot,
-                                  leftElbowPole: pole(parameters.figureLeftElbowDegree),
-                                  rightElbowPole: pole(parameters.figureRightElbowDegree),
-                                  leftKneePole: pole(parameters.figureLeftKneeDegree),
-                                  rightKneePole: pole(parameters.figureRightKneeDegree),
                                   headLines: parameters.figureHeadLines)
         let extracted = try MeshExtraction(mesh: figure.mesh(in: frame), frame: frame, fit: parameters.meshFit, perspective: MeshPerspective(fieldOfView: parameters.meshFieldOfView)).paths(device: device)
 
@@ -96,12 +92,5 @@ struct PresetPlot {
     /// The panel dials a roll as a degree, which the preset takes in radians.
     private static func roll(_ degree: Float) -> Float {
         degree * Float.pi / 180
-    }
-
-    /// The panel dials a pole as a degree, which the preset takes as the direction it points.
-    private static func pole(_ degree: Float) -> SIMD2<Float> {
-        let radians = degree * Float.pi / 180
-
-        return SIMD2<Float>(cos(radians), sin(radians))
     }
 }
