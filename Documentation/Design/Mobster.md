@@ -229,6 +229,9 @@ The figure's height is given in heads. Proportion at a given height follows publ
 **preset.figure.pose**
 The figure is posed by a target for each hand and each foot. A two bone chain solves the limb between its shoulder or hip and that target.
 
+**preset.figure.pose.named**
+A set of named poses each set every target at once. A figure that opens in a T pose is one the user has to build before they can begin, and a named pose is somewhere to start and nudge from. A pose is named by a string and held as data, so adding one is a line rather than a case.
+
 **preset.figure.bend**
 An elbow bends back and a knee bends forward. The direction is anatomical rather than a control, because a figure whose elbow can bend either way is asking a question that has one answer.
 
@@ -493,6 +496,9 @@ The harness presents a preview to the screen.
 
 **harness.timing**
 The harness reports performance timing.
+
+**harness.handle**
+A location a user places is dragged on the preview, not typed into two numbers. A target with no mark on screen is a coordinate rather than a handle, and it makes a usable model read as an unusable one.
 
 **harness.sliders**
 The harness exposes each derived magnitude as a slider.

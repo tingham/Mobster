@@ -2,7 +2,7 @@
 
 ## Requirements covered
 
-preset.figure and its renamed members, preset.figure.bend, preset.figure.hand, preset.figure.foot, preset.head.chin, mesh.boundary.sample, mesh.raster.vend
+preset.figure and its renamed members, preset.figure.bend, preset.figure.hand, preset.figure.foot, preset.head.chin, preset.figure.pose.named, mesh.boundary.sample, mesh.raster.vend, harness.handle
 
 ## The rename
 
@@ -33,6 +33,14 @@ An elbow bends back and a knee bends forward. That is anatomy, not a control. De
 ## Hands and feet
 
 Tapered cuboids. The hand is about the length of the face, the foot about one head. Both are in the canon already.
+
+## Named poses
+
+A figure opening in a T pose is one the user has to build before they can begin. A handful of named poses — standing, contrapposto, seated, reaching — each set all four targets at once and give somewhere to start and nudge from. Named by a string and held as data, so adding one later is a line rather than a case. A picker in the harness, not a slider; interpolating four targets from standing to seated walks the limbs through the torso on the way.
+
+## Targets are handles, not numbers
+
+Every location a user places is dragged on the preview. Four IK targets driven by eight sliders with nothing drawn on screen is why the pose model reads as unusable — the principal said as much, and in the consuming application these are handles on an armed guide. Draw them and drag them. The head's view target too.
 
 ## Constraints
 
