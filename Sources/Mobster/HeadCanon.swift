@@ -94,8 +94,14 @@ struct HeadCanon: Sendable {
     /// The jaw angle sits level with the mouth, which the equal thirds of the lower face put one third of the way from subnasale down to gnathion.
     var jawLevel: Float { chinLevel - lowerFaceHeight / headHeight * 2 / 3 }
 
-    /// The chin block is taken as wide as the mouth, there being no tabulated breadth for the bony chin itself.
+    /// The chin block is taken as wide as the mouth at its base, there being no tabulated breadth for the bony chin itself.
     var chinHalfWidth: Float { mouthBreadth / 2 / headHeight }
+
+    /// The lower pole of the cranial mass, whose vertical semi axis is vertex to nasion and whose equator stands at the brow.
+    var craniumBaseLevel: Float { browLevel * 2 }
+
+    /// Halfway from the underside of the cranial mass to its middle.
+    var chinTopLevel: Float { (craniumBaseLevel + browLevel) / 2 }
 
     var chinFaceHeight: Float { chinHeight / headHeight }
 

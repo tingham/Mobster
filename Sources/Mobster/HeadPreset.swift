@@ -65,31 +65,31 @@ public struct HeadPreset: Hashable, Sendable {
         Array(section[(points / 2)...]) + [section[0]]
     }
 
-    /// The jaw wedge, its back edge spanning the jaw angles under the depth centre of the mass and its front standing at the front of the mass. The front rectangle is left to the chin, the two carrying their own identities because the underside of a jaw and the front of a chin are surfaces a viewer reads apart.
+    /// The jaw wedge, its back edge spanning the jaw angles under the depth centre of the mass and its front standing at the front of the mass. The front face is left to the chin, the two carrying their own identities because the underside of a jaw and the front of a chin are surfaces a viewer reads apart.
     private static func jaw(_ canon: HeadCanon) -> MeshBand {
-        let base = canon.chinLevel - canon.browLevel
-        let top = base - canon.chinFaceHeight
-        let front = [SIMD3<Float>(canon.chinHalfWidth, top, canon.halfDepth),
-                     SIMD3<Float>(canon.chinHalfWidth, base, canon.halfDepth),
-                     SIMD3<Float>(-canon.chinHalfWidth, base, canon.halfDepth),
-                     SIMD3<Float>(-canon.chinHalfWidth, top, canon.halfDepth)]
         let angle = SIMD3<Float>(canon.jawHalfWidth, canon.jawLevel - canon.browLevel, 0)
         let back = [angle, angle, SIMD3<Float>(-angle.x, angle.y, angle.z), SIMD3<Float>(-angle.x, angle.y, angle.z)]
 
-        return MeshBand(first: front, second: back, identity: MeshIdentity(jawIdentity))
+        return MeshBand(first: chinFace(canon), second: back, identity: MeshIdentity(jawIdentity))
     }
 
-    /// The front of the jaw wedge, rising from gnathion to sublabiale. A balanced profile carries pogonion under glabella, which the head length puts at the front of the mass.
+    /// The front of the jaw wedge. A balanced profile carries pogonion under glabella, which the head length puts at the front of the mass.
     private static func chin(_ canon: HeadCanon) -> MeshBand {
-        let base = canon.chinLevel - canon.browLevel
-        let top = base - canon.chinFaceHeight
-        let face = [SIMD3<Float>(canon.chinHalfWidth, top, canon.halfDepth),
-                    SIMD3<Float>(canon.chinHalfWidth, base, canon.halfDepth),
-                    SIMD3<Float>(-canon.chinHalfWidth, base, canon.halfDepth),
-                    SIMD3<Float>(-canon.chinHalfWidth, top, canon.halfDepth)]
-        let middle = SIMD3<Float>(0, (top + base) / 2, canon.halfDepth)
+        let face = chinFace(canon)
+        let middle = SIMD3<Float>(0, (face[0].y + face[1].y) / 2, canon.halfDepth)
 
         return MeshBand(first: face, second: [SIMD3<Float>](repeating: middle, count: face.count), identity: MeshIdentity(chinIdentity))
+    }
+
+    /// The block of the chin, standing at the front of the mass and tapering from the jaw angles it meets above to the mouth at gnathion. The corners run from the subject's right at the top, down that side and back up the left.
+    private static func chinFace(_ canon: HeadCanon) -> [SIMD3<Float>] {
+        let base = canon.chinLevel - canon.browLevel
+        let top = canon.chinTopLevel - canon.browLevel
+
+        return [SIMD3<Float>(canon.jawHalfWidth, top, canon.halfDepth),
+                SIMD3<Float>(canon.chinHalfWidth, base, canon.halfDepth),
+                SIMD3<Float>(-canon.chinHalfWidth, base, canon.halfDepth),
+                SIMD3<Float>(-canon.jawHalfWidth, top, canon.halfDepth)]
     }
 
     /// A circular cylinder standing upright, divided at its middle for the cross section the roundness asks for. It starts at the jaw angles, the lowest level the head still covers it at, and the basis does not carry it: a neck does not turn when the head within it does.
