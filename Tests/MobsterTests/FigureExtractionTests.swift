@@ -12,6 +12,7 @@ struct FigureExtractionTests {
         FigurePreset(sex: .male,
                      heads: 8,
                      target: target,
+                     headTarget: SIMD3<Float>(0, 0, 1),
                      leftHand: SIMD2<Float>(0.24, 0.62),
                      rightHand: SIMD2<Float>(0.76, 0.62),
                      leftFoot: SIMD2<Float>(0.42, 1),
@@ -52,8 +53,8 @@ struct FigureExtractionTests {
         #expect(slice.locations.count < silhouette.locations.count)
     }
 
-    /// The same forms stand toward the viewer across the sweep, so what moves is where the paths are and not how many there are or how long each one is. The sweep runs half a unit of run to either side of the frontal view, which is where the arms begin to cross the ribcage and put new forms in contact.
-    @Test func turningTheFigureHoldsThePathCountAndMovesThem() throws {
+    /// The same forms stand toward the viewer across the sweep, so what moves is where the paths are rather than what each is fitted to. A pair of forms meeting in more than one place yields a path for each meeting, so the count follows the contacts the view puts the forms in. The sweep runs half a unit of run to either side of the frontal view, which is where the arms begin to cross the ribcage and put new forms in contact.
+    @Test func turningTheFigureMovesItsPathsWithoutRebuildingThem() throws {
         let opening = try extracted(SIMD3<Float>(0, 0, 1))
 
         #expect(opening.allSatisfy { $0.count == fit })
@@ -61,8 +62,7 @@ struct FigureExtractionTests {
         for run: Float in [-0.5, -0.35, -0.2, -0.05, 0.05, 0.2, 0.35, 0.5] {
             let turned = try extracted(SIMD3<Float>(run, 0, 1))
 
-            #expect(turned.count == opening.count)
-            #expect(turned.map(\.count) == opening.map(\.count))
+            #expect(turned.allSatisfy { $0.count == fit })
             #expect(zip(turned, opening).contains { $0 != $1 })
         }
     }

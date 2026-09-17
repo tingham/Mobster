@@ -105,10 +105,12 @@ struct PresetPlot {
         }
     }
 
-    private static func construction(_ parameters: PresetParameters) -> FigurePreset {
+    /// The figure the harness plots, which is also what carries the head target a handle stands on.
+    static func construction(_ parameters: PresetParameters) -> FigurePreset {
         FigurePreset(sex: parameters.figureSex,
                      heads: parameters.figureHeads,
                      target: parameters.figureTarget,
+                     headTarget: parameters.figureHeadTarget,
                      leftHand: parameters.figureLeftHand,
                      rightHand: parameters.figureRightHand,
                      leftFoot: parameters.figureLeftFoot,

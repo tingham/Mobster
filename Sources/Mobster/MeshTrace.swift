@@ -20,16 +20,17 @@ struct MeshTrace {
         }
     }()
 
+    /// The fewest samples a run is kept at. A form grazing another for one or two fragments would otherwise stand in for the whole silhouette of that form.
+    static let floor = 3
+
     let locations: [SIMD2<Float>]
 
-    /// Walking out of one sample in both directions is what puts a boundary in order from a seed standing anywhere along it. A pair of components meeting in more than one place keeps its longest run, the rest being dropped rather than joined across the gaps. A run of two fragments where a form just grazes another would otherwise stand in for the whole silhouette of that form.
-    func ordered() -> [SIMD2<Float>] {
-        guard locations.count > 1 else { return locations }
-
+    /// Walking out of one sample in both directions is what puts a boundary in order from a seed standing anywhere along it, and a pair of components meeting in more than one place yields a run for each meeting rather than one joined across the gaps.
+    func ordered() -> [[SIMD2<Float>]] {
         var remaining: [SIMD2<Int32>: SIMD2<Float>] = [:]
         for location in locations { remaining[Self.key(location)] = location }
 
-        var longest: [SIMD2<Float>] = []
+        var runs: [[SIMD2<Float>]] = []
 
         while let seed = Self.seed(remaining) {
             guard let standing = remaining.removeValue(forKey: seed) else { break }
@@ -37,10 +38,10 @@ struct MeshTrace {
             let backward = walk(from: seed, &remaining)
             let run = backward.reversed() + [standing] + forward
 
-            if run.count > longest.count { longest = run }
+            if run.count >= Self.floor { runs.append(run) }
         }
 
-        return longest.isEmpty ? locations : longest
+        return runs
     }
 
     /// The sample farthest from the middle of what is left, which is an end of a run wherever the run is open and a corner of it wherever it closes.
