@@ -12,3 +12,8 @@ This project will utilize the following process for implementation.
     - Issues will be closed and `cycleworktree` will be used to clean up completed worktree branches
 - The results of UAT that require fixing, omission recovery, or change orders from the principal will be submitted as new github issues against the original issue (where applicable)
 - When a substantial amount of work is complete (user's discretion) develop will be submitted for PR merge to `main` and the "chat host" agent will issue a release tag with change notes and any updated documentation for downstream consumers.
+## Minor edits
+
+A small correction the principal gives in conversation is filed as a GitHub issue at the time he gives it, not held in chat until someone gets to it. Chat is not a reliable record and a correction that was never written down is one that gets rediscovered from a screenshot a week later.
+
+An issue of this kind carries what was observed and what it should be instead. It does not need a change order; several of them are gathered into one when a cut goes out.

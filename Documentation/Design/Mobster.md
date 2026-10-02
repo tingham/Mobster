@@ -18,6 +18,9 @@ Imports other than a document model are permitted where they earn their cost.
 **mobster.dependency.whiplash**
 Mobster subscribes to Whiplash for curve fitting and decimation rather than carrying a copy. It is stateless, as Mobster is, and reimplementing what a maintained package already does is the cost this requirement exists to refuse.
 
+**mobster.dependency.range**
+A dependency Mobster shares with another package it is consumed alongside is taken as a range rather than pinned exactly. Two exact pins on different versions of one package cannot resolve together, and a consumer holding both is blocked by an arithmetic it did not choose.
+
 **mobster.identity.opaque**
 A point identifier and a stroke identifier each cross the boundary as an opaque unsigned integer.
 
