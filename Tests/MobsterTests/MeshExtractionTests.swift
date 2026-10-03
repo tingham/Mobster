@@ -10,7 +10,7 @@ struct MeshExtractionTests {
     /// Down the body diagonal of the box: forty five degrees of rise on an azimuth whose sine is a third root, which stands all three visible faces at the same depth and so projects the regular hexagon.
     private let diagonal = SIMD3<Float>(1, Float(3).squareRoot(), Float(2).squareRoot())
     /// Locations each boundary is fitted to.
-    private let fit = 12
+    private let fit = MeshExtraction.fit
     /// A boundary sample sits at the middle of the neighbourhood it was resolved from and a fragment is a scene unit here. Where the boundary turns, the sample nearest the turn stands off by a fragment on each axis of it, so a hand derived corner is met within three.
     private let tolerance: Float = 3
 

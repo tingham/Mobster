@@ -4,7 +4,7 @@ import Testing
 
 struct HeadExtractionTests {
     private let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(512, 512))
-    private let fit = 12
+    private let fit = MeshExtraction.fit
     /// Off to the side and level, which is the three quarter view the divisions of the mass read at. The subject's left stands toward the viewer here, the depth of this basis running against the breadth.
     private let quarter = SIMD3<Float>(0.96, 0, 2)
 
