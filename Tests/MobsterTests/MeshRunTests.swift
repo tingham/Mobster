@@ -5,7 +5,7 @@ import Testing
 struct MeshRunTests {
     /// Five hundred and twelve square, which the derived resolution makes one fragment to the scene unit.
     private let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(512, 512))
-    private let fit = 12
+    private let fit = MeshExtraction.fit
     /// One component standing in two places, which is the same pair of identities meeting the background twice. A flat mesh has no depth to foreshorten, so both plates land where they were laid.
     private let plates = Mesh(triangles: MeshRunTests.plate(from: SIMD2<Float>(100, 100), to: SIMD2<Float>(200, 200))
         + MeshRunTests.plate(from: SIMD2<Float>(300, 100), to: SIMD2<Float>(400, 200)))

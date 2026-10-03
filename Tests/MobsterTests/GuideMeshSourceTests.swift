@@ -5,7 +5,7 @@ import Testing
 struct GuideMeshSourceTests {
     private let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(512, 512))
     private let diagonal = SIMD3<Float>(1, Float(3).squareRoot(), Float(2).squareRoot())
-    private let fit = 12
+    private let fit = MeshExtraction.fit
 
     /// A mesh source has its lines extracted from a projection of the mesh, which the box view puts at six.
     @Test func aMeshSourceIsExtractedIntoLines() throws {

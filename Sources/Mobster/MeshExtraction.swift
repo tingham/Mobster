@@ -2,6 +2,9 @@ import Metal
 
 /// The paths of a mesh, extracted from a projection of it rather than plotted. The mesh is rendered opaque with depth into an identity target whose resolution follows from the Frame, and the boundaries where adjacent fragments differ are traced and fitted.
 public struct MeshExtraction: Sendable {
+    /// The count every construction in the package is extracted at. Low, because a path is drawn over rather than measured against.
+    public static let fit: Int = 12
+
     public let mesh: Mesh
     public let frame: Frame
     /// Locations each boundary is fitted to. A count rather than a tolerance is what makes a turning form deform its path instead of rebuilding it with a different one each view.

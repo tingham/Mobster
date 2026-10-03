@@ -4,7 +4,7 @@ import Testing
 
 struct FigureExtractionTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(800, 800))
-    private let fit = 12
+    private let fit = MeshExtraction.fit
     /// The left arm's four identities, in the order a limb emits them: the upper segment's two halves then the forearm's two.
     private static let leftArm: UInt32 = 6
 
