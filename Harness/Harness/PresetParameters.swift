@@ -39,7 +39,7 @@ struct PresetParameters: Hashable, Sendable {
     var figureRightFoot = PresetParameters.opening.rightFoot
     var figureHeadLines = true
     /// Locations each extracted boundary is fitted to, which every mesh preset is read at.
-    var meshFit: Int = 12
+    var meshFit: Int = MeshExtraction.fit
     /// Degrees. The field of view every mesh preset is projected through, opening at the cone of vision.
     var meshFieldOfView: Float = MeshPerspective.opening
     /// A fraction of the Frame, locating the centre of the box.
