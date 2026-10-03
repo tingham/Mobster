@@ -24,6 +24,9 @@ A public enum a consumer offers a person to choose from conforms to CaseIterable
 **mobster.vend.default**
 Where the package holds an opinion about a value a consumer supplies, that opinion is a public static on the type taking it, whether or not the parameter is required. A consumer picking its own is a second answer to a question Mobster has already answered, and a consumer copying one out of the harness or the tests goes stale the day those change.
 
+**mobster.vend.default.harness**
+The harness's opening value for a parameter is the package's opinion of it, because the principal set it by eye at the control that derives it. Vending it is transcription rather than a fresh decision, and a value the harness holds that the package does not is the defect this requirement names.
+
 **mobster.vend.default.offer**
 A vended value is an offer a consumer reads, not a default that applies. It is a public static and never a defaulted argument, because a static is discoverable and referable where a defaulted argument is invisible at the call site and cannot be named.
 
