@@ -18,6 +18,12 @@ Imports other than a document model are permitted where they earn their cost.
 **mobster.dependency.whiplash**
 Mobster subscribes to Whiplash for curve fitting and decimation rather than carrying a copy. It is stateless, as Mobster is, and reimplementing what a maintained package already does is the cost this requirement exists to refuse.
 
+**mobster.vend.roster**
+A public enum a consumer offers a person to choose from conforms to CaseIterable. A consumer spelling the cases out keeps a second roster that goes stale the moment the package's own changes.
+
+**mobster.vend.default**
+Where a parameter is required to construct a type and the package has a value it works at, that value is a public static on the type taking it. A consumer picking its own is a second answer to a question Mobster has already answered, and a consumer copying one out of the tests goes stale the day the tests change.
+
 **mobster.dependency.range**
 A dependency Mobster shares with another package it is consumed alongside is taken as a range rather than pinned exactly. Two exact pins on different versions of one package cannot resolve together, and a consumer holding both is blocked by an arithmetic it did not choose.
 
