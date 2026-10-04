@@ -4,7 +4,7 @@ import Mobster
 
 /// The paths on screen, the identity raster they were traced from where it is shown, what the device refused if it refused anything, and the time the preset took to produce all of it.
 struct PresetPlot {
-    let paths: [[SIMD2<Float>]]
+    let paths: [Line]
     /// Nil for a preset that extracts nothing and where the identities are not shown, a second identity pass being what it costs to take one.
     let raster: MeshIdentityRaster?
     /// Nil where nothing was refused. A mesh preset extracts through the device and a device can refuse, which no plotted preset can.
@@ -13,7 +13,7 @@ struct PresetPlot {
 
     /// The device is the consumer's to supply and a mesh source is the only thing that needs one, so it arrives beside the parameters rather than inside the package.
     init(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus, identities: Bool, device: (any MTLDevice)?) {
-        var produced: [[SIMD2<Float>]] = []
+        var produced: [Line] = []
         var read: MeshIdentityRaster?
         var refused: MeshRefusal?
         let elapsed = ContinuousClock().measure {
@@ -37,7 +37,7 @@ struct PresetPlot {
         return try extraction(mesh, parameters: parameters, frame: frame).raster(device: device)
     }
 
-    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+    private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus, device: (any MTLDevice)?) throws(MeshRefusal) -> [Line] {
         switch kind {
         case .goldenRatio:
             GoldenRatioPreset(focus: focus, quadlines: parameters.goldenRatioQuadlines).paths(in: frame)
@@ -70,22 +70,22 @@ struct PresetPlot {
         }
     }
 
-    private static func head(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+    private static func head(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [Line] {
         guard let device, let mesh = mesh(kind: .head, parameters: parameters, frame: frame) else { return [] }
 
         return try extraction(mesh, parameters: parameters, frame: frame).paths(device: device)
     }
 
     /// The break lines measure the figure rather than belonging to it, so they are appended as paths after the extracted boundaries.
-    private static func figure(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+    private static func figure(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [Line] {
         guard let device, let mesh = mesh(kind: .figure, parameters: parameters, frame: frame) else { return [] }
         let extracted = try extraction(mesh, parameters: parameters, frame: frame).paths(device: device)
 
-        return extracted + Self.construction(parameters).breakLines(in: frame)
+        return extracted + Self.construction(parameters).breakLines(in: frame).map { Line(verts: $0.map { Vert(location: $0) }) }
     }
 
     /// Every mac this harness runs on carries a device, so the absent case is the API's rather than a state the harness presents.
-    private static func cube(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+    private static func cube(parameters: PresetParameters, frame: Frame, device: (any MTLDevice)?) throws(MeshRefusal) -> [Line] {
         guard let device, let mesh = mesh(kind: .cube, parameters: parameters, frame: frame) else { return [] }
 
         return try extraction(mesh, parameters: parameters, frame: frame).paths(device: device)

@@ -7,7 +7,7 @@ struct PresetCanvasView: View {
     let raster: FieldRaster?
     /// Nil where the identities are hidden and where the preset extracts nothing.
     let identities: MeshIdentityRaster?
-    let paths: [[SIMD2<Float>]]
+    let paths: [Line]
     /// The locations the user places, drawn as rings and dragged by their nearest.
     let handles: [PresetHandle]
     /// The anchors, held undisplaced by the consumer's stand in.
@@ -20,6 +20,11 @@ struct PresetCanvasView: View {
 
     private static let margin: CGFloat = 24
     private static let guideWidth: CGFloat = 1.5
+    /// Points, against the one and a half a form path takes, and under it.
+    private static let constructionWidth: CGFloat = 8
+    private static let constructionOpacity: CGFloat = 0.5
+    /// SwiftUI vends no magenta, so the two channels are mixed.
+    private static let constructionColor = Color(red: 1, green: 0, blue: 1)
     private static let frameWidth: CGFloat = 1
     private static let pointRadius: CGFloat = 2.5
     private static let strokeWidth: CGFloat = 1
@@ -64,8 +69,11 @@ struct PresetCanvasView: View {
                 lit.draw(Image(decorative: image, scale: 1).interpolation(.none), in: frameRect(scale: scale, origin: origin))
             }
             context.stroke(framePath(scale: scale, origin: origin), with: .color(.secondary), lineWidth: Self.frameWidth)
-            for path in paths {
-                context.stroke(guidePath(path, scale: scale, origin: origin), with: .color(.cyan), lineWidth: Self.guideWidth)
+            for line in paths where line.role == .construction {
+                context.stroke(guidePath(line.verts.map(\.location), scale: scale, origin: origin), with: .color(Self.constructionColor.opacity(Self.constructionOpacity)), lineWidth: Self.constructionWidth)
+            }
+            for line in paths where line.role == .form {
+                context.stroke(guidePath(line.verts.map(\.location), scale: scale, origin: origin), with: .color(.cyan), lineWidth: Self.guideWidth)
             }
             for line in lines {
                 let seeded = line.verts.map(\.location)
