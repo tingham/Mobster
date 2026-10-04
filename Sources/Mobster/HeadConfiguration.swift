@@ -1,0 +1,13 @@
+public struct HeadConfiguration: PresetConfiguration {
+    public let parameters: HeadPreset
+    public let context: PresetContext
+
+    public init(parameters: HeadPreset, context: PresetContext) {
+        self.parameters = parameters
+        self.context = context
+    }
+
+    public func lines(in frame: Frame) throws(MeshRefusal) -> [Line] {
+        try MeshExtraction(mesh: parameters.mesh(in: frame), frame: frame, fit: context.fit, perspective: context.perspective).paths(device: context.device)
+    }
+}

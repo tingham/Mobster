@@ -25,7 +25,7 @@ final class HarnessModel {
     static let device = MTLCreateSystemDefaultDevice()
 
     var kind: PresetKind = .columns { didSet { replot() } }
-    var focus: PresetFocus = .maxXMinY { didSet { replot() } }
+    var focus: PresetFocus = GoldenRatioPreset.focus { didSet { replot() } }
     var parameters = PresetParameters() { didSet { replot() } }
     var fieldVisible = false
     /// A second identity pass is what a raster costs, so it is taken only while it is shown.
@@ -100,7 +100,7 @@ final class HarnessModel {
     }
 
     init() {
-        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, focus: .maxXMinY, identities: false, device: Self.device)
+        let opening = PresetPlot(kind: .columns, parameters: PresetParameters(), frame: Self.frame, focus: GoldenRatioPreset.focus, identities: false, device: Self.device)
         let population = Self.coupled(LineFixture(parameters: Self.openingFixture).lines(in: Self.frame), coupling: Self.openingCoupling)
         let running = MotionEngine(frame: Self.frame,
                                    source: Self.source(opening.paths),

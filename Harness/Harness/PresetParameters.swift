@@ -5,7 +5,7 @@ struct PresetParameters: Hashable, Sendable {
     /// The figure opens in the first of the named poses rather than in a T pose, which the user would have to undo before beginning.
     private static let opening = FigurePose.named[0]
 
-    var goldenRatioQuadlines = true
+    var goldenRatioQuadlines = GoldenRatioPreset.quadlines
     var columnCount: Int = 4
     var columnGutter: Float = 0.02
     var rowCount: Int = 4
@@ -40,7 +40,7 @@ struct PresetParameters: Hashable, Sendable {
     var figureRightFoot = PresetParameters.opening.rightFoot
     var figureHeadLines = true
     /// Locations each extracted boundary is fitted to, which every mesh preset is read at.
-    var meshFit: Int = MeshExtraction.fit
+    var meshFit: Int = PresetContext.fit
     /// Degrees. The field of view every mesh preset is projected through, opening at the cone of vision.
     var meshFieldOfView: Float = MeshPerspective.opening
     /// A fraction of the Frame, locating the centre of the box.

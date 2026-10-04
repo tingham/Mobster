@@ -1,14 +1,15 @@
 /// A spiral populating the standard ratio frame, optionally plotted with the nested rectangles it is derived from. Its geometry is fixed, so it is read rather than computed.
 public struct GoldenRatioPreset: Hashable, Preset {
     private static let resourceName = "GoldenRatio"
-    /// The corner the stored spiral already converges toward, so every other focus is a mirror away from it.
-    private static let storedFocus = PresetFocus.maxXMinY
+    /// The corner the stored spiral already converges toward, so every other focus is a mirror away from it and this one is the offer.
+    public static let focus = PresetFocus.maxXMinY
+    /// The rectangles are what the spiral is derived from, so the offer is to see them.
+    public static let quadlines = true
 
     public let focus: PresetFocus
     public let quadlines: Bool
 
-    /// The default repeats the stored focus as a literal because a private member cannot serve as a public default argument.
-    public init(focus: PresetFocus = .maxXMinY, quadlines: Bool = true) {
+    public init(focus: PresetFocus, quadlines: Bool) {
         self.focus = focus
         self.quadlines = quadlines
     }
@@ -32,7 +33,7 @@ public struct GoldenRatioPreset: Hashable, Preset {
     }
 
     private static func oriented(_ location: SIMD2<Float>, within designSize: SIMD2<Float>, toward focus: PresetFocus) -> SIMD2<Float> {
-        guard focus != storedFocus else { return location }
+        guard focus != Self.focus else { return location }
 
         let mirrorX = focus == .minXMinY || focus == .minXMaxY
         let mirrorY = focus == .minXMaxY || focus == .maxXMaxY

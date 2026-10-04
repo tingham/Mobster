@@ -1,3 +1,4 @@
+import Mobster
 import SwiftUI
 
 struct PresetPickerView: View {
@@ -5,8 +6,8 @@ struct PresetPickerView: View {
 
     var body: some View {
         Picker("Preset", selection: $kind) {
-            ForEach(PresetKind.allCases) { candidate in
-                Text(candidate.title).tag(candidate)
+            ForEach(PresetKind.allCases, id: \.self) { candidate in
+                Text(presetTitle(candidate)).tag(candidate)
             }
         }
         .controlSize(.large)
