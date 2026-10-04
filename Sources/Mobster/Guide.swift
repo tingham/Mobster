@@ -51,7 +51,7 @@ public final class Guide {
         let adherence = Adherence(reach: adhesion * fullAdherenceReach)
 
         return content.map { line in
-            Line(verts: displaced(line.verts, progress: carried, adherence: adherence), identifier: line.identifier)
+            Line(verts: displaced(line.verts, progress: carried, adherence: adherence), identifier: line.identifier, role: line.role)
         }
     }
 

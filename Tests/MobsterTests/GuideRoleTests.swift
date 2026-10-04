@@ -52,6 +52,18 @@ struct GuideRoleTests {
         #expect(guide.lines[1].role == .construction)
     }
 
+    /// Evaluate displaces verts, and an attribute the consumer declared on the line is not the Guide's to reset.
+    @Test func evaluateReturnsTheRoleItWasGiven() throws {
+        let guide = try initialized(.lines([line(x: 16, role: .form)]))
+        let content = [Line(verts: [Vert(location: placed)], identifier: LineIdentifier(9), role: .construction),
+                       Line(verts: [Vert(location: placed)])]
+        let settled = guide.evaluate(content, at: 1)
+
+        #expect(settled[0].role == .construction)
+        #expect(settled[0].identifier == LineIdentifier(9))
+        #expect(settled[1].role == .form)
+    }
+
     @Test func theRolesOfAPresetSurviveVending() throws {
         let guide = try initialized(.preset(GoldenRatioPreset()))
 
