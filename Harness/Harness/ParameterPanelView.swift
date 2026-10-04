@@ -6,7 +6,7 @@ struct ParameterPanelView: View {
     var body: some View {
         switch model.kind {
         case .goldenRatio, .thirds:
-            FixedParameterView(title: model.kind.title)
+            FixedParameterView(title: presetTitle(model.kind))
         case .columns:
             ColumnsParameterView(parameters: $model.parameters)
         case .rows:
