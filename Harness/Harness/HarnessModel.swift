@@ -33,10 +33,11 @@ final class HarnessModel {
     var fixture = HarnessModel.openingFixture { didSet { repopulate() } }
     var adhesion = HarnessModel.openingAdhesion { didSet { retune() } }
     var run = HarnessModel.openingRun { didSet { retune() } }
+    /// Scene units. Held through a setter rather than an observer because the floor is applied on the way in, and an observer that wrote the property it observes would reenter itself: Observable rewrites a stored property into a setter over separate storage, which is not the self assignment the language suppresses.
     var settleEpsilon: Float {
-        didSet {
-            // Assignment inside an observer does not reenter it, so the floor is held without a second bake.
-            settleEpsilon = max(settleEpsilon, epsilonFloor)
+        get { standingEpsilon }
+        set {
+            standingEpsilon = max(newValue, epsilonFloor)
             retune()
         }
     }
@@ -53,10 +54,11 @@ final class HarnessModel {
     private(set) var motion: MotionPlot
     /// Scene units. The finest epsilon the budget affords the loaded source, which is the least the slider travels to: every position at or above it bakes a field and none of them returns nothing.
     private(set) var epsilonFloor: Float
+    private var standingEpsilon: Float
     private let engine: MotionEngine
 
     var epsilonRange: ClosedRange<Float> {
-        epsilonFloor ... max(Self.epsilonCeiling, epsilonFloor * 2)
+        epsilonFloor ... (epsilonFloor < Self.epsilonCeiling ? Self.epsilonCeiling : epsilonFloor * 2)
     }
 
     /// Nil where the field is hidden, which the canvas draws the same way as a field holding no path location: not at all.
@@ -114,7 +116,7 @@ final class HarnessModel {
         lines = population
         engine = running
         epsilonFloor = afforded
-        settleEpsilon = afforded
+        standingEpsilon = afforded
         field = running.field
         motion = running.plot
     }
@@ -168,10 +170,10 @@ final class HarnessModel {
         settle()
     }
 
-    /// Affordability moves with the segment count and with the budget, so the floor is derived again after either and the standing epsilon is carried up where the floor has passed it. Carrying it rebakes, which is why the floor is read before the bake is handed to the readout.
+    /// Affordability moves with the segment count and with the budget, so the floor is derived again after either and the standing epsilon is carried up where the floor has passed it. A floor that has fallen leaves the standing epsilon alone: it is still affordable, and the finest affordable epsilon is the most expensive bake on the slider. Carrying rebakes, which is why the floor is read before the bake is handed to the readout.
     private func afford() {
         epsilonFloor = engine.affordableEpsilon()
-        guard settleEpsilon < epsilonFloor else { return }
+        guard standingEpsilon < epsilonFloor else { return }
         settleEpsilon = epsilonFloor
     }
 
