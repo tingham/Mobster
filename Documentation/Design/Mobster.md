@@ -282,7 +282,7 @@ A hand is a tapered cuboid about the length of the face.
 A foot is a tapered cuboid about one head long.
 
 **mobster.preset.figure.heads.lines**
-Horizontal half width lines sit to either side of the figure at each head break. They are optional.
+Horizontal half width lines sit to either side of the figure at each head break. They are optional, and they are construction: a point conforms to the figure and not to the marks that measure it.
 
 **mobster.preset.head**
 A head plotted as the construction sphere with its side planes, brow line, centre line, jaw, chin and a portion of the neck.
