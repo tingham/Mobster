@@ -33,7 +33,7 @@ public final class Guide {
         }
 
         do {
-            baked = try FieldBake(paths: taken.map { $0.verts.map(\.location) }, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()
+            baked = try FieldBake(paths: taken.filter { $0.role == .form }.map { $0.verts.map(\.location) }, frame: frame, settleEpsilon: settleEpsilon, budget: budget).field()
         } catch {
             throw .field(error)
         }
@@ -99,15 +99,9 @@ public final class Guide {
         case let .lines(lines):
             return lines
         case let .preset(preset):
-            return interpreted(preset.paths(in: frame))
+            return preset.paths(in: frame)
         case let .mesh(mesh, device, fit, perspective):
-            return interpreted(try MeshExtraction(mesh: mesh, frame: frame, fit: fit, perspective: perspective).paths(device: device))
-        }
-    }
-
-    private static func interpreted(_ paths: [[SIMD2<Float>]]) -> [Line] {
-        paths.map { path in
-            Line(verts: path.map { Vert(location: $0) })
+            return try MeshExtraction(mesh: mesh, frame: frame, fit: fit, perspective: perspective).paths(device: device)
         }
     }
 
