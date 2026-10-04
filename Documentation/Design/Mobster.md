@@ -53,431 +53,438 @@ The expensive work happens once, at initialize, where the field is baked. Evalua
 
 ## Space
 
-**guide.frame.construct**
+**mobster.guide.frame.construct**
 A Guide receives the Frame it operates within when it is constructed, so that no workload can run before it.
 
-**guide.frame.region**
+**mobster.guide.frame.region**
 The Frame is a region in scene space.
 
-**guide.frame.position**
+**mobster.guide.frame.position**
 The Frame carries a position within scene space.
 
-**guide.initialize.again**
+**mobster.guide.initialize.again**
 Initializing again replaces the source, the Frame, the adhesion, the duration and the settle epsilon, and rebakes. A Guide retains nothing about content between evaluations, so there is nothing else to discard.
 
-**guide.space.scene**
+**mobster.guide.space.scene**
 Locations, targets and returned rectangles are expressed in scene coordinates.
 
-**guide.space.normalize**
+**mobster.guide.space.normalize**
 Normalization to a zero to one identity is applied only where a calculation requires it, and is reversed before storage.
 
 ## Sources
 
-**guide.target**
+**mobster.guide.target**
 A Guide is given content to evaluate rather than a layer to own. What the consumer chooses to send, whether the stroke in progress or the whole layer, is the consumer's decision and changes nothing here.
 
-**guide.source.lines**
+**mobster.guide.source.lines**
 A Guide may take lines as its source. They are vended back unchanged; Mobster does not reinterpret them.
 
-**guide.source.preset**
+**mobster.guide.source.preset**
 A Guide may name a preset as its source. The preset plots paths against the Frame the Guide operates within.
 
 ## Mesh
 
-**mesh.source**
+**mobster.mesh.source**
 A Guide may take a mesh as its source. Its paths are extracted from a projection of that mesh rather than plotted analytically.
 
-**mesh.component**
+**mobster.mesh.component**
 Every triangle of a mesh belongs to a component and every component carries an identity. A limb segment, a ribcage and a pelvis are separate components.
 
-**mesh.component.section**
+**mobster.mesh.component.section**
 A component may be divided to place a cross section where a form's roundness should read. The division is a construction element rather than a physical seam, and dividing a limb at its middle yields one boundary where a separate band would yield two.
 
-**mesh.component.structure**
+**mobster.mesh.component.structure**
 An identity marks structure rather than tessellation. A cube's six faces are six identities, because each is a plane a viewer reads as a distinct surface. A cylinder approximated by eight facets is one identity, because the facets approximate one surface rather than describing eight. Subdivision never multiplies identities.
 
-**mesh.low**
+**mobster.mesh.low**
 A mesh is low in triangles. An arm segment is a ring of eight points joined into a cylinder; no anatomy is modelled. Two levels of subdivision serve a form that mixes hard and soft surfaces.
 
-**mesh.render**
+**mobster.mesh.render**
 A mesh is rendered opaque with depth into an offscreen target, each fragment carrying the identity of the component it belongs to. Occlusion follows from the depth test rather than from removing hidden lines.
 
-**mesh.render.device**
+**mobster.mesh.render.device**
 The consumer supplies the device. Mobster does not create one, and a preset that needs no mesh needs no device.
 
-**mesh.render.perspective**
+**mobster.mesh.render.perspective**
 The projection carries a field of view, so a form pointing toward the viewer foreshortens. A narrow field reads as flat and a wide one reads as near.
 
-**mesh.render.perspective.fit**
+**mobster.mesh.render.perspective.fit**
 The distance the construction is viewed from follows from the field of view and the construction's own bounds, so it fits the Frame whatever the field is. The field of view is the only dial; distance is not a second one.
 
-**mesh.render.perspective.limit**
+**mobster.mesh.render.perspective.limit**
 The field of view is held within a range that reads, opening at sixty degrees. Sixty is the cone of vision a drawing stays inside before it reads as distorted, so it is the convention rather than a chosen number. Wide enough and the near of a form swells into a fisheye, which is a distortion rather than a drawing reference.
 
-**mesh.raster.vend**
+**mobster.mesh.raster.vend**
 The identity raster is vended for display on demand, as the field's grayscale is. A consumer diagnosing a boundary that comes and goes cannot do it blind.
 
-**mesh.render.resolution**
+**mobster.mesh.render.resolution**
 The resolution of the identity target follows from the Frame rather than being supplied. It decides the fidelity of every path extracted, the way the field's texel size does.
 
-**mesh.boundary**
+**mobster.mesh.boundary**
 A boundary runs wherever adjacent fragments carry different identities, including where a component meets the background. An interior seam is a boundary as much as a silhouette is, so the join of an upper arm to a forearm is a path without anything drawing it.
 
-**mesh.boundary.identity**
+**mobster.mesh.boundary.identity**
 An identity is never interpolated, averaged or filtered. The target is point sampled and every fragment reads as one whole identity.
 
-**mesh.boundary.runs**
+**mobster.mesh.boundary.runs**
 A pair of components meeting in more than one place yields a path for each meeting. Only a run shorter than a floor is dropped, which is what protects against a graze of one or two fragments standing in for a whole silhouette. Keeping one run per pair discards real geometry.
 
-**mesh.boundary.sample**
+**mobster.mesh.boundary.sample**
 A boundary is resolved from a neighbourhood of fragments rather than from a single pair, so a form grazing another for one or two fragments still produces a boundary that holds as the view turns. The neighbourhood resolves to one location.
 
-**mesh.boundary.midpoint**
+**mobster.mesh.boundary.midpoint**
 A boundary location sits midway between the two differing fragments, because that is where the boundary is. Nothing is estimated by it.
 
-**mesh.path.fit**
+**mobster.mesh.path.fit**
 A traced boundary is fitted to a curve at a count Mobster asks for. Whiplash performs the fit and the decimation.
 
-**mesh.path.lossy**
+**mobster.mesh.path.lossy**
 A fitted path need not reproduce the traced boundary exactly. Any silhouette of a form serves a person drawing over it better than none. The slight curve a fit leaves on a straight edge is wanted, not tolerated; it reads as drawn rather than plotted and nothing should straighten it.
 
 ## Paths
 
-**path.supplied**
+**mobster.path.supplied**
 A path is supplied by the consumer or plotted by a preset. Mobster does not interpret source geometry into paths; a consumer wanting a layer as a source reduces it before sending.
 
-**path.smooth.never**
+**mobster.path.smooth.never**
 Mobster does not smooth supplied geometry and does not decimate it. The consumer has already interpreted the stroke and interpreting it again discards a decision made with more context. Detail below what the field can resolve is wasted work rather than a wrong answer, and the refusal on bake cost is what guards against paying for too much of it.
 
-**path.vend**
+**mobster.path.vend**
 A Guide vends the lines of its source on demand.
 
-**path.construction**
+**mobster.path.construction**
 A path is form or it is construction. Form is the thing to follow. Construction is present only for aligning against and is never followed.
 
-**path.construction.bake**
+**mobster.path.role**
+Every path a source vends carries a role, and the role is form or construction. The role is declared by whatever vends the path and is read rather than derived: a Guide given a source whose every path is construction bakes a field holding no path location, whatever those paths contain and wherever they stand.
+
+**mobster.path.role.default**
+A path arriving with no role declared is form. A consumer knowing nothing of roles conforms against everything it supplied, which is what it received before a role was carried.
+
+**mobster.path.construction.bake**
 Construction is drawn and is not baked. A Guide bakes its form alone, so a point conforms to what the guide is rather than to the scaffolding it was built from.
 
-**path.construction.draw**
+**mobster.path.construction.draw**
 A consumer can tell form from construction without counting arrivals, so it may draw the scaffolding differently from the thing itself.
 
-**path.construction.mesh**
+**mobster.path.construction.mesh**
 A mesh classifies itself. A boundary against the background is form, because it is the outline of what is there; a boundary between two components is construction, because it is a seam inside that outline. Nothing authors this and the tracer already knows which pair it walked.
 
-**path.order**
-A preset emits its paths in a defined order and that order is how a consumer tells them apart. A ruler emits its base line then the offset pair; Golden Ratio emits the spiral then its quadlines outermost first. Nothing on a path says what it is, so a consumer that wants to draw a quadline differently from a spiral indexes by position. That is brittle and it is the contract until something asks for better.
+**mobster.path.order**
+A preset emits its paths in a defined order. A ruler emits its base line then the offset pair; Golden Ratio emits the spiral then its quadlines outermost first. The order is stable so a plot is reproducible, and it is not how a consumer tells one path from another; a role is.
 
 ## Presets
 
-**preset.storage.static**
+**mobster.preset.storage.static**
 A preset whose paths are fixed is stored as a JSON resource.
 
-**preset.storage.generated**
+**mobster.preset.storage.generated**
 A preset whose paths are computed from parameters is a code function.
 
-**preset.frame.mode**
+**mobster.preset.frame.mode**
 A preset decides how it meets the Frame. The mode is not a parameter, not a construction argument and not visible to the consumer, because how a preset answers a Frame is a property of what that preset is.
 
-**preset.frame.aspect**
+**mobster.preset.frame.aspect**
 A preset defined relative to the Frame takes the Frame as its design rectangle, so a quantity it expresses relative to the Frame resolves against the Frame.
 
-**preset.frame.bounds**
+**mobster.preset.frame.bounds**
 A preset that covers the Frame is scaled to a minimum bounds encompassing it, preserving its own proportions.
 
-**preset.frame.bounds.center**
+**mobster.preset.frame.bounds.center**
 A preset scaled to a minimum bounds is centered within the Frame.
 
-**preset.frame.contain**
+**mobster.preset.frame.contain**
 A preset that fits inside the Frame is scaled by the lesser of its axes and centered, so the whole of it sits within the Frame with its own proportions intact.
 
-**preset.frame.mode.each**
+**mobster.preset.frame.mode.each**
 Thirds, Columns, Rows, Grid and Ruler are defined relative to the Frame and take it as their design rectangle. Golden Ratio covers the Frame. Head and Figure fit inside it. None of them is asked which.
 
-**preset.goldenRatio**
+**mobster.preset.goldenRatio**
 A spiral populating the standard ratio frame.
 
-**preset.goldenRatio.proportion**
+**mobster.preset.goldenRatio.proportion**
 Golden Ratio preserves its own proportions, because a distorted spiral is not the golden ratio.
 
-**preset.goldenRatio.quadlines**
-Golden Ratio plots the nested rectangles the spiral is derived from alongside the spiral, and whether it plots them is optional. They are construction and the spiral is form: the rectangles are present only for aligning against, and near the eye they are packed tighter than the curve, so a guide that baked them would conform a point to the scaffolding.
+**mobster.preset.goldenRatio.quadlines**
+Golden Ratio plots the nested rectangles the spiral is derived from alongside the spiral, and whether it plots them is optional.
+ They are construction and the spiral is form: the rectangles are present only for aligning against, and near the eye they are packed tighter than the curve, so a guide that baked them would conform a point to the scaffolding.
 
-**preset.goldenRatio.focus**
+**mobster.preset.goldenRatio.focus**
 The corner the spiral converges toward is selectable.
 
-**preset.thirds**
+**mobster.preset.thirds**
 Three columns and three rows conforming to the aspect ratio of the Frame. A grid of three with a zero gutter is not the same thing, because a gutter is a band with two edges whatever its width and so emits eight lines where thirds emits four. It also stays separate because an editorial illustrator expects to find thirds by name.
 
-**preset.columns**
+**mobster.preset.columns**
 Columnar dividers spread evenly across the Frame with a parameterized gutter.
 
-**preset.rows**
+**mobster.preset.rows**
 Row lines spread evenly across the Frame with a parameterized gutter.
 
-**preset.grid**
+**mobster.preset.grid**
 Columnar dividers and row lines together across the Frame, one count and one gutter serving both axes.
 
-**preset.gutter.band**
+**mobster.preset.gutter.band**
 A gutter is a band with two edges. A count of four columns with one gutter width yields six lines.
 
-**preset.gutter.fraction**
+**mobster.preset.gutter.fraction**
 A gutter width is a fraction of the Frame extent along the axis it divides.
 
-**form.space.depth**
+**mobster.form.space.depth**
 A construction may be expressed in three dimensions and projected. Nothing else in the package gains a third dimension by it; a preset opts in.
 
-**form.space.depth.near**
+**mobster.form.space.depth.near**
 A projected construction is clipped to its near half by depth, so the far side of a curve does not project as a second lobe over the near one.
 
-**preset.form.geometric**
+**mobster.preset.form.geometric**
 A figure or head preset plots geometric primitives rather than reproducing a drawn tradition. An ellipsoid, a frustum, a wedge and a great circle all have exact projections where a traced silhouette needs judgement. The result reading as robotic is acceptable; these are guides drawn over.
 
-**preset.kind**
+**mobster.preset.kind**
 A preset is a named source a user picks. Whether it plots analytically or extracts from a mesh is not something the user sees.
 
-**preset.cube**
+**mobster.preset.cube**
 A box plotted from a mesh. It is the box construction a figure or an object is built inside, and it is the first thing the mesh source carries.
 
-**preset.cube.place**
+**mobster.preset.cube.place**
 The cube is positioned and sized within the Frame rather than filling it.
 
-**preset.cube.target**
+**mobster.preset.cube.target**
 The cube points at a location, as the head does, so it can be turned to any view.
 
-**preset.figure**
+**mobster.preset.figure**
 A human figure plotted as construction forms against the Frame. It was named Ashcan while it was a mugshot; it is a figure now.
 
-**preset.figure.proportion**
+**mobster.preset.figure.proportion**
 The figure fits inside the Frame with its proportions intact. A figure stretched to an axis is not a figure, for the reason a stretched spiral is not the golden ratio.
 
-**preset.figure.sex**
+**mobster.preset.figure.sex**
 The figure is proportioned as male or as female.
 
-**preset.figure.heads**
+**mobster.preset.figure.heads**
 The figure's height is given in heads. Proportion at a given height follows published canon, so a shorter figure reads as a child rather than as a scaled adult.
 
-**preset.figure.pose**
+**mobster.preset.figure.pose**
 The figure is posed by a target for each hand and each foot. A two bone chain solves the limb between its shoulder or hip and that target.
 
-**preset.figure.head.target**
+**mobster.preset.figure.head.target**
 The figure's head points at a location of its own, as the head preset's does.
 
-**preset.figure.pose.named**
+**mobster.preset.figure.pose.named**
 A set of named poses each set every target at once. A figure that opens in a T pose is one the user has to build before they can begin, and a named pose is somewhere to start and nudge from. A pose is named by a string and held as data, so adding one is a line rather than a case.
 
-**preset.figure.bend**
+**mobster.preset.figure.bend**
 An elbow bends back and a knee bends forward. The direction is anatomical rather than a control, because a figure whose elbow can bend either way is asking a question that has one answer.
 
-**preset.figure.hand**
+**mobster.preset.figure.hand**
 A hand is a tapered cuboid about the length of the face.
 
-**preset.figure.foot**
+**mobster.preset.figure.foot**
 A foot is a tapered cuboid about one head long.
 
-**preset.figure.heads.lines**
+**mobster.preset.figure.heads.lines**
 Horizontal half width lines sit to either side of the figure at each head break. They are optional.
 
-**preset.head**
+**mobster.preset.head**
 A head plotted as the construction sphere with its side planes, brow line, centre line, jaw, chin and a portion of the neck.
 
-**preset.head.proportion**
+**mobster.preset.head.proportion**
 The head fits inside the Frame with its proportions intact, for the reason the figure does.
 
-**preset.head.sex**
+**mobster.preset.head.sex**
 The head is proportioned as male or as female.
 
-**preset.head.target**
+**mobster.preset.head.target**
 The head points at a location. It is not rotated by an angle.
 
-**preset.head.basis**
+**mobster.preset.head.basis**
 Forward runs from the head toward its target. Up and right are derived from it.
 
-**preset.head.target.run**
+**mobster.preset.head.target.run**
 The target's horizontal run from the head is held above zero. A target directly above or below carries no direction to face, so the limit removes the case rather than answering it.
 
-**preset.head.tilt.limit**
+**mobster.preset.head.tilt.limit**
 Forward is held within forty five degrees either side of level. Beyond that it approaches parallel with up and the derivation of a basis collapses, so the limit removes the case rather than answering it. A head tilted further is not a drawing reference anyway.
 
-**preset.head.chin**
+**mobster.preset.head.chin**
 The chin block centres vertically on the underside of the cranial mass and rises halfway to its middle. It is as wide as the jaw angles where it meets them and as wide as the mouth at its base, which is a stronger taper than it looks: seven tenths of the head's breadth above and three and a half tenths below, and the sexes differ by less than a hundredth at either end.
 
-**preset.head.roll**
+**mobster.preset.head.roll**
 A scalar turns the head about its forward axis.
 
-**preset.ruler**
+**mobster.preset.ruler**
 Two circular degrees derive two locations on the edge of the Frame.
 
-**preset.ruler.center**
+**mobster.preset.ruler.center**
 The center the degrees are cast from is specified in x and y.
 
-**preset.ruler.degrees**
+**mobster.preset.ruler.degrees**
 A degree of zero points along positive x within the Frame. Increasing degrees rotate toward positive y.
 
-**preset.ruler.line**
+**mobster.preset.ruler.line**
 A line crosses the Frame between the two derived locations.
 
-**preset.ruler.control**
+**mobster.preset.ruler.control**
 Any number of interior control locations may sit between the two derived locations. None is the ordinary case.
 
-**preset.ruler.smooth**
+**mobster.preset.ruler.smooth**
 With no interior control the line is straight. With one or more it is smoothed through them, so the count of controls decides the order and nothing between is undefined.
 
-**preset.ruler.resolution**
+**mobster.preset.ruler.resolution**
 A smoothed line is sampled at a count the caller supplies. A straight line is its two endpoints and samples nothing.
 
-**preset.ruler.pair**
+**mobster.preset.ruler.pair**
 A distance parameter creates a parallel line at that offset on each side of the line.
 
-**preset.ruler.pair.cross**
+**mobster.preset.ruler.pair.cross**
 A parallel line crosses the Frame. It is cast to the edge of the Frame rather than translated as a fixed length.
 
-**@removal(a type defined as another type plus a field is a field; preset.ruler.control absorbs it, and Ruler keeps the name because nobody wants a curve to make a straight line) preset.curve**
+**@removal(a type defined as another type plus a field is a field; mobster.preset.ruler.control absorbs it, and Ruler keeps the name because nobody wants a curve to make a straight line) mobster.preset.curve**
 Identical in structure to the ruler, with a location between the start and the end controlling the tension of the curve. The curve is a quadratic Bezier sampled at a resolution the caller supplies.
 
 ## Field
 
-**field.resolution.derive**
+**mobster.field.resolution.derive**
 The field resolution follows from the Frame and the settle epsilon. It is not supplied. A read snaps to the containing texel, so a texel larger than the epsilon carries more error than the tolerance the points are settling within.
 
-**field.resolution.refuse**
+**mobster.field.resolution.refuse**
 A derived resolution whose bake exceeds the budget the consumer supplies is refused, reporting the epsilon asked for and the epsilon that would be affordable. The consumer chooses again rather than discovering the cost.
 
-**field.bake**
+**mobster.field.bake**
 The field is baked from the source's paths in Swift on the host.
 
-**field.bake.exterior**
+**mobster.field.bake.exterior**
 A path location outside the Frame participates in the field. A query inside the Frame resolves to the true nearest path location whether that location lies inside the Frame or not.
 
-**field.store.location**
+**mobster.field.store.location**
 The field stores the nearest path location per texel. It does not store a distance.
 
-**field.store.location.exact**
+**mobster.field.store.location.exact**
 The stored location is the nearest path location. It is not an approximation of one. A location bound is discontinuous in the distance error near a medial line, so an approximate bake cannot be licensed by stating a tolerance on the location.
 
-**field.read.distance**
+**mobster.field.read.distance**
 Distance at a location is the length from that location to the nearest path location the field holds.
 
-**field.read.direction**
+**mobster.field.read.direction**
 Direction at a location is the normalized vector from that location toward the nearest path location the field holds.
 
-**field.gradient.never**
+**mobster.field.gradient.never**
 Direction is not derived from a gradient of the field.
 
-**field.unsigned**
+**mobster.field.unsigned**
 The field is unsigned. A guide path is open and has no interior.
 
-**field.tiebreak.center**
+**mobster.field.tiebreak.center**
 Where two path locations are equidistant the field resolves toward the center of the Frame.
 
-**field.tiebreak.stable**
+**mobster.field.tiebreak.stable**
 Where neither candidate is nearer the center of the Frame, the field resolves to the candidate with the lesser x, and to the lesser y where x is equal. The rule is stated so that it survives a change to the order the bake sweeps in.
 
-**field.extent**
+**mobster.field.extent**
 A field's texel counts follow from the Frame and the resolution. They do not vary with whether the bake found a path.
 
-**field.frame.degenerate**
+**mobster.field.frame.degenerate**
 A Frame with a zero extent on either axis bakes an empty field. It does not trap.
 
-**field.empty**
+**mobster.field.empty**
 A field holding no path location reports that it holds none. It does not vend a grayscale, because a raster of uniform maximum distance cannot be told apart from a legitimate one.
 
-**field.vend.grayscale**
+**mobster.field.vend.grayscale**
 The field is vended as a grayscale rasterization on demand. The rasterization is an approximation and is not the storage format.
 
 ## Adherence
 
-**guide.adherence.reach**
+**mobster.guide.adherence.reach**
 Adherence controls the reach of an inverse distance squared falloff against the field.
 
-**guide.adherence.reach.full**
+**mobster.guide.adherence.reach.full**
 At an adherence of one every point in the Frame settles within the settle epsilon of its nearest path location. The reach achieving this follows from the Frame extent and the epsilon. A reach merely equal to the Frame extent does not achieve it, because the falloff yields a weight below one for every finite reach.
 
-**guide.adherence.reach.least**
+**mobster.guide.adherence.reach.least**
 At the least adherence the reach collapses and no point is displaced.
 
-**guide.adherence.reach.half**
+**mobster.guide.adherence.reach.half**
 The reach is the distance at which a point is displaced half the way to its nearest path location. A point nearer than the reach is carried most of the way, a point further is barely carried at all.
 
-**guide.adherence.falloff**
+**mobster.guide.adherence.falloff**
 The falloff yields a weight of one over one plus the square of distance over reach.
 
-**guide.adherence.target**
+**mobster.guide.adherence.target**
 A point's target is its own location displaced toward the nearest path location by the falloff weight of the distance between them.
 
-**guide.adherence.short**
+**mobster.guide.adherence.short**
 A point far from every path settles short of the path rather than arriving at it.
 
-**guide.adherence.reach.full.derive**
+**mobster.guide.adherence.reach.full.derive**
 The reach satisfying full adherence follows from the worst case distance in the Frame and the settle epsilon. Mobster vends it. It grows faster than the Frame does, so a fixed multiple of the Frame extent does not serve.
 
-**guide.adherence.curve**
+**mobster.guide.adherence.curve**
 The Guide maps the adhesion dial onto a reach, between zero and the reach that satisfies full adhesion. The mapping is linear until the principal has a reason for it not to be.
 
 ## Types
 
-**vert**
+**mobster.vert**
 A location, carrying an optional identifier and optional attributes. The identifier is the consumer's and is returned untouched. A consumer sending a guide needs no identifier and no attributes.
 
-**vert.mass**
+**mobster.vert.mass**
 An optional weight. A vert with more mass moves less per tick.
 
-**vert.drag**
+**mobster.vert.drag**
 An optional leniency across its travel, running from minus one to one. A drag of one is the plain travel. A drag of zero holds the vert back for the whole run. A drag of minus one carries it away from its target before it returns. The scale runs downward because no family linear in drag both holds back above and repels below; whichever end repels, the other runs fast.
 
-**vert.physics**
+**mobster.vert.physics**
 The attributes are not only a correctness mechanism. A non destructive guide evaluating a whole layer with coupling and mass in play produces motion worth showing, which is its own reason to have them.
 
-**vert.coupling**
+**mobster.vert.coupling**
 An optional signed measure of how much of this vert's motion its peers take. Propagation through neighbours supplies the falloff along the line, so how far it reaches is not a separate attribute. A negative coupling opposes rather than follows.
 
-**vert.attributes.optional**
+**mobster.vert.attributes.optional**
 An absent attribute is not a defaulted one. A consumer that supplies none gets motion that disregards peer state entirely.
 
-**vert.coupling.zero**
+**mobster.vert.coupling.zero**
 Coupling is the exception. A coupling of zero emits no offset and an absent coupling emits none either, so the two cannot be told apart through evaluation and no test should pretend otherwise. Mass and drag both carry a distinction; this does not.
 
-**line**
+**mobster.line**
 An ordered sequence of verts carrying an optional identifier. It holds no behaviour of its own; what happens to a line is what happens to its verts.
 
 ## Evaluation
 
-**guide.initialize**
+**mobster.guide.initialize**
 A Guide is initialized with its source, which is guide lines or a preset, the Frame it operates within, an adhesion, and a duration. The bake happens here and once.
 
-**guide.adhesion**
+**mobster.guide.adhesion**
 Adhesion is a control between zero and one. It maps onto the reach the falloff uses, and the consumer never sees a reach.
 
-**guide.duration**
+**mobster.guide.duration**
 The duration is the time at which every vert has arrived. It is supplied at initialize.
 
-**guide.evaluate**
+**mobster.guide.evaluate**
 A Guide evaluates content, which is lines the consumer holds, at a time. It returns those lines with their verts displaced. Nothing is retained between calls.
 
-**guide.evaluate.anchor**
+**mobster.guide.evaluate.anchor**
 The verts supplied are the anchors the displacement is measured from. A consumer holding undisplaced content and evaluating it each frame receives a stable result; a consumer feeding a result back in has declared a new anchor and asked for a further displacement.
 
-**guide.evaluate.time**
+**mobster.guide.evaluate.time**
 A time yields the same result whatever times were evaluated before it. Evaluation is not an increment from a previous call.
 
-**guide.evaluate.settled**
+**mobster.guide.evaluate.settled**
 At the duration every vert has arrived, so a consumer wanting the settled result asks for the duration and does not iterate toward it.
 
-**guide.field.vend**
+**mobster.guide.field.vend**
 A Guide vends a rasterization of its field on demand. The field itself is not exposed.
 
-**guide.lines.vend**
+**mobster.guide.lines.vend**
 A Guide vends the lines of its source on demand.
 
-**guide.pass.single**
+**mobster.guide.pass.single**
 An evaluation resolves one Guide. Two Guides on a layer are two evaluations, sequenced by the consumer.
 
-**guide.determinism.pure**
+**mobster.guide.determinism.pure**
 An evaluation is a pure function of the content, the Guide and the time. No wall clock and no drawn random state participate.
 
-**guide.determinism.seed**
+**mobster.guide.determinism.seed**
 A seed, wherever one is needed, is derived from an identifier rather than drawn. The fixture's per vert spread is the only thing that currently needs one.
 
-**guide.settle.epsilon**
+**mobster.guide.settle.epsilon**
 The settle epsilon is expressed in scene units and supplied by the consumer, which is the only party that knows what a pixel is worth. It derives the field resolution and it sets the reach that full adhesion requires. It does not decide arrival; arrival is the duration. It is not a control the consumer tunes for feel.
 
 ## Body
@@ -506,7 +513,7 @@ A distance weight could be selected from a number of falloff presets and applied
 
 The workload it serves is a cycle: enable the guide, paint a stroke, disable the guide, transform the guide, enable it again, paint another stroke, disable it. Marks therefore accumulate on one layer having been painted under different guide states, and the selected falloff governs how much of the earlier work responds when the guide moves.
 
-Note what this asks of the shipped behaviour. Under guide.adherence.short every vert supplied is drawn some distance, however small, because the falloff is nonzero at every finite distance. A transform of the guide is a new initialize, so the next evaluation resolves every supplied vert against the new field. The cycle above therefore draws every previously painted mark toward each new guide position, and the selected falloff is what makes that cycle usable rather than destructive.
+Note what this asks of the shipped behaviour. Under mobster.guide.adherence.short every vert supplied is drawn some distance, however small, because the falloff is nonzero at every finite distance. A transform of the guide is a new initialize, so the next evaluation resolves every supplied vert against the new field. The cycle above therefore draws every previously painted mark toward each new guide position, and the selected falloff is what makes that cycle usable rather than destructive.
 
 ## Destructive Workload
 
@@ -518,23 +525,40 @@ It is not merely a convenience. A guide used as an ITERATION TOOL rather than as
 
 ## Harness
 
-**harness.platform**
+**mobster.harness.platform**
 The harness is an Xcode project targeting macOS.
 
-**harness.fixture**
+**mobster.harness.fixture**
 The harness carries a nominally complex dataset as a fixture. It is a separate target and a separate product, because it mints identifiers and the library must not, and because an Xcode project links a package product rather than a bare target.
 
-**harness.preview**
+**mobster.harness.preview**
 The harness presents a preview to the screen.
 
-**harness.timing**
+**mobster.harness.timing**
 The harness reports performance timing.
 
-**harness.handle**
+**mobster.harness.handle**
 A location a user places is dragged on the preview, not typed into two numbers. A target with no mark on screen is a coordinate rather than a handle, and it makes a usable model read as an unusable one.
 
-**harness.sliders**
+**mobster.harness.sliders**
 The harness exposes each derived magnitude as a slider.
 
-**harness.copy**
+**mobster.harness.role.draw**
+The harness makes a path's role legible on the preview. Form keeps the stroke the preview already gives a path and construction takes the style its own requirement names. A role carried and not shown is a role nobody can check, and a guide conforming to the wrong paths is otherwise indistinguishable from a guide whose bake is wrong.
+
+**mobster.harness.role.draw.construction**
+Construction is stroked magenta at half opacity, eight points wide.
+
+**mobster.harness.role.draw.order**
+Construction is stroked before form, so form reads over it rather than under it.
+
+**mobster.harness.epsilon.afford**
+The harness opens at the finest settle epsilon its budget affords the source it has loaded, and the epsilon slider stands at the value the bake actually used. It is taken from the refusal rather than guessed: the harness asks for an epsilon the derivation cannot afford, and the refusal reports the affordable one it bakes at instead. A source carrying more segments opens coarser than one carrying fewer, so no constant serves.
+
+**mobster.harness.epsilon.afford.reload**
+The opening epsilon is derived again whenever the source changes, not at launch alone. Affordability follows the segment count, and a preset swapped for a denser one holds an epsilon its budget no longer affords.
+
+> **clem**: `mobster.vend.default.harness` says an opening value is the package's opinion because you set it by eye at the control deriving it. These two break that for epsilon specifically: nobody sets it by eye any more, so there is no constant to transcribe and `mobster.vend.default` has no static to hold. What the package would vend instead is the derivation, which `FieldBake.affordable` already computes privately and which OneBrush needs for exactly the reason the harness does. Whether that gets vended is a separate instruction I do not have. Budget is untouched and stays set by eye, because it encodes how long a person will wait and nothing derives that.
+
+**mobster.harness.copy**
 Data structures taken from Jerome, Tempest or Muslin are hard copies. They are not linked or referenced by path to their origins.
