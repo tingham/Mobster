@@ -347,7 +347,7 @@ The field resolution follows from the Frame and the settle epsilon. It is not su
 A derived resolution whose bake exceeds the budget the consumer supplies is refused, reporting the epsilon asked for and the epsilon that would be affordable. The consumer chooses again rather than discovering the cost.
 
 **mobster.field.resolution.refuse.unbounded**
-A settle epsilon at or below zero is refused, reporting the affordable epsilon as any other refusal does. It asks for a lattice without bound, which is a cost no budget meets. It is not the empty bake a Frame with no extent takes: a Frame with no extent has nothing to bake into, where this has paths and a Frame and asks for something unpayable.
+A settle epsilon at or below zero is refused, reporting the affordable epsilon as any other refusal does. It asks for a lattice without bound, which is a cost no budget meets. The refusal is unconditional and does not depend on the source carrying paths. It is not the empty bake a Frame with no extent takes, because a Frame with no extent has nothing to bake into where this is asking for something unpayable.
 
 **mobster.field.bake**
 The field is baked from the source's form paths in Swift on the host.
