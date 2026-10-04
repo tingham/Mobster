@@ -31,6 +31,17 @@ struct GuideSourceTests {
         #expect(abs(guide.lines[0].verts[0].location.x - 128 / 3) < 1e-3)
     }
 
+    @Test func aGoldenRatioWithoutQuadlinesBakesOneSpiralPath() throws {
+        let spiral = GoldenRatioPreset(quadlines: false).paths(in: frame)
+        let guide = guide()
+        try guide.initialize(source: .preset(GoldenRatioPreset(quadlines: false)), frame: frame, adhesion: 1, duration: 1, settleEpsilon: 1, budget: .max)
+
+        #expect(guide.lines.count == 1)
+        #expect(guide.lines.map { $0.verts.map(\.location) } == spiral)
+        // The field the Guide holds is compared against a bake of the spiral alone, so the count asserted is the count that reached the bake rather than the count the preset vended.
+        #expect(guide.raster() == (try FieldBake(paths: spiral, frame: frame, settleEpsilon: 1, budget: .max).field().grayscale()))
+    }
+
     @Test func aGuideNeedsNoIdentifierOnTheLinesItInterprets() throws {
         let guide = guide()
         try guide.initialize(source: .preset(ThirdsPreset()), frame: frame, adhesion: 1, duration: 1, settleEpsilon: 1, budget: .max)

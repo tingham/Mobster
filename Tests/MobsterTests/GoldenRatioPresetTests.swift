@@ -36,6 +36,15 @@ struct GoldenRatioPresetTests {
         #expect(quadlines(paths).allSatisfy { Set($0.map(\.x)).count == 2 && Set($0.map(\.y)).count == 2 })
     }
 
+    @Test func theNestedRectanglesAreOptionalAndTheSpiralIsWhatRemains() {
+        let plotted = GoldenRatioPreset(focus: .maxXMinY, quadlines: true).paths(in: frame)
+        let alone = GoldenRatioPreset(focus: .maxXMinY, quadlines: false).paths(in: frame)
+
+        #expect(plotted.count == 13)
+        #expect(alone.count == 1)
+        #expect(spiral(alone) == spiral(plotted))
+    }
+
     @Test func eachNestedRectangleSitsInsideTheOneBefore() {
         let paths = GoldenRatioPreset(focus: .maxXMinY).paths(in: frame)
 

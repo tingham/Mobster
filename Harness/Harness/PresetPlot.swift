@@ -40,7 +40,7 @@ struct PresetPlot {
     private static func generate(kind: PresetKind, parameters: PresetParameters, frame: Frame, focus: PresetFocus, device: (any MTLDevice)?) throws(MeshRefusal) -> [[SIMD2<Float>]] {
         switch kind {
         case .goldenRatio:
-            GoldenRatioPreset(focus: focus).paths(in: frame)
+            GoldenRatioPreset(focus: focus, quadlines: parameters.goldenRatioQuadlines).paths(in: frame)
         case .thirds:
             ThirdsPreset().paths(in: frame)
         case .columns:

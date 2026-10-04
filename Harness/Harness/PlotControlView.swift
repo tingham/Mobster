@@ -7,6 +7,8 @@ struct PlotControlView: View {
         switch model.kind {
         case .goldenRatio:
             PresetFocusPickerView(focus: $model.focus)
+            Toggle("Quadlines", isOn: $model.parameters.goldenRatioQuadlines)
+                .controlSize(.large)
         case .head, .figure, .cube:
             Toggle("Show Identities", isOn: $model.identityVisible)
                 .controlSize(.large)
