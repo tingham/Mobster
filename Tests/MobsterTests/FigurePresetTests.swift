@@ -210,7 +210,7 @@ struct FigurePresetTests {
     }
 
     @Test func headBreakLinesSitAtTheFractionsTheHeightImplies() {
-        let measured = figure(sex: .male, heads: 8, headLines: true).breakLines(in: frame)
+        let measured = figure(sex: .male, heads: 8, headLines: true).breakLines(in: frame).map { $0.verts.map(\.location) }
 
         #expect(figure(sex: .male, heads: 8).breakLines(in: frame).isEmpty)
         #expect(measured.count == 18)
@@ -221,7 +221,7 @@ struct FigurePresetTests {
 
     /// A partial head at the soles is not a head break, so seven and a half heads breaks seven times below the top of the head and not eight.
     @Test func aPartialHeadAtTheSolesCarriesNoBreak() {
-        let measured = figure(sex: .male, heads: 7.5, headLines: true).breakLines(in: frame)
+        let measured = figure(sex: .male, heads: 7.5, headLines: true).breakLines(in: frame).map { $0.verts.map(\.location) }
 
         #expect(measured.count == 16)
         #expect(abs(measured.map { $0[0].y }.last! - 800 * 7 / 7.5) < 0.01)

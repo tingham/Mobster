@@ -92,13 +92,15 @@ public struct FigurePreset: Hashable, Sendable {
     }
 
     /// Half width lines to either side of the figure at each head break. They measure the figure rather than belonging to it, so nothing turns them and they are paths rather than solids.
-    public func breakLines(in frame: Frame) -> [[SIMD2<Float>]] {
+    public func breakLines(in frame: Frame) -> [Line] {
         guard headLines else { return [] }
 
         let figure = Figure(heads: heads, sex: sex)
         let placement = Self.placement(figure, target: target, frame: frame)
 
-        return figure.breakLines.map { line in line.map(placement.flat) }
+        return figure.breakLines.map { line in
+            Line(verts: line.map { Vert(location: placement.flat($0)) }, role: .form)
+        }
     }
 
     private static func placement(_ figure: Figure, target: SIMD3<Float>, frame: Frame) -> MeshPlacement {

@@ -81,7 +81,7 @@ struct PresetPlot {
         guard let device, let mesh = mesh(kind: .figure, parameters: parameters, frame: frame) else { return [] }
         let extracted = try extraction(mesh, parameters: parameters, frame: frame).paths(device: device)
 
-        return extracted + Self.construction(parameters).breakLines(in: frame).map { Line(verts: $0.map { Vert(location: $0) }) }
+        return extracted + Self.construction(parameters).breakLines(in: frame)
     }
 
     /// Every mac this harness runs on carries a device, so the absent case is the API's rather than a state the harness presents.
