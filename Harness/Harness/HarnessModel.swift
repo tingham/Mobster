@@ -114,9 +114,9 @@ final class HarnessModel {
         seek()
     }
 
-    /// The harness already holds the plotted paths for drawing, so it hands them over as lines rather than naming the preset again.
-    private static func source(_ paths: [[SIMD2<Float>]]) -> GuideSource {
-        .lines(paths.map { path in Line(verts: path.map { Vert(location: $0) }) })
+    /// The harness already holds the plotted lines for drawing, so it hands them over rather than naming the preset again. Their roles ride along, which is what keeps the bake off the construction it is drawing.
+    private static func source(_ lines: [Line]) -> GuideSource {
+        .lines(lines)
     }
 
     private func replot() {

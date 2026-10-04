@@ -13,7 +13,7 @@ struct VendDefaultTests {
     @Test func theVendedFitIsWhatABoundaryComesBackAt() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: axis).mesh(in: square)
-        let paths = try MeshExtraction(mesh: mesh, frame: square, fit: MeshExtraction.fit, perspective: MeshPerspective()).paths(device: device)
+        let paths = try MeshExtraction(mesh: mesh, frame: square, fit: MeshExtraction.fit, perspective: MeshPerspective()).paths(device: device).map { $0.verts.map(\.location) }
 
         #expect(!paths.isEmpty)
         #expect(paths.allSatisfy { $0.count == MeshExtraction.fit })

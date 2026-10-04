@@ -14,15 +14,21 @@ public struct GoldenRatioPreset: Hashable, Preset {
     }
 
     /// Bounds always. A spiral stretched to a Frame's aspect ratio is no longer the golden ratio.
-    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
+    public func paths(in frame: Frame) -> [Line] {
         let resource = PresetResource.load(Self.resourceName)
         let projection = PresetProjection(mode: .bounds, frame: frame, designSize: resource.size)
         // The spiral is the first path the resource holds, and the projection is taken from the design size, so dropping the rest leaves the spiral where it stood.
-        let plotted = quadlines ? resource.paths : Array(resource.paths.prefix(1))
+        let spiral = projection.lines(oriented(Array(resource.paths.prefix(1)), within: resource.size), role: .form)
 
-        return projection.paths(plotted.map { path in
-            path.map { Self.oriented($0, within: resource.size, toward: focus) }
-        })
+        guard quadlines else { return spiral }
+
+        return spiral + projection.lines(oriented(Array(resource.paths.dropFirst()), within: resource.size), role: .construction)
+    }
+
+    private func oriented(_ paths: [[SIMD2<Float>]], within designSize: SIMD2<Float>) -> [[SIMD2<Float>]] {
+        paths.map { path in
+            path.map { Self.oriented($0, within: designSize, toward: focus) }
+        }
     }
 
     private static func oriented(_ location: SIMD2<Float>, within designSize: SIMD2<Float>, toward focus: PresetFocus) -> SIMD2<Float> {

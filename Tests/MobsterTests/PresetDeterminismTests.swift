@@ -3,13 +3,13 @@ import Testing
 
 struct PresetDeterminismTests {
     static let plotters: [@Sendable (Frame) -> [[SIMD2<Float>]]] = [
-        { frame in GoldenRatioPreset(focus: .maxXMinY).paths(in: frame) },
-        { frame in ThirdsPreset().paths(in: frame) },
-        { frame in ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame) },
-        { frame in RowsPreset(count: 3, gutter: 0.02).paths(in: frame) },
-        { frame in GridPreset(count: 4, gutter: 0.05).paths(in: frame) },
-        { frame in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08).paths(in: frame) },
-        { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame) },
+        { frame in GoldenRatioPreset(focus: .maxXMinY).paths(in: frame).map { $0.verts.map(\.location) } },
+        { frame in ThirdsPreset().paths(in: frame).map { $0.verts.map(\.location) } },
+        { frame in ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) } },
+        { frame in RowsPreset(count: 3, gutter: 0.02).paths(in: frame).map { $0.verts.map(\.location) } },
+        { frame in GridPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) } },
+        { frame in RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08).paths(in: frame).map { $0.verts.map(\.location) } },
+        { frame in CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame).map { $0.verts.map(\.location) } },
     ]
 
     /// The Frame the recorded sequences below were taken against. Its origin is off zero so a sequence recorded from a preset that ignored the origin would not match.
@@ -35,8 +35,8 @@ struct PresetDeterminismTests {
 
     @Test func goldenRatioMatchesItsRecordedSequence() {
         let indices = [0, 72, 144, 216, 288]
-        let stored = GoldenRatioPreset(focus: .maxXMinY).paths(in: frame)
-        let mirrored = GoldenRatioPreset(focus: .minXMaxY).paths(in: frame)
+        let stored = GoldenRatioPreset(focus: .maxXMinY).paths(in: frame).map { $0.verts.map(\.location) }
+        let mirrored = GoldenRatioPreset(focus: .minXMaxY).paths(in: frame).map { $0.verts.map(\.location) }
 
         #expect(stored.count == 13)
         #expect(stored.map(\.count) == [289, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5])
@@ -64,7 +64,7 @@ struct PresetDeterminismTests {
     }
 
     @Test func thirdsMatchesItsRecordedSequence() {
-        #expect(matches(ThirdsPreset().paths(in: frame), [
+        #expect(matches(ThirdsPreset().paths(in: frame).map { $0.verts.map(\.location) }, [
             [SIMD2<Float>(183.33334, 15.0), SIMD2<Float>(183.33334, 495.0)],
             [SIMD2<Float>(396.6667, 15.0), SIMD2<Float>(396.6667, 495.0)],
             [SIMD2<Float>(-30.0, 175.0), SIMD2<Float>(610.0, 175.0)],
@@ -73,7 +73,7 @@ struct PresetDeterminismTests {
     }
 
     @Test func columnsMatchesItsRecordedSequence() {
-        #expect(matches(ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame), [
+        #expect(matches(ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) }, [
             [SIMD2<Float>(106.0, 15.0), SIMD2<Float>(106.0, 495.0)],
             [SIMD2<Float>(138.0, 15.0), SIMD2<Float>(138.0, 495.0)],
             [SIMD2<Float>(274.0, 15.0), SIMD2<Float>(274.0, 495.0)],
@@ -84,7 +84,7 @@ struct PresetDeterminismTests {
     }
 
     @Test func rowsMatchesItsRecordedSequence() {
-        #expect(matches(RowsPreset(count: 3, gutter: 0.02).paths(in: frame), [
+        #expect(matches(RowsPreset(count: 3, gutter: 0.02).paths(in: frame).map { $0.verts.map(\.location) }, [
             [SIMD2<Float>(-30.0, 168.6), SIMD2<Float>(610.0, 168.6)],
             [SIMD2<Float>(-30.0, 178.2), SIMD2<Float>(610.0, 178.2)],
             [SIMD2<Float>(-30.0, 331.8), SIMD2<Float>(610.0, 331.8)],
@@ -95,7 +95,7 @@ struct PresetDeterminismTests {
     @Test func rulerMatchesItsRecordedSequence() {
         let ruler = RulerPreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08)
 
-        #expect(matches(ruler.paths(in: frame), [
+        #expect(matches(ruler.paths(in: frame).map { $0.verts.map(\.location) }, [
             [SIMD2<Float>(610.0, 391.05045), SIMD2<Float>(-30.0, 183.0251)],
             [SIMD2<Float>(610.0, 349.19934), SIMD2<Float>(-30.0, 141.17398)],
             [SIMD2<Float>(610.0, 432.90155), SIMD2<Float>(-30.0, 224.87624)],
@@ -104,7 +104,7 @@ struct PresetDeterminismTests {
 
     @Test func curveMatchesItsRecordedSequence() {
         let indices = [0, 8, 16]
-        let curve = CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame)
+        let curve = CurvePreset(center: SIMD2<Float>(0.4, 0.6), firstDegree: 17, secondDegree: 212, distance: 0.08, control: SIMD2<Float>(0.55, 0.7), resolution: 16).paths(in: frame).map { $0.verts.map(\.location) }
 
         #expect(curve.allSatisfy { $0.count == 17 })
         #expect(matches(curve.flatMap { sampled($0, at: indices) }, [

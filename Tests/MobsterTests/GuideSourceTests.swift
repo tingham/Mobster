@@ -32,7 +32,7 @@ struct GuideSourceTests {
     }
 
     @Test func aGoldenRatioWithoutQuadlinesBakesOneSpiralPath() throws {
-        let spiral = GoldenRatioPreset(quadlines: false).paths(in: frame)
+        let spiral = GoldenRatioPreset(quadlines: false).paths(in: frame).map { $0.verts.map(\.location) }
         let guide = guide()
         try guide.initialize(source: .preset(GoldenRatioPreset(quadlines: false)), frame: frame, adhesion: 1, duration: 1, settleEpsilon: 1, budget: .max)
 

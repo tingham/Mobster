@@ -21,7 +21,7 @@ struct HeadExtractionTests {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let mesh = HeadPreset(sex: .male, target: target, roll: 0).mesh(in: square)
 
-        return try MeshExtraction(mesh: mesh, frame: square, fit: fit, perspective: MeshPerspective()).paths(device: device)
+        return try MeshExtraction(mesh: mesh, frame: square, fit: fit, perspective: MeshPerspective()).paths(device: device).map { $0.verts.map(\.location) }
     }
 
     /// The brow line, the centre line and a side plane are what the divisions of the mass leave behind. Nothing draws any of them: the brow divides a band of breadth, the sagittal plane divides the middle two bands from each other, and a side plane divides a cap from the band beside it. The cap on the far side of this view carries no boundary at all, being wholly behind the mass.

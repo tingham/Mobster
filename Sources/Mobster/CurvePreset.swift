@@ -22,7 +22,7 @@ public struct CurvePreset: Hashable, Preset {
         self.resolution = resolution
     }
 
-    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
+    public func paths(in frame: Frame) -> [Line] {
         // Clamped rather than trapped, because this arrives from a dial and a straight chord is a defensible answer where a trap is not.
         let segments = max(resolution, 1)
         let projection = PresetProjection(mode: .aspect, frame: frame, designSize: Self.designSize)
@@ -31,7 +31,7 @@ public struct CurvePreset: Hashable, Preset {
             Self.location(at: Float(step) / Float(segments), start: chord.start, control: control, end: chord.end)
         }
 
-        return projection.paths([curve, chord.offset(curve, by: distance), chord.offset(curve, by: -distance)])
+        return projection.lines([curve, chord.offset(curve, by: distance), chord.offset(curve, by: -distance)], role: .form)
     }
 
     private static func location(at t: Float, start: SIMD2<Float>, control: SIMD2<Float>, end: SIMD2<Float>) -> SIMD2<Float> {

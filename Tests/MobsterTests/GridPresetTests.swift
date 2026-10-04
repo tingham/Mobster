@@ -6,7 +6,7 @@ struct GridPresetTests {
     private let frame = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(100, 200))
 
     @Test func fourByFourWithOneGutterWidthYieldsTwelveLines() {
-        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame)
+        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) }
 
         #expect(paths.count == 12)
         #expect(paths.filter { $0[0].x == $0[1].x }.count == 6)
@@ -15,16 +15,16 @@ struct GridPresetTests {
 
     @Test func eachInteriorGutterContributesTwoEdgesOnEachAxis() {
         for count in 2 ... 8 {
-            #expect(GridPreset(count: count, gutter: 0.01).paths(in: frame).count == 4 * (count - 1))
+            #expect(GridPreset(count: count, gutter: 0.01).paths(in: frame).map { $0.verts.map(\.location) }.count == 4 * (count - 1))
         }
     }
 
     @Test func oneDivisionHasNoInteriorGutter() {
-        #expect(GridPreset(count: 1, gutter: 0.05).paths(in: frame).isEmpty)
+        #expect(GridPreset(count: 1, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) }.isEmpty)
     }
 
     @Test func edgesSitAtTheirDerivedPositions() {
-        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame)
+        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) }
         let derivedColumns: [Float] = [21.25, 26.25, 47.5, 52.5, 73.75, 78.75]
         let derivedRows: [Float] = [42.5, 52.5, 95, 105, 147.5, 157.5]
 
@@ -39,7 +39,7 @@ struct GridPresetTests {
 
     @Test func aWiderGutterSitsAtItsDerivedPositions() {
         let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(100, 100))
-        let paths = GridPreset(count: 4, gutter: 0.1).paths(in: square)
+        let paths = GridPreset(count: 4, gutter: 0.1).paths(in: square).map { $0.verts.map(\.location) }
         let derived: [Float] = [17.5, 27.5, 45, 55, 72.5, 82.5]
 
         for (path, expected) in zip(paths.prefix(6), derived) {
@@ -51,7 +51,7 @@ struct GridPresetTests {
     }
 
     @Test func theTwoEdgesOfAGutterAreTheGutterWidthApart() {
-        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame)
+        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) }
         let columns = paths.prefix(6).map { $0[0].x }
         let rows = paths.suffix(6).map { $0[0].y }
 
@@ -62,7 +62,7 @@ struct GridPresetTests {
     }
 
     @Test func columnsSpanTheHeightAndRowsSpanTheWidth() {
-        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame)
+        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) }
 
         #expect(paths.allSatisfy { $0.count == 2 })
         for path in paths.prefix(6) {
@@ -76,7 +76,7 @@ struct GridPresetTests {
     }
 
     @Test func edgesAscendAcrossTheFrame() {
-        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame)
+        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) }
         let columns = paths.prefix(6).map { $0[0].x }
         let rows = paths.suffix(6).map { $0[0].y }
 
@@ -103,7 +103,7 @@ struct GridPresetTests {
             [SIMD2<Float>(-30, 369), SIMD2<Float>(610, 369)],
             [SIMD2<Float>(-30, 393), SIMD2<Float>(610, 393)],
         ]
-        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: offset)
+        let paths = GridPreset(count: 4, gutter: 0.05).paths(in: offset).map { $0.verts.map(\.location) }
 
         #expect(paths.count == recorded.count)
         for (path, expected) in zip(paths, recorded) {
@@ -117,6 +117,6 @@ struct GridPresetTests {
     @Test func repeatedPlotsAreIdentical() {
         let preset = GridPreset(count: 5, gutter: 0.03)
 
-        #expect(preset.paths(in: frame) == preset.paths(in: frame))
+        #expect(preset.paths(in: frame).map { $0.verts.map(\.location) } == preset.paths(in: frame).map { $0.verts.map(\.location) })
     }
 }

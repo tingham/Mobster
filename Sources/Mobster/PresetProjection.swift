@@ -28,7 +28,8 @@ struct PresetProjection {
         designPath.map(location)
     }
 
-    func paths(_ designPaths: [[SIMD2<Float>]]) -> [[SIMD2<Float>]] {
-        designPaths.map(path)
+    /// Nothing keys a plotted vert, so these carry no identifier.
+    func lines(_ designPaths: [[SIMD2<Float>]], role: PathRole) -> [Line] {
+        designPaths.map { Line(verts: path($0).map { Vert(location: $0) }, role: role) }
     }
 }

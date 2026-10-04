@@ -11,12 +11,12 @@ public struct ColumnsPreset: Hashable, Preset {
         self.gutter = gutter
     }
 
-    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
+    public func paths(in frame: Frame) -> [Line] {
         let projection = PresetProjection(mode: .aspect, frame: frame, designSize: Self.designSize)
         let edges = PresetGutter(count: count, gutter: gutter, extent: Self.designSize.x).edges()
 
-        return projection.paths(edges.map { x in
+        return projection.lines(edges.map { x in
             [SIMD2<Float>(x, 0), SIMD2<Float>(x, Self.designSize.y)]
-        })
+        }, role: .form)
     }
 }

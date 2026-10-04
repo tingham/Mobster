@@ -37,7 +37,7 @@ struct MeshExtractionTests {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: target).mesh(in: square)
 
-        return try MeshExtraction(mesh: mesh, frame: square, fit: fit, perspective: perspective).paths(device: device)
+        return try MeshExtraction(mesh: mesh, frame: square, fit: fit, perspective: perspective).paths(device: device).map { $0.verts.map(\.location) }
     }
 
     private func width(_ paths: [[SIMD2<Float>]]) -> Float {

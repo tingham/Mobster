@@ -20,11 +20,13 @@ public struct MeshExtraction: Sendable {
     }
 
     /// One path a place two components meet, in the order the pairs of identities fall, so a pair meeting more than once vends a path for each. The consumer supplies the device; Mobster creates none. A device that will not run the pass refuses, because no path and no render read the same on a canvas.
-    public func paths(device: any MTLDevice) throws(MeshRefusal) -> [[SIMD2<Float>]] {
+    public func paths(device: any MTLDevice) throws(MeshRefusal) -> [Line] {
         guard let raster = try raster(device: device) else { return [] }
 
         return MeshBoundary(raster: raster).seams().map { seam in
-            MeshFit(locations: seam.locations.map { scene($0, raster) }, count: fit).path()
+            let fitted = MeshFit(locations: seam.locations.map { scene($0, raster) }, count: fit).path()
+
+            return Line(verts: fitted.map { Vert(location: $0) }, role: seam.role)
         }
     }
 

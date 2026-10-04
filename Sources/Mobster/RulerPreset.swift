@@ -16,11 +16,11 @@ public struct RulerPreset: Hashable, Preset {
         self.distance = distance
     }
 
-    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
+    public func paths(in frame: Frame) -> [Line] {
         let projection = PresetProjection(mode: .aspect, frame: frame, designSize: Self.designSize)
         let chord = PresetChord(center: center, firstDegree: firstDegree, secondDegree: secondDegree, designSize: Self.designSize)
         let line = [chord.start, chord.end]
 
-        return projection.paths([line, chord.offset(line, by: distance), chord.offset(line, by: -distance)])
+        return projection.lines([line, chord.offset(line, by: distance), chord.offset(line, by: -distance)], role: .form)
     }
 }

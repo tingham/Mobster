@@ -36,7 +36,7 @@ struct VendRosterTests {
     }
 
     @Test func everyPresetFocusPlotsItsOwnOrientation() {
-        let plots = PresetFocus.allCases.map { GoldenRatioPreset(focus: $0).paths(in: square) }
+        let plots = PresetFocus.allCases.map { GoldenRatioPreset(focus: $0).paths(in: square).map { $0.verts.map(\.location) } }
 
         #expect(PresetFocus.allCases == [.minXMinY, .maxXMinY, .minXMaxY, .maxXMaxY])
         #expect(plots.allSatisfy { !$0.isEmpty })

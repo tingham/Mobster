@@ -11,7 +11,7 @@ public struct GridPreset: Hashable, Preset {
         self.gutter = gutter
     }
 
-    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
+    public func paths(in frame: Frame) -> [Line] {
         let projection = PresetProjection(mode: .aspect, frame: frame, designSize: Self.designSize)
         let columnEdges = PresetGutter(count: count, gutter: gutter, extent: Self.designSize.x).edges()
         let rowEdges = PresetGutter(count: count, gutter: gutter, extent: Self.designSize.y).edges()
@@ -23,6 +23,6 @@ public struct GridPreset: Hashable, Preset {
             [SIMD2<Float>(0, y), SIMD2<Float>(Self.designSize.x, y)]
         }
 
-        return projection.paths(verticals + horizontals)
+        return projection.lines(verticals + horizontals, role: .form)
     }
 }

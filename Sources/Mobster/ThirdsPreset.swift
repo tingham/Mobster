@@ -4,7 +4,7 @@ public struct ThirdsPreset: Hashable, Preset {
 
     public init() {}
 
-    public func paths(in frame: Frame) -> [[SIMD2<Float>]] {
+    public func paths(in frame: Frame) -> [Line] {
         let projection = PresetProjection(mode: .aspect, frame: frame, designSize: Self.designSize)
         let fractions: [Float] = [1.0 / 3.0, 2.0 / 3.0]
 
@@ -15,6 +15,6 @@ public struct ThirdsPreset: Hashable, Preset {
             [SIMD2<Float>(0, y), SIMD2<Float>(Self.designSize.x, y)]
         }
 
-        return projection.paths(verticals + horizontals)
+        return projection.lines(verticals + horizontals, role: .form)
     }
 }
