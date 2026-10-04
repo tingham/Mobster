@@ -58,7 +58,7 @@ final class MotionEngine {
         evaluate(at: Double(step) * Transport.interval)
     }
 
-    /// The finest epsilon this source bakes within this budget. Mobster answers it only by refusing, so a throwaway Guide asks for the unbounded lattice and the refusal is read for what it would pay for instead. Where nothing is affordable, or where the source refuses before the bake is reached, the epsilon already held stands.
+    /// The finest epsilon this source bakes within this budget. Mobster answers it only by refusing, so a throwaway Guide asks for the unbounded lattice and the refusal is read for what it would pay for instead. The epsilon already held stands where the refusal affords nothing at all, and where the source refuses ahead of the bake, which the lines this harness builds its source from cannot do.
     func affordableEpsilon() -> Float {
         do throws(GuideRefusal) {
             try Guide(frame: frame).initialize(source: source, frame: frame, adhesion: adhesion, duration: run, settleEpsilon: Self.unboundedEpsilon, budget: budget)

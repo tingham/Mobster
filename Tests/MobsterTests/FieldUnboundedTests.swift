@@ -43,6 +43,14 @@ struct FieldUnboundedTests {
         #expect(refusal.affordable == .infinity)
     }
 
+    /// The refusal does not depend on the source carrying paths. A source carrying none bakes an empty field at every epsilon that derives a lattice, and an unbounded one is refused all the same.
+    @Test func aSourceWithNoPathsIsRefusedAnUnboundedEpsilon() throws {
+        let bare = FieldBake(paths: [], frame: frame, settleEpsilon: 0, budget: budget)
+
+        #expect(throws: FieldRefusal.self) { try bare.field() }
+        #expect(try FieldBake(paths: [], frame: frame, settleEpsilon: 1, budget: budget).field().isEmpty)
+    }
+
     /// The two failures are separate: a Frame with nothing to bake into is empty however unbounded the epsilon it was handed.
     @Test func aFrameWithNoExtentBakesEmptyAtAnUnboundedEpsilon() throws {
         let flat = try bake(epsilon: 0, frame: Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 0))).field()

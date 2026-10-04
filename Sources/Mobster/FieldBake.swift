@@ -28,7 +28,7 @@ struct FieldBake: Sendable {
         }
 
         let resolution = FieldResolution(frame: frame, settleEpsilon: settleEpsilon)
-        // An epsilon too coarse to demand a single texel, which is the infinite epsilon a refusal reports where no epsilon is affordable.
+        // The demand rounds up, so only an infinite or undefined epsilon counts no texels. Infinite is what a refusal reports where no epsilon is affordable.
         guard resolution.texels > 0 else {
             return Field(frame: frame, columns: 0, rows: 0, locations: [])
         }
