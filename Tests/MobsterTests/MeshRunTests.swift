@@ -34,7 +34,7 @@ struct MeshRunTests {
     private func paths() throws -> [[SIMD2<Float>]] {
         let device = try #require(MTLCreateSystemDefaultDevice())
 
-        return try extraction().paths(device: device)
+        return try extraction().paths(device: device).map { $0.verts.map(\.location) }
     }
 
     /// The two plates carry one identity between them, so the pair that meets the background meets it twice and each meeting is traced and fitted on its own.

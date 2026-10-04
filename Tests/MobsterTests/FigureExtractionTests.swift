@@ -32,7 +32,7 @@ struct FigureExtractionTests {
     private func extracted(_ target: SIMD3<Float>) throws -> [[SIMD2<Float>]] {
         let device = try #require(MTLCreateSystemDefaultDevice())
 
-        return try MeshExtraction(mesh: figure(target: target).mesh(in: frame), frame: frame, fit: fit, perspective: MeshPerspective()).paths(device: device)
+        return try MeshExtraction(mesh: figure(target: target).mesh(in: frame), frame: frame, fit: fit, perspective: MeshPerspective()).paths(device: device).map { $0.verts.map(\.location) }
     }
 
     /// The division at a segment's middle is the slice showing its roundness, and where two segments meet the halves either side of the joint are the seam at the elbow. Both come from the one mechanism and nothing draws either.

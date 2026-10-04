@@ -41,7 +41,7 @@ struct FieldBakeTests {
     }
 
     @Test func theSamePathsAndFrameBakeAnIdenticalField() {
-        let paths = ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame)
+        let paths = ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) }
         let first = FieldFixture.field(paths: paths, frame: frame, count: 64)
         let second = FieldFixture.field(paths: paths, frame: frame, count: 64)
 
