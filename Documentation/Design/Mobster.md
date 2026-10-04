@@ -152,6 +152,18 @@ Mobster does not smooth supplied geometry and does not decimate it. The consumer
 **path.vend**
 A Guide vends the lines of its source on demand.
 
+**path.construction**
+A path is form or it is construction. Form is the thing to follow. Construction is present only for aligning against and is never followed.
+
+**path.construction.bake**
+Construction is drawn and is not baked. A Guide bakes its form alone, so a point conforms to what the guide is rather than to the scaffolding it was built from.
+
+**path.construction.draw**
+A consumer can tell form from construction without counting arrivals, so it may draw the scaffolding differently from the thing itself.
+
+**path.construction.mesh**
+A mesh classifies itself. A boundary against the background is form, because it is the outline of what is there; a boundary between two components is construction, because it is a seam inside that outline. Nothing authors this and the tracer already knows which pair it walked.
+
 **path.order**
 A preset emits its paths in a defined order and that order is how a consumer tells them apart. A ruler emits its base line then the offset pair; Golden Ratio emits the spiral then its quadlines outermost first. Nothing on a path says what it is, so a consumer that wants to draw a quadline differently from a spiral indexes by position. That is brittle and it is the contract until something asks for better.
 
@@ -188,7 +200,7 @@ A spiral populating the standard ratio frame.
 Golden Ratio preserves its own proportions, because a distorted spiral is not the golden ratio.
 
 **preset.goldenRatio.quadlines**
-Golden Ratio plots the nested rectangles the spiral is derived from alongside the spiral, and whether it plots them is optional. A path a Guide is given is a path it bakes, so a rectangle drawn for construction attracts as hard as the spiral does, and near the eye the rectangles are packed tighter than the curve.
+Golden Ratio plots the nested rectangles the spiral is derived from alongside the spiral, and whether it plots them is optional. They are construction and the spiral is form: the rectangles are present only for aligning against, and near the eye they are packed tighter than the curve, so a guide that baked them would conform a point to the scaffolding.
 
 **preset.goldenRatio.focus**
 The corner the spiral converges toward is selectable.
