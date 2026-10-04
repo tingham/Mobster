@@ -239,6 +239,26 @@ A figure or head preset plots geometric primitives rather than reproducing a dra
 **mobster.preset.kind**
 A preset is a named source a user picks. Whether it plots analytically or extracts from a mesh is not something the user sees.
 
+**mobster.preset.roster**
+The package declares the roster of guide types a consumer offers a person to choose from, and the roster conforms to CaseIterable. A consumer spelling the cases out keeps a second roster that goes stale the moment the package's own changes. The roster names the guide types and carries no display text, because a package that vends a title vends a language.
+
+**mobster.preset.configuration**
+A guide type is configured by a value of its own, pairing the parameters that guide type takes with the production context its plotting needs. A consumer names the guide type by constructing its configuration, and nothing in that construction says whether the paths will be plotted analytically or extracted from a mesh.
+
+**mobster.preset.configuration.vend**
+Every configuration vends its lines through one declaration, carrying the role each line holds, so a consumer reads paths without naming which guide type it is holding. A production that cannot complete refuses and says why.
+
+**mobster.preset.context**
+The production context is what producing a guide's paths requires and the guide's parameters do not carry: the device a mesh is rendered on and the field of view it is projected through. One production context serves every guide type built from a mesh, because that is the whole of what their production needs. A guide type plotted analytically takes none.
+
+**mobster.preset.context.transient**
+A production context does not serialize and is not a parameter of the guide. It holds a device, which is a reference where a parameter is a value, so a stored configuration would carry a hole where the device stood. A consumer stores the parameters and builds the context again each time it produces.
+
+> **clem**: <Question> I left the fit out of `mobster.preset.context` and it is the one piece I could not place without contradicting something. You called the context "production context" and I extended that to the fit on my own; you did not say so, so it is not written.
+> If the fit sits in the production context, every consumer passes it, and the only value it can pass is `MeshExtraction.fit` — handing the package back its own answer, which is the defect issue 41 is open about.
+> If the fit stays inside the package, `mobster.mesh.path.fit` is satisfied as written, but `mobster.harness.sliders` says the harness exposes each derived magnitude as a slider and the fit is one. The harness links the product like any consumer, so it has no privileged way in.
+> Either `mobster.mesh.path.fit` is amended to admit a consumer supplying the count, or the harness gets a surface an ordinary consumer does not, or the fit stops being a slider. Three ways out and all three are yours.
+
 **mobster.preset.cube**
 A box plotted from a mesh. It is the box construction a figure or an object is built inside, and it is the first thing the mesh source carries.
 
