@@ -99,7 +99,7 @@ public struct FigurePreset: Hashable, Sendable {
         let placement = Self.placement(figure, target: target, frame: frame)
 
         return figure.breakLines.map { line in
-            Line(verts: line.map { Vert(location: placement.flat($0)) }, role: .form)
+            Line(verts: line.map { Vert(location: placement.flat($0)) }, role: .construction)
         }
     }
 

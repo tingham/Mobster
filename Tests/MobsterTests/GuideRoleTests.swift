@@ -64,6 +64,28 @@ struct GuideRoleTests {
         #expect(settled[1].role == .form)
     }
 
+    /// A vert standing on a break line is carried past it to the form, the break lines being marks the figure is measured by.
+    @Test func aFiguresBreakLineAttractsNothing() throws {
+        let square = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(800, 800))
+        let measured = FigurePreset(sex: .male,
+                                    heads: 8,
+                                    target: SIMD3<Float>(0, 0, 1),
+                                    headTarget: SIMD3<Float>(0, 0, 1),
+                                    leftHand: SIMD2<Float>(0.31, 0.5),
+                                    rightHand: SIMD2<Float>(0.69, 0.5),
+                                    leftFoot: SIMD2<Float>(0.42, 1),
+                                    rightFoot: SIMD2<Float>(0.58, 1),
+                                    headLines: true).breakLines(in: square)
+        let standing = try #require(measured.first?.verts.first?.location)
+        let form = Line(verts: [Vert(location: SIMD2<Float>(16, 0)), Vert(location: SIMD2<Float>(16, 800))], role: .form)
+        let guide = Guide(frame: square)
+        try guide.initialize(source: .lines([form] + measured), frame: square, adhesion: 1, duration: 1, settleEpsilon: 4, budget: .max)
+        let settled = guide.evaluate([Line(verts: [Vert(location: standing)])], at: 1)[0].verts[0].location
+
+        #expect(guide.lines.count == measured.count + 1)
+        #expect(abs(settled.x - 16) < 5)
+    }
+
     @Test func theRolesOfAPresetSurviveVending() throws {
         let guide = try initialized(.preset(GoldenRatioPreset()))
 
