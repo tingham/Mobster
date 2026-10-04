@@ -149,9 +149,6 @@ A path is supplied by the consumer or plotted by a preset. Mobster does not inte
 **mobster.path.smooth.never**
 Mobster does not smooth supplied geometry and does not decimate it. The consumer has already interpreted the stroke and interpreting it again discards a decision made with more context. Detail below what the field can resolve is wasted work rather than a wrong answer, and the refusal on bake cost is what guards against paying for too much of it.
 
-**mobster.path.vend**
-A Guide vends the lines of its source on demand.
-
 **mobster.path.construction**
 A path is form or it is construction. Form is the thing to follow. Construction is present only for aligning against and is never followed.
 
@@ -475,8 +472,8 @@ At the duration every vert has arrived, so a consumer wanting the settled result
 **mobster.guide.field.vend**
 A Guide vends a rasterization of its field on demand. The field itself is not exposed.
 
-**mobster.guide.lines.vend**
-A Guide vends the lines of its source on demand.
+**@renamed(mobster.path.vend) mobster.guide.lines.vend**
+A Guide vends the lines of its source on demand. Construction is vended with its role intact; only the bake takes form alone.
 
 **mobster.guide.pass.single**
 An evaluation resolves one Guide. Two Guides on a layer are two evaluations, sequenced by the consumer.
