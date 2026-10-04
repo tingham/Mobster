@@ -16,7 +16,19 @@ struct FieldBake: Sendable {
     }
 
     func field() throws(FieldRefusal) -> Field {
+        // A Frame with no extent has nothing to bake into whatever epsilon is asked of it, so it is answered before the epsilon is judged.
+        guard frame.size.x > 0, frame.size.y > 0 else {
+            return Field(frame: frame, columns: 0, rows: 0, locations: [])
+        }
+
+        let runs = paths.flatMap(segments)
+        // An unbounded demand enters the bisection as the count it would have been clamped to, the derivation yielding none to clamp.
+        guard settleEpsilon > 0 else {
+            throw FieldRefusal(epsilon: settleEpsilon, affordable: affordable(runs: runs.count, demanded: FieldResolution.ceiling))
+        }
+
         let resolution = FieldResolution(frame: frame, settleEpsilon: settleEpsilon)
+        // The demand rounds up, so only an infinite or undefined epsilon counts no texels. Infinite is what a refusal reports where no epsilon is affordable.
         guard resolution.texels > 0 else {
             return Field(frame: frame, columns: 0, rows: 0, locations: [])
         }
@@ -24,7 +36,6 @@ struct FieldBake: Sendable {
         let columns = resolution.columns
         let rows = resolution.rows
         let grid = FieldGrid(frame: frame, columns: columns, rows: rows)
-        let runs = paths.flatMap(segments)
         guard !runs.isEmpty else { return Field(frame: frame, columns: columns, rows: rows, locations: []) }
 
         guard resolution.texels * runs.count <= budget else {
