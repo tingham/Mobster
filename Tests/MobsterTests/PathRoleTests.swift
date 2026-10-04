@@ -30,6 +30,22 @@ struct PathRoleTests {
         #expect(plotted[0].role == .form)
     }
 
+    /// A point conforms to the figure and not to the marks that measure it.
+    @Test func theFiguresBreakLinesAreConstruction() {
+        let measured = FigurePreset(sex: .male,
+                                    heads: 8,
+                                    target: SIMD3<Float>(0, 0, 1),
+                                    headTarget: SIMD3<Float>(0, 0, 1),
+                                    leftHand: SIMD2<Float>(0.31, 0.5),
+                                    rightHand: SIMD2<Float>(0.69, 0.5),
+                                    leftFoot: SIMD2<Float>(0.42, 1),
+                                    rightFoot: SIMD2<Float>(0.58, 1),
+                                    headLines: true).breakLines(in: frame)
+
+        #expect(!measured.isEmpty)
+        #expect(measured.allSatisfy { $0.role == .construction })
+    }
+
     @Test func everyOtherPresetVendsForm() {
         let presets: [any Preset] = [ThirdsPreset(),
                                      ColumnsPreset(count: 4, gutter: 0.05),
