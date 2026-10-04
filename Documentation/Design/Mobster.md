@@ -349,8 +349,11 @@ The field resolution follows from the Frame and the settle epsilon. It is not su
 **mobster.field.resolution.refuse**
 A derived resolution whose bake exceeds the budget the consumer supplies is refused, reporting the epsilon asked for and the epsilon that would be affordable. The consumer chooses again rather than discovering the cost.
 
+**mobster.field.resolution.refuse.unbounded**
+A settle epsilon at or below zero is refused, reporting the affordable epsilon as any other refusal does. It asks for a lattice without bound, which is a cost no budget meets. It is not the empty bake a Frame with no extent takes: a Frame with no extent has nothing to bake into, where this has paths and a Frame and asks for something unpayable.
+
 **mobster.field.bake**
-The field is baked from the source's paths in Swift on the host.
+The field is baked from the source's form paths in Swift on the host.
 
 **mobster.field.bake.exterior**
 A path location outside the Frame participates in the field. A query inside the Frame resolves to the true nearest path location whether that location lies inside the Frame or not.
@@ -444,7 +447,7 @@ An absent attribute is not a defaulted one. A consumer that supplies none gets m
 Coupling is the exception. A coupling of zero emits no offset and an absent coupling emits none either, so the two cannot be told apart through evaluation and no test should pretend otherwise. Mass and drag both carry a distinction; this does not.
 
 **mobster.line**
-An ordered sequence of verts carrying an optional identifier. It holds no behaviour of its own; what happens to a line is what happens to its verts.
+An ordered sequence of verts carrying an optional identifier and a role. It holds no behaviour of its own; what happens to a line is what happens to its verts.
 
 ## Evaluation
 
@@ -501,7 +504,7 @@ Coupling is a vert property rather than a line property. Propagation through nei
 
 The outcomes that fall out, across the range: verts moving independently; a vert advancing its peers along their own travel, weakly or strongly; a vert advancing near peers more than far ones; and a vert retarding its peers instead. A whole line moving as one body preserving its shape is NOT among them, because coupling shifts a peer along its own travel and cannot carry it toward another vert's target.
 
-A line carries an identity and nothing else.
+A line carries an identity and a role, and nothing else.
 
 ## Adherence Extensions
 
@@ -557,6 +560,9 @@ The harness opens at the finest settle epsilon its budget affords the source it 
 
 **mobster.harness.epsilon.afford.reload**
 The opening epsilon is derived again whenever the source changes, not at launch alone. Affordability follows the segment count, and a preset swapped for a denser one holds an epsilon its budget no longer affords.
+
+**mobster.harness.epsilon.afford.floor**
+The epsilon slider does not travel below the epsilon its budget affords. Its least position is the finest field the harness can pay for, so every position on the slider bakes and none of them returns nothing. Raising the budget lowers the floor; lowering the budget raises it and carries the slider up with it.
 
 > **clem**: `mobster.vend.default.harness` says an opening value is the package's opinion because you set it by eye at the control deriving it. These two break that for epsilon specifically: nobody sets it by eye any more, so there is no constant to transcribe and `mobster.vend.default` has no static to hold. What the package would vend instead is the derivation, which `FieldBake.affordable` already computes privately and which OneBrush needs for exactly the reason the harness does. Whether that gets vended is a separate instruction I do not have. Budget is untouched and stays set by eye, because it encodes how long a person will wait and nothing derives that.
 
