@@ -240,7 +240,7 @@ A figure or head preset plots geometric primitives rather than reproducing a dra
 A preset is a named source a user picks. Whether it plots analytically or extracts from a mesh is not something the user sees.
 
 **mobster.preset.roster**
-The package declares the roster of guide types a consumer offers a person to choose from, and the roster conforms to CaseIterable. A consumer spelling the cases out keeps a second roster that goes stale the moment the package's own changes. The roster names the guide types and carries no display text, because a package that vends a title vends a language.
+The package declares the roster of guide types a consumer offers a person to choose from, and the roster conforms to CaseIterable. A consumer spelling the cases out keeps a second roster that goes stale the moment the package's own changes. A case carries a stable key a consumer stores a person's choice by, because a consumer mapping cases to keys of its own keeps that second roster by another name. The roster carries no display text, because a package that vends a title vends a language.
 
 **mobster.preset.configuration**
 A guide type is configured by a value of its own, pairing the parameters that guide type takes with the production context its plotting needs. A consumer names the guide type by constructing its configuration and assembles nothing: it builds no mesh, chooses no fit and no projection, and selects no source case. A guide type built from a mesh asks for a production context, because its production requires one; that is what `mobster.preset.kind` keeps from the person picking a guide rather than from the programmer constructing it.
