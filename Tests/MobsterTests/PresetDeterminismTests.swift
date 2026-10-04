@@ -3,7 +3,7 @@ import Testing
 
 struct PresetDeterminismTests {
     static let plotters: [@Sendable (Frame) -> [[SIMD2<Float>]]] = [
-        { frame in GoldenRatioPreset(focus: .maxXMinY).paths(in: frame).map { $0.verts.map(\.location) } },
+        { frame in GoldenRatioPreset(focus: .maxXMinY, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) } },
         { frame in ThirdsPreset().paths(in: frame).map { $0.verts.map(\.location) } },
         { frame in ColumnsPreset(count: 4, gutter: 0.05).paths(in: frame).map { $0.verts.map(\.location) } },
         { frame in RowsPreset(count: 3, gutter: 0.02).paths(in: frame).map { $0.verts.map(\.location) } },
@@ -35,8 +35,8 @@ struct PresetDeterminismTests {
 
     @Test func goldenRatioMatchesItsRecordedSequence() {
         let indices = [0, 72, 144, 216, 288]
-        let stored = GoldenRatioPreset(focus: .maxXMinY).paths(in: frame).map { $0.verts.map(\.location) }
-        let mirrored = GoldenRatioPreset(focus: .minXMaxY).paths(in: frame).map { $0.verts.map(\.location) }
+        let stored = GoldenRatioPreset(focus: .maxXMinY, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) }
+        let mirrored = GoldenRatioPreset(focus: .minXMaxY, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) }
 
         #expect(stored.count == 13)
         #expect(stored.map(\.count) == [289, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5])

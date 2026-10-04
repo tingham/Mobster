@@ -83,8 +83,8 @@ struct FieldToleranceTests {
 
     /// Golden Ratio covers the Frame, keeping its own proportions, so against a square Frame part of the spiral is necessarily outside it.
     @Test func aStoredLocationIsWithinATexelOfTheTrueNearestOnGoldenRatio() {
-        #expect(breaches(GoldenRatioPreset().paths(in: square).map { $0.verts.map(\.location) }, square, 64) == 0)
-        #expect(breaches(GoldenRatioPreset().paths(in: placed).map { $0.verts.map(\.location) }, placed, 64) == 0)
+        #expect(breaches(GoldenRatioPreset(focus: GoldenRatioPreset.focus, quadlines: GoldenRatioPreset.quadlines).paths(in: square).map { $0.verts.map(\.location) }, square, 64) == 0)
+        #expect(breaches(GoldenRatioPreset(focus: GoldenRatioPreset.focus, quadlines: GoldenRatioPreset.quadlines).paths(in: placed).map { $0.verts.map(\.location) }, placed, 64) == 0)
     }
 
     @Test func aStoredLocationIsWithinATexelOfTheTrueNearestAgainstAPlacedFrame() {

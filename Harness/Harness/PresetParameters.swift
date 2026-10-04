@@ -5,7 +5,7 @@ struct PresetParameters: Hashable, Sendable {
     /// The figure opens in the first of the named poses rather than in a T pose, which the user would have to undo before beginning.
     private static let opening = FigurePose.named[0]
 
-    var goldenRatioQuadlines = true
+    var goldenRatioQuadlines = GoldenRatioPreset.quadlines
     var columnCount: Int = 4
     var columnGutter: Float = 0.02
     var rowCount: Int = 4

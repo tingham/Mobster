@@ -28,8 +28,8 @@ struct GuideRoleTests {
 
     /// Golden Ratio is the preset that carries both, and its quadlines stand nearer the eye than the spiral does.
     @Test func aPresetSourceBakesItsFormAndNotItsConstruction() throws {
-        let guide = try initialized(.preset(GoldenRatioPreset()))
-        let spiral = try initialized(.preset(GoldenRatioPreset(quadlines: false)))
+        let guide = try initialized(.preset(GoldenRatioPreset(focus: GoldenRatioPreset.focus, quadlines: GoldenRatioPreset.quadlines)))
+        let spiral = try initialized(.preset(GoldenRatioPreset(focus: GoldenRatioPreset.focus, quadlines: false)))
 
         #expect(guide.lines.count > spiral.lines.count)
         #expect(guide.evaluate([Line(verts: [Vert(location: placed)])], at: 1)[0].verts[0].location == spiral.evaluate([Line(verts: [Vert(location: placed)])], at: 1)[0].verts[0].location)
@@ -87,7 +87,7 @@ struct GuideRoleTests {
     }
 
     @Test func theRolesOfAPresetSurviveVending() throws {
-        let guide = try initialized(.preset(GoldenRatioPreset()))
+        let guide = try initialized(.preset(GoldenRatioPreset(focus: GoldenRatioPreset.focus, quadlines: GoldenRatioPreset.quadlines)))
 
         #expect(guide.lines[0].role == .form)
         #expect(guide.lines.dropFirst().allSatisfy { $0.role == .construction })

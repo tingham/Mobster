@@ -16,7 +16,7 @@ struct PathRoleTests {
 
     /// The spiral is the first path and the rectangles are the rest, so the roles fall in the order the preset emits.
     @Test func theGoldenRatioSpiralIsFormAndItsQuadlinesAreConstruction() {
-        let plotted = GoldenRatioPreset(quadlines: true).paths(in: frame)
+        let plotted = GoldenRatioPreset(focus: GoldenRatioPreset.focus, quadlines: true).paths(in: frame)
 
         #expect(plotted.count > 1)
         #expect(plotted[0].role == .form)
@@ -24,7 +24,7 @@ struct PathRoleTests {
     }
 
     @Test func theGoldenRatioWithoutQuadlinesVendsFormAlone() {
-        let plotted = GoldenRatioPreset(quadlines: false).paths(in: frame)
+        let plotted = GoldenRatioPreset(focus: GoldenRatioPreset.focus, quadlines: false).paths(in: frame)
 
         #expect(plotted.count == 1)
         #expect(plotted[0].role == .form)

@@ -22,13 +22,13 @@ struct GoldenRatioPresetTests {
     }
 
     @Test func theSpiralIsReadFromTheResource() {
-        let paths = GoldenRatioPreset(focus: .maxXMinY).paths(in: frame).map { $0.verts.map(\.location) }
+        let paths = GoldenRatioPreset(focus: .maxXMinY, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) }
 
         #expect(spiral(paths).count == 289)
     }
 
     @Test func theNestedRectanglesArePlottedAlongsideTheSpiral() {
-        let paths = GoldenRatioPreset(focus: .maxXMinY).paths(in: frame).map { $0.verts.map(\.location) }
+        let paths = GoldenRatioPreset(focus: .maxXMinY, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) }
 
         #expect(quadlines(paths).count == 12)
         #expect(quadlines(paths).allSatisfy { $0.count == 5 })
@@ -46,7 +46,7 @@ struct GoldenRatioPresetTests {
     }
 
     @Test func eachNestedRectangleSitsInsideTheOneBefore() {
-        let paths = GoldenRatioPreset(focus: .maxXMinY).paths(in: frame).map { $0.verts.map(\.location) }
+        let paths = GoldenRatioPreset(focus: .maxXMinY, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) }
 
         #expect(!quadlines(paths).isEmpty)
         for (outer, inner) in zip(quadlines(paths), quadlines(paths).dropFirst()) {
@@ -62,7 +62,7 @@ struct GoldenRatioPresetTests {
 
     @Test(arguments: [PresetFocus.minXMinY, .maxXMinY, .minXMaxY, .maxXMaxY])
     func aQuadlineCornerCoincidesWithASpiralLocation(focus: PresetFocus) {
-        let paths = GoldenRatioPreset(focus: focus).paths(in: frame).map { $0.verts.map(\.location) }
+        let paths = GoldenRatioPreset(focus: focus, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) }
         let locations = Set(spiral(paths).map { SIMD2<Float>(($0.x * 100).rounded(), ($0.y * 100).rounded()) })
 
         #expect(!quadlines(paths).isEmpty)
@@ -73,7 +73,7 @@ struct GoldenRatioPresetTests {
     }
 
     @Test func boundsPlottingEncompassesTheFrame() {
-        let bounds = extent(GoldenRatioPreset(focus: .maxXMinY).paths(in: frame).map { $0.verts.map(\.location) })
+        let bounds = extent(GoldenRatioPreset(focus: .maxXMinY, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) })
 
         #expect(bounds.low.x <= 0.01)
         #expect(bounds.low.y <= 0.01)
@@ -84,16 +84,16 @@ struct GoldenRatioPresetTests {
     @Test(arguments: [PresetFocus.minXMinY, .maxXMinY, .minXMaxY, .maxXMaxY])
     func everyFocusHoldsTheStandardRatio(focus: PresetFocus) {
         let wide = Frame(origin: SIMD2<Float>(10, 20), size: SIMD2<Float>(300, 200))
-        let bounds = extent(GoldenRatioPreset(focus: focus).paths(in: wide).map { $0.verts.map(\.location) })
+        let bounds = extent(GoldenRatioPreset(focus: focus, quadlines: GoldenRatioPreset.quadlines).paths(in: wide).map { $0.verts.map(\.location) })
 
         #expect(abs((bounds.high.x - bounds.low.x) / (bounds.high.y - bounds.low.y) - 1.618034) < 0.001)
     }
 
     @Test func focusOrientsRatherThanScales() {
-        let reference = GoldenRatioPreset(focus: .maxXMinY).paths(in: frame).map { $0.verts.map(\.location) }
+        let reference = GoldenRatioPreset(focus: .maxXMinY, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) }
 
         for focus in everyFocus {
-            let paths = GoldenRatioPreset(focus: focus).paths(in: frame).map { $0.verts.map(\.location) }
+            let paths = GoldenRatioPreset(focus: focus, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) }
 
             #expect(paths.map(\.count) == reference.map(\.count))
             #expect(abs(length(spiral(paths)) - length(spiral(reference))) < 0.01)
@@ -104,7 +104,7 @@ struct GoldenRatioPresetTests {
 
     @Test(arguments: [PresetFocus.minXMinY, .maxXMinY, .minXMaxY, .maxXMaxY])
     func theSpiralConvergesTowardTheSelectedCorner(focus: PresetFocus) {
-        let paths = GoldenRatioPreset(focus: focus).paths(in: frame).map { $0.verts.map(\.location) }
+        let paths = GoldenRatioPreset(focus: focus, quadlines: GoldenRatioPreset.quadlines).paths(in: frame).map { $0.verts.map(\.location) }
         let bounds = extent(paths)
         let middle = (bounds.low + bounds.high) / 2
         let eye = spiral(paths).last!
