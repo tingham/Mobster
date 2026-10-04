@@ -33,18 +33,19 @@ struct PresetContextTests {
         #expect(first.map { $0.verts.map(\.location) } == second.map { $0.verts.map(\.location) })
     }
 
-    /// The count every boundary comes back at is the context's to carry and the package's to answer, so a consumer reads the offer rather than holding one of its own.
-    @Test func theContextCarriesTheFitTheExtractionReadsAt() throws {
+    /// The count every boundary comes back at is offered on the type taking it, and it is the extraction's own answer rather than a second one.
+    @Test func theContextOffersTheFitTheExtractionReadsAt() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let production = context(device)
         let lines = try CubeConfiguration(parameters: cube(), context: production).lines(in: square)
 
-        #expect(production.fit == MeshExtraction.fit)
+        #expect(PresetContext.fit == MeshExtraction.fit)
+        #expect(production.fit == PresetContext.fit)
         #expect(lines.allSatisfy { $0.verts.count == production.fit })
     }
 
     private func context(_ device: any MTLDevice) -> PresetContext {
-        PresetContext(device: device, fit: MeshExtraction.fit, perspective: MeshPerspective(fieldOfView: MeshPerspective.opening))
+        PresetContext(device: device, fit: PresetContext.fit, perspective: MeshPerspective(fieldOfView: MeshPerspective.opening))
     }
 
     private func cube() -> CubeMesh {

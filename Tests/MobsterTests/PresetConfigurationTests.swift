@@ -39,7 +39,7 @@ struct PresetConfigurationTests {
         let device = try #require(MTLCreateSystemDefaultDevice())
         let parameters = figure(headLines: true)
         let breaks = parameters.breakLines(in: square)
-        let extracted = try MeshExtraction(mesh: parameters.mesh(in: square), frame: square, fit: MeshExtraction.fit, perspective: MeshPerspective(fieldOfView: MeshPerspective.opening)).paths(device: device)
+        let extracted = try MeshExtraction(mesh: parameters.mesh(in: square), frame: square, fit: PresetContext.fit, perspective: MeshPerspective(fieldOfView: MeshPerspective.opening)).paths(device: device)
         let lines = try FigureConfiguration(parameters: parameters, context: context(device)).lines(in: square)
 
         #expect(!breaks.isEmpty)
@@ -49,7 +49,7 @@ struct PresetConfigurationTests {
     }
 
     private func context(_ device: any MTLDevice) -> PresetContext {
-        PresetContext(device: device, fit: MeshExtraction.fit, perspective: MeshPerspective(fieldOfView: MeshPerspective.opening))
+        PresetContext(device: device, fit: PresetContext.fit, perspective: MeshPerspective(fieldOfView: MeshPerspective.opening))
     }
 
     private func figure(headLines: Bool) -> FigurePreset {
