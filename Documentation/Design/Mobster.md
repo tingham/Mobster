@@ -576,7 +576,7 @@ Construction is stroked before form, so form reads over it rather than under it.
 The harness opens at the finest settle epsilon its budget affords the source it has loaded, and the epsilon slider stands at the value the bake actually used. It is taken from the refusal rather than guessed: the harness asks for an epsilon the derivation cannot afford, and the refusal reports the affordable one it bakes at instead. A source carrying more segments opens coarser than one carrying fewer, so no constant serves.
 
 **mobster.harness.epsilon.afford.reload**
-The opening epsilon is derived again whenever the source changes, not at launch alone. Affordability follows the segment count, and a preset swapped for a denser one holds an epsilon its budget no longer affords.
+The floor is derived again whenever the source changes, not at launch alone, because affordability follows the segment count. A standing epsilon the risen floor has passed is carried up to it, because a source swapped for a denser one holds an epsilon its budget no longer affords. A standing epsilon a fallen floor has left affordable stays where it stands: a value is not discarded for having become cheaper, and the finest affordable epsilon is the most expensive bake on the slider.
 
 **mobster.harness.epsilon.afford.floor**
 The epsilon slider does not travel below the epsilon its budget affords. Its least position is the finest field the harness can pay for, so every position on the slider bakes and none of them returns nothing. Raising the budget lowers the floor; lowering the budget raises it and carries the slider up with it.
