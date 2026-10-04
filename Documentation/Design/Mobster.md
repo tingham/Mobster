@@ -321,7 +321,7 @@ The target's horizontal run from the head is held above zero. A target directly 
 Forward is held within forty five degrees either side of level. Beyond that it approaches parallel with up and the derivation of a basis collapses, so the limit removes the case rather than answering it. A head tilted further is not a drawing reference anyway.
 
 **mobster.preset.head.chin**
-The chin block centres vertically on the underside of the cranial mass and rises halfway to its middle. It is as wide as the jaw angles where it meets them and as wide as the mouth at its base, which is a stronger taper than it looks: seven tenths of the head's breadth above and three and a half tenths below, and the sexes differ by less than a hundredth at either end.
+The chin block rises to the middle of the cranial mass, its top edge meeting the brow line rather than stopping below it. A top edge short of the brow leaves the face open between the two, which reads as a wedge bitten out of the head rather than as a jaw. It is as wide as the jaw angles where it meets them and as wide as the mouth at its base, which is a stronger taper than it looks: seven tenths of the head's breadth above and three and a half tenths below, and the sexes differ by less than a hundredth at either end.
 
 **mobster.preset.head.roll**
 A scalar turns the head about its forward axis.
