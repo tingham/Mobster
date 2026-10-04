@@ -2,6 +2,9 @@ import Mobster
 
 /// Runs the Guide at whatever time the transport stands on. One evaluation answers for that time outright, so the engine keeps no history and a scrub is the same single call a forward step is.
 final class MotionEngine {
+    /// Scene units. An epsilon asked in order to be refused: it demands a lattice without bound, which no budget meets, and the refusal names the finest epsilon that is met instead.
+    static let unboundedEpsilon: Float = 0
+
     private let frame: Frame
     private var source: GuideSource
     private var content: [Line]
@@ -53,6 +56,18 @@ final class MotionEngine {
 
     func seek(to step: Int) {
         evaluate(at: Double(step) * Transport.interval)
+    }
+
+    /// The finest epsilon this source bakes within this budget. Mobster answers it only by refusing, so a throwaway Guide asks for the unbounded lattice and the refusal is read for what it would pay for instead. Where nothing is affordable, or where the source refuses before the bake is reached, the epsilon already held stands.
+    func affordableEpsilon() -> Float {
+        do throws(GuideRefusal) {
+            try Guide(frame: frame).initialize(source: source, frame: frame, adhesion: adhesion, duration: run, settleEpsilon: Self.unboundedEpsilon, budget: budget)
+        } catch {
+            guard case let .field(refused) = error, refused.affordable.isFinite else { return epsilon }
+            return refused.affordable
+        }
+
+        return epsilon
     }
 
     /// The time on screen survives the rebuild, so an input change answers for that time rather than throwing the run back to the start.

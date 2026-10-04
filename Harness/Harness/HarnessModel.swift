@@ -17,8 +17,8 @@ final class HarnessModel {
     static let openingAdhesion: Float = 0.1
     /// Seconds. The time by which every vert has arrived, which the transport window is eight seconds wide enough to cover.
     static let openingRun: Float = 4
-    /// Scene units, against a Frame six hundred by four hundred. What a pixel is worth here is the question the slider exists to answer.
-    static let openingEpsilon: Float = 1
+    /// Scene units, against a Frame six hundred by four hundred. The coarsest position the slider offers, set by eye because no derivation names a field too coarse to read anything from. The least position is derived instead, and where it passes this the span moves rather than the floor.
+    static let epsilonCeiling: Float = 20
     /// Minus one to one, carried by every vert in the population. The opening leaves the population moving independently, which is the reading the coupled ones are judged against.
     static let openingCoupling: Float = 0
     /// The harness is the consumer, so the harness is what holds the device a mesh source is rendered on. Mobster creates none.
@@ -33,7 +33,13 @@ final class HarnessModel {
     var fixture = HarnessModel.openingFixture { didSet { repopulate() } }
     var adhesion = HarnessModel.openingAdhesion { didSet { retune() } }
     var run = HarnessModel.openingRun { didSet { retune() } }
-    var settleEpsilon = HarnessModel.openingEpsilon { didSet { retune() } }
+    var settleEpsilon: Float {
+        didSet {
+            // Assignment inside an observer does not reenter it, so the floor is held without a second bake.
+            settleEpsilon = max(settleEpsilon, epsilonFloor)
+            retune()
+        }
+    }
     var budget = HarnessModel.openingBudget { didSet { retune() } }
     var coupling = HarnessModel.openingCoupling { didSet { repopulate() } }
     let transport = Transport()
@@ -45,7 +51,13 @@ final class HarnessModel {
     /// The anchors every displacement is measured from, which the harness holds undisplaced.
     private(set) var lines: [Line]
     private(set) var motion: MotionPlot
+    /// Scene units. The finest epsilon the budget affords the loaded source, which is the least the slider travels to: every position at or above it bakes a field and none of them returns nothing.
+    private(set) var epsilonFloor: Float
     private let engine: MotionEngine
+
+    var epsilonRange: ClosedRange<Float> {
+        epsilonFloor ... max(Self.epsilonCeiling, epsilonFloor * 2)
+    }
 
     /// Nil where the field is hidden, which the canvas draws the same way as a field holding no path location: not at all.
     var raster: FieldRaster? {
@@ -93,11 +105,16 @@ final class HarnessModel {
                                    content: population,
                                    adhesion: Self.openingAdhesion,
                                    run: Double(Self.openingRun),
-                                   epsilon: Self.openingEpsilon,
+                                   epsilon: MotionEngine.unboundedEpsilon,
                                    budget: Self.openingBudget)
+        // The source is loaded before its epsilon is known, because what the budget affords follows from the segments the source carries.
+        let afforded = running.affordableEpsilon()
+        running.tune(adhesion: Self.openingAdhesion, run: Double(Self.openingRun), epsilon: afforded, budget: Self.openingBudget)
         plot = opening
         lines = population
         engine = running
+        epsilonFloor = afforded
+        settleEpsilon = afforded
         field = running.field
         motion = running.plot
     }
@@ -140,13 +157,22 @@ final class HarnessModel {
 
     private func reload() {
         engine.load(source: Self.source(plot.paths), content: lines)
+        afford()
         settle()
     }
 
     /// The bake happens inside the Guide, so every one of these rebakes and there is no separate rebake to trigger.
     private func retune() {
         engine.tune(adhesion: adhesion, run: Double(run), epsilon: settleEpsilon, budget: budget)
+        afford()
         settle()
+    }
+
+    /// Affordability moves with the segment count and with the budget, so the floor is derived again after either and the standing epsilon is carried up where the floor has passed it. Carrying it rebakes, which is why the floor is read before the bake is handed to the readout.
+    private func afford() {
+        epsilonFloor = engine.affordableEpsilon()
+        guard settleEpsilon < epsilonFloor else { return }
+        settleEpsilon = epsilonFloor
     }
 
     private func seek() {
