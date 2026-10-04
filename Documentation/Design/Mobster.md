@@ -188,7 +188,7 @@ A spiral populating the standard ratio frame.
 Golden Ratio preserves its own proportions, because a distorted spiral is not the golden ratio.
 
 **preset.goldenRatio.quadlines**
-Golden Ratio plots the nested rectangles the spiral is derived from alongside the spiral.
+Golden Ratio plots the nested rectangles the spiral is derived from alongside the spiral, and whether it plots them is optional. A path a Guide is given is a path it bakes, so a rectangle drawn for construction attracts as hard as the spiral does, and near the eye the rectangles are packed tighter than the curve.
 
 **preset.goldenRatio.focus**
 The corner the spiral converges toward is selectable.
