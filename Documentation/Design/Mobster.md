@@ -561,6 +561,12 @@ The harness reports performance timing.
 **mobster.harness.handle**
 A location a user places is dragged on the preview, not typed into two numbers. A target with no mark on screen is a coordinate rather than a handle, and it makes a usable model read as an unusable one.
 
+**mobster.harness.handle.track**
+A mark for a placed location is laid down through the same carriage the construction it belongs to is laid down through. A mark placed through a mapping the view does not reach stays where the construction stood before it was turned, so the hand walks away from the ring that poses it and the ring poses a hand that is no longer under it.
+
+**mobster.harness.handle.direction**
+A direction a construction is pointed in is not a location a user places, and it is dialled rather than dragged. It carries a depth the preview has no axis for, and a mark laid down for it is laid through a flat mapping that reads neither the turn nor the roll, so it stands where the construction would be seen from the front rather than where the construction now is. A mark in the wrong place is worse than none, which is what separates this from the case above.
+
 **mobster.harness.sliders**
 The harness exposes each derived magnitude as a slider.
 
