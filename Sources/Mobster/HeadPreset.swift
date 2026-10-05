@@ -86,10 +86,10 @@ public struct HeadPreset: Hashable, Sendable {
         let base = canon.chinLevel - canon.browLevel
         let top = canon.chinTopLevel - canon.browLevel
 
-        return [SIMD3<Float>(canon.jawHalfWidth, top, canon.halfDepth),
+        return [SIMD3<Float>(canon.jawHalfWidth, top, canon.jawMeetingDepth),
                 SIMD3<Float>(canon.chinHalfWidth, base, canon.halfDepth),
                 SIMD3<Float>(-canon.chinHalfWidth, base, canon.halfDepth),
-                SIMD3<Float>(-canon.jawHalfWidth, top, canon.halfDepth)]
+                SIMD3<Float>(-canon.jawHalfWidth, top, canon.jawMeetingDepth)]
     }
 
     /// A circular cylinder standing upright, divided at its middle for the cross section the roundness asks for. It starts at the jaw angles, the lowest level the head still covers it at, and the basis does not carry it: a neck does not turn when the head within it does.

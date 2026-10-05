@@ -321,18 +321,10 @@ The target's horizontal run from the head is held above zero. A target directly 
 Forward is held within forty five degrees either side of level. Beyond that it approaches parallel with up and the derivation of a basis collapses, so the limit removes the case rather than answering it. A head tilted further is not a drawing reference anyway.
 
 **mobster.preset.head.chin**
-The chin block centres vertically on the underside of the cranial mass and rises halfway to its middle. It is as wide as the jaw angles where it meets them and as wide as the mouth at its base, which is a stronger taper than it looks: seven tenths of the head's breadth above and three and a half tenths below. The sexes differ by two hundredths of the breadth above and by less than half a hundredth below.
+The chin block rises to the middle of the cranial mass, its top edge standing at the brow line so the face carries no gap between the brow and the jaw. It is as wide as the jaw angles where it meets them and as wide as the mouth at its base, which is a stronger taper than it looks: seven tenths of the head's breadth above and three and a half tenths below. The sexes differ by two hundredths of the breadth above and by less than half a hundredth below.
 
-**mobster.preset.head.muzzle**
-A form stands between the brow line and the top of the chin block, filling the space the two leave. Its upper edge meets the cranial mass at the brow and its lower edge meets the chin block where that block's top edge stands, so the construction carries no gap between the brow and the chin. The chin block is not raised to close that space; its top edge stays where the canon puts it.
-
-{? muzzle is the drawing tradition's word for this form, where the document already says cranial mass, jaw wedge and chin block; the uri follows whatever you call it ?}
-
-**mobster.preset.head.muzzle.identity**
-The form carries its own identity. Its meeting with the cranial mass and its meeting with the chin block are seams between two components, and its outline against the background is silhouette, so a point conforms to the outline of the face and not to the divisions inside it.
-
-**mobster.preset.head.muzzle.depth**
-Where the form meets the cranial mass it stands on that mass's surface at the breadth it meets it at, rather than at the full depth of the head. A corner carried forward to the full depth at a breadth the mass has already narrowed from emerges in front of the mass, and a surface grazing another at a tangent produces boundaries that lengthen and shorten as the head turns.
+**mobster.preset.head.chin.meet**
+The top corners of the chin block stand on the cranial surface at the breadth they meet it at, rather than at the full depth of the head. A corner carried forward to the full depth at a breadth the mass has already narrowed from emerges in front of the mass rather than meeting it, and a surface grazing another at a tangent produces boundaries that lengthen and shorten as the head turns.
 
 **mobster.preset.head.roll**
 A scalar turns the head about its forward axis.

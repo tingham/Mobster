@@ -85,12 +85,12 @@ struct HeadPresetTests {
         let chin = try locations(mesh, identities: 10 ... 10)
 
         #expect(abs(jaw.map(\.x).max()! - 68.276) < 0.01)
-        #expect(abs(jaw.map(\.y).min()! - 56.379) < 0.01)
+        #expect(abs(jaw.map(\.y).min()! - 37.586) < 0.01)
         #expect(abs(jaw.map(\.y).max()! - 80) < 0.01)
         #expect(abs(chin.map(\.x).max()! - 68.276) < 0.01)
-        #expect(abs(chin.map(\.y).min()! - 56.379) < 0.01)
+        #expect(abs(chin.map(\.y).min()! - 37.586) < 0.01)
         #expect(abs(chin.map(\.y).max()! - 80) < 0.01)
-        #expect(abs(chin.map(\.z).min()! - 33.621) < 0.01)
+        #expect(abs(chin.map(\.z).min()! - 23.944) < 0.01)
     }
 
     /// As fractions of the head's own breadth the jaw angles are 0.702 for a man and 0.681 for a woman and the mouth is 0.351 and 0.347, so the block is half again narrower at its base than where it meets the jaw angles and the sexes differ by less than a hundredth at either end.

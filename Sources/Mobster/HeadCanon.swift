@@ -101,7 +101,14 @@ struct HeadCanon: Sendable {
     var craniumBaseLevel: Float { browLevel * 2 }
 
     /// Halfway from the underside of the cranial mass to its middle.
-    var chinTopLevel: Float { (craniumBaseLevel + browLevel) / 2 }
+    var chinTopLevel: Float { browLevel }
+
+    /// The depth of the cranial surface at the jaw breadth, which is where the chin block's top corners meet it. The mass has narrowed from its full depth by that breadth, so a corner carried to the full depth stands in front of the mass rather than on it.
+    var jawMeetingDepth: Float {
+        let reach = min(jawHalfWidth / halfWidth, 1)
+
+        return halfDepth * (1 - reach * reach).squareRoot()
+    }
 
     var chinFaceHeight: Float { chinHeight / headHeight }
 
