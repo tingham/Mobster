@@ -14,6 +14,8 @@ public struct FigurePreset: Hashable, Sendable {
     public let heads: Float
     /// The location the whole figure is turned toward, measured from its middle: x across, y downward, z out of the chest. One target orbits the construction; the pose is not turned with it.
     public let target: SIMD3<Float>
+    /// Radians about forward. It turns the figure as constructed, the pose having been solved against its targets before the view carries any of it.
+    public let roll: Float
     /// The location the head points at, measured from the centre of the cranial mass in head heights: x across, y downward, z out of the face. It turns the head within the figure where the figure's own target turns everything.
     public let headTarget: SIMD3<Float>
     /// Design space, where zero to one spans the design rectangle. Left is the lesser x of it.
@@ -26,6 +28,7 @@ public struct FigurePreset: Hashable, Sendable {
     public init(sex: FigureSex,
                 heads: Float,
                 target: SIMD3<Float>,
+                roll: Float,
                 headTarget: SIMD3<Float>,
                 leftHand: SIMD2<Float>,
                 rightHand: SIMD2<Float>,
@@ -35,6 +38,7 @@ public struct FigurePreset: Hashable, Sendable {
         self.sex = sex
         self.heads = heads
         self.target = target
+        self.roll = roll
         self.headTarget = headTarget
         self.leftHand = leftHand
         self.rightHand = rightHand
@@ -46,7 +50,7 @@ public struct FigurePreset: Hashable, Sendable {
     public func mesh(in frame: Frame) -> Mesh {
         let figure = Figure(heads: heads, sex: sex)
         let pelvis = figure.pelvis
-        let placement = Self.placement(figure, target: target, frame: frame)
+        let placement = Self.placement(figure, target: target, roll: roll, frame: frame)
         let head = figure.head.bands(upper: MeshIdentity(Self.headIdentity), lower: MeshIdentity(Self.headIdentity + 1))
         let facing = Self.facing(figure.head, target: headTarget)
         var bands = figure.ribcage.bands(upper: MeshIdentity(Self.ribcageIdentity), lower: MeshIdentity(Self.ribcageIdentity + 1))
@@ -66,13 +70,13 @@ public struct FigurePreset: Hashable, Sendable {
     public func headLocation(in frame: Frame) -> SIMD2<Float> {
         let figure = Figure(heads: heads, sex: sex)
 
-        return Self.placement(figure, target: target, frame: frame).flat(Self.design(headTarget, figure))
+        return Self.placement(figure, target: target, roll: roll, frame: frame).flat(Self.design(headTarget, figure))
     }
 
     /// The head target a location in the Frame stands for. The depth is kept, a location on the preview carrying no third axis.
     public func headTarget(at location: SIMD2<Float>, in frame: Frame) -> SIMD3<Float> {
         let figure = Figure(heads: heads, sex: sex)
-        let design = Self.placement(figure, target: target, frame: frame).design(location)
+        let design = Self.placement(figure, target: target, roll: roll, frame: frame).design(location)
         let run = (design - figure.head.center) / figure.headUnit
 
         return SIMD3<Float>(run.x, run.y, headTarget.z)
@@ -96,16 +100,16 @@ public struct FigurePreset: Hashable, Sendable {
         guard headLines else { return [] }
 
         let figure = Figure(heads: heads, sex: sex)
-        let placement = Self.placement(figure, target: target, frame: frame)
+        let placement = Self.placement(figure, target: target, roll: roll, frame: frame)
 
         return figure.breakLines.map { line in
             Line(verts: line.map { Vert(location: placement.flat($0)) }, role: .construction)
         }
     }
 
-    private static func placement(_ figure: Figure, target: SIMD3<Float>, frame: Frame) -> MeshPlacement {
+    private static func placement(_ figure: Figure, target: SIMD3<Float>, roll: Float, frame: Frame) -> MeshPlacement {
         MeshPlacement(target: target,
-                      roll: 0,
+                      roll: roll,
                       origin: SIMD2<Float>(figure.center, pivotLevel),
                       pivot: SIMD2<Float>(figure.center, pivotLevel),
                       unit: 1,

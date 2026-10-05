@@ -70,6 +70,7 @@ struct GuideRoleTests {
         let measured = FigurePreset(sex: .male,
                                     heads: 8,
                                     target: SIMD3<Float>(0, 0, 1),
+                                    roll: 0,
                                     headTarget: SIMD3<Float>(0, 0, 1),
                                     leftHand: SIMD2<Float>(0.31, 0.5),
                                     rightHand: SIMD2<Float>(0.69, 0.5),

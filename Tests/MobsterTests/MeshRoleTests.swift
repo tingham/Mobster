@@ -11,7 +11,7 @@ struct MeshRoleTests {
 
     private func extracted(_ target: SIMD3<Float>) throws -> [Line] {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: target).mesh(in: square)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: target, roll: 0).mesh(in: square)
 
         return try MeshExtraction(mesh: mesh, frame: square, fit: MeshExtraction.fit, perspective: MeshPerspective()).paths(device: device)
     }
@@ -39,7 +39,7 @@ struct MeshRoleTests {
     /// The near corner is where the three seams meet, so a vert standing on it is already at a seam and is carried out to the outline rather than held.
     @Test func aGuideOverAMeshBakesTheSilhouetteAlone() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal).mesh(in: square)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal, roll: 0).mesh(in: square)
         let corner = SIMD2<Float>(256, 256)
         let guide = Guide(frame: square)
         try guide.initialize(source: .mesh(mesh, device: device, fit: MeshExtraction.fit, perspective: MeshPerspective()),

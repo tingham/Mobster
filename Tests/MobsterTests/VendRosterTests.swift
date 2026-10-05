@@ -10,6 +10,7 @@ struct VendRosterTests {
         FigurePreset(sex: sex,
                      heads: 8,
                      target: frontal,
+                     roll: 0,
                      headTarget: frontal,
                      leftHand: SIMD2<Float>(0.1, 0.5),
                      rightHand: SIMD2<Float>(0.9, 0.5),

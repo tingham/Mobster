@@ -49,7 +49,7 @@ struct PresetContextTests {
     }
 
     private func cube() -> CubeMesh {
-        CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal)
+        CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal, roll: 0)
     }
 
     private func head() -> HeadPreset {
@@ -60,6 +60,7 @@ struct PresetContextTests {
         FigurePreset(sex: .male,
                      heads: 8,
                      target: frontal,
+                     roll: 0,
                      headTarget: frontal,
                      leftHand: SIMD2<Float>(0.1, 0.5),
                      rightHand: SIMD2<Float>(0.9, 0.5),

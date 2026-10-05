@@ -10,7 +10,7 @@ struct CubeMeshTests {
     private let axis = SIMD3<Float>(0, 0, 1)
 
     private func box(_ position: SIMD2<Float>, _ size: Float, _ target: SIMD3<Float>) -> Mesh {
-        CubeMesh(position: position, size: size, target: target).mesh(in: square)
+        CubeMesh(position: position, size: size, target: target, roll: 0).mesh(in: square)
     }
 
     @Test func theBoxIsTwelveTriangles() {
@@ -47,7 +47,7 @@ struct CubeMeshTests {
 
     /// The lesser axis sizes the box, so four hundred rather than six hundred decides a half sized edge and the box stays a box.
     @Test func theLesserAxisOfTheFrameSizesTheBox() {
-        let locations = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: axis).mesh(in: wide).triangles.flatMap { [$0.first, $0.second, $0.third] }
+        let locations = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: axis, roll: 0).mesh(in: wide).triangles.flatMap { [$0.first, $0.second, $0.third] }
 
         #expect(locations.map(\.x).max()! - locations.map(\.x).min()! == 200)
         #expect(locations.map(\.y).max()! - locations.map(\.y).min()! == 200)
