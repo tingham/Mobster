@@ -66,20 +66,19 @@ public struct FigurePreset: Hashable, Sendable {
             + bands.flatMap { $0.triangles(placement.location) })
     }
 
-    /// Where the head's target stands in the Frame, so a consumer can put a handle on it rather than three numbers. The depth of it is not drawn.
-    public func headLocation(in frame: Frame) -> SIMD2<Float> {
+    /// Where a pose target stands in the Frame, carried through the placement the limb it poses is carried through, so a mark laid down for it stands on the hand or the foot however the figure is turned.
+    public func poseLocation(of target: SIMD2<Float>, in frame: Frame) -> SIMD2<Float> {
         let figure = Figure(heads: heads, sex: sex)
+        let carried = Self.placement(figure, target: self.target, roll: roll, frame: frame).location(SIMD3<Float>(target.x, target.y, 0))
 
-        return Self.placement(figure, target: target, roll: roll, frame: frame).flat(Self.design(headTarget, figure))
+        return SIMD2<Float>(carried.x, carried.y)
     }
 
-    /// The head target a location in the Frame stands for. The depth is kept, a location on the preview carrying no third axis.
-    public func headTarget(at location: SIMD2<Float>, in frame: Frame) -> SIMD3<Float> {
+    /// The pose target a location in the Frame stands for, and nil where the view has turned the plane the targets stand on edge on, a location on the preview then standing for every target along the axis that vanished.
+    public func poseTarget(at location: SIMD2<Float>, in frame: Frame) -> SIMD2<Float>? {
         let figure = Figure(heads: heads, sex: sex)
-        let design = Self.placement(figure, target: target, roll: roll, frame: frame).design(location)
-        let run = (design - figure.head.center) / figure.headUnit
 
-        return SIMD3<Float>(run.x, run.y, headTarget.z)
+        return Self.placement(figure, target: target, roll: roll, frame: frame).plane(location)
     }
 
     /// The head's own turn, taken about the centre of the cranial mass so the mass turns in place before the figure's view carries the whole construction.
@@ -88,11 +87,6 @@ public struct FigurePreset: Hashable, Sendable {
         let centre = SIMD3<Float>(head.center.x, head.center.y, 0)
 
         return { location in centre + space.turned(location - centre) }
-    }
-
-    /// The head's target laid into the design rectangle, measured in head heights from the centre of the cranial mass.
-    private static func design(_ target: SIMD3<Float>, _ figure: Figure) -> SIMD2<Float> {
-        figure.head.center + SIMD2<Float>(target.x, target.y) * figure.headUnit
     }
 
     /// Half width lines to either side of the figure at each head break. They measure the figure rather than belonging to it, so nothing turns them and they are paths rather than solids.

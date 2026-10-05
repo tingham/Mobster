@@ -9,6 +9,7 @@ struct FigureParameterView: View {
         FigurePosePickerView(parameters: $parameters)
         ParameterSliderView(title: "Heads", value: $parameters.figureHeads, range: 4 ... 8)
         ViewParameterView(target: $parameters.figureTarget, roll: $parameters.figureRoll)
+        ViewTargetParameterView(name: "Head Target", target: $parameters.figureHeadTarget)
         IntegerParameterSliderView(title: "Fit", value: $parameters.meshFit, range: 4 ... 48)
         ParameterSliderView(title: "Field Of View", value: $parameters.meshFieldOfView, range: MeshPerspective.range)
         Toggle("Head Lines", isOn: $parameters.figureHeadLines)
