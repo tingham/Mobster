@@ -17,7 +17,7 @@ struct MeshRenderTests {
         let wide = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
         let device = try #require(MTLCreateSystemDefaultDevice())
         let render = try MeshRender(device: device)
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: SIMD3<Float>(0, 0, 1)).mesh(in: wide)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: SIMD3<Float>(0, 0, 1), roll: 0).mesh(in: wide)
         let drawn = try #require(try render.raster(of: mesh, in: wide, resolution: MeshResolution(frame: wide), perspective: MeshPerspective()))
 
         #expect(drawn.columns == MeshResolution(frame: wide).columns)
@@ -37,14 +37,14 @@ struct MeshRenderTests {
 
     /// The near face of the box covers the far one exactly, so what the far one loses it loses to the depth test and to nothing else.
     @Test func theDepthTestDecidesWhatIsSeen() throws {
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: SIMD3<Float>(0, 0, 1)).mesh(in: square)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: SIMD3<Float>(0, 0, 1), roll: 0).mesh(in: square)
 
         #expect(Set(try raster(of: mesh).identities) == [6, MeshIdentityRaster.background])
     }
 
     /// The box is sized to a quarter of the Frame and centred, so the corner of the target stands well clear of it.
     @Test func aFragmentCoveringNoComponentCarriesTheBackground() throws {
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.25, target: SIMD3<Float>(0, 0, 1)).mesh(in: square)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.25, target: SIMD3<Float>(0, 0, 1), roll: 0).mesh(in: square)
 
         #expect(try raster(of: mesh).identity(column: 0, row: 0) == MeshIdentityRaster.background)
     }

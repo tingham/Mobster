@@ -12,7 +12,7 @@ struct VendDefaultTests {
     /// The count the package vends is one it extracts at: every boundary comes back fitted to it, so a consumer reading it needs no count of its own.
     @Test func theVendedFitIsWhatABoundaryComesBackAt() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: axis).mesh(in: square)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: axis, roll: 0).mesh(in: square)
         let paths = try MeshExtraction(mesh: mesh, frame: square, fit: MeshExtraction.fit, perspective: MeshPerspective()).paths(device: device).map { $0.verts.map(\.location) }
 
         #expect(!paths.isEmpty)

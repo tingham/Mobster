@@ -8,15 +8,20 @@ struct FigurePresetTests {
     private let wide = Frame(origin: SIMD2<Float>(0, 0), size: SIMD2<Float>(600, 400))
     /// Straight out of the chest, which reads the figure frontally.
     private let frontal = SIMD3<Float>(0, 0, 1)
+    /// Design space. The left hand is posed here and the left hand mesh carries identity 22.
+    private let hand = SIMD2<Float>(0.31, 0.5)
+    /// Design space. The left foot is posed here and the left foot mesh carries identity 24.
+    private let foot = SIMD2<Float>(0.42, 1)
 
-    private func figure(sex: FigureSex, heads: Float, target: SIMD3<Float>? = nil, headTarget: SIMD3<Float>? = nil, headLines: Bool = false) -> FigurePreset {
+    private func figure(sex: FigureSex, heads: Float, target: SIMD3<Float>? = nil, roll: Float = 0, headTarget: SIMD3<Float>? = nil, headLines: Bool = false) -> FigurePreset {
         FigurePreset(sex: sex,
                      heads: heads,
                      target: target ?? frontal,
+                     roll: roll,
                      headTarget: headTarget ?? frontal,
-                     leftHand: SIMD2<Float>(0.31, 0.5),
+                     leftHand: hand,
                      rightHand: SIMD2<Float>(0.69, 0.5),
-                     leftFoot: SIMD2<Float>(0.42, 1),
+                     leftFoot: foot,
                      rightFoot: SIMD2<Float>(0.58, 1),
                      headLines: headLines)
     }
@@ -198,15 +203,40 @@ struct FigurePresetTests {
         #expect(ahead.triangles.filter { mass.contains($0.identity.value) == false } == looking.triangles.filter { mass.contains($0.identity.value) == false })
     }
 
-    /// The target is a location on the preview a consumer drags, so it stands somewhere in the Frame and a location in the Frame stands for a target. One head to the right of the head's centre is a twelfth of eight hundred across from it.
-    @Test func theHeadTargetStandsInTheFrameAndComesBackFromIt() {
-        let looking = figure(sex: .male, heads: 8, headTarget: SIMD3<Float>(1, 0, 1))
-        let standing = looking.headLocation(in: frame)
+    /// A pose target is a location a user places, so it stands somewhere in the Frame and a location in the Frame stands for it. Design space runs zero to one across the eight hundred square, which carries a hand at 0.31 and a half to 248 and 400.
+    @Test func aPoseTargetStandsInTheFrameAndComesBackFromIt() throws {
+        let posed = figure(sex: .male, heads: 8)
+        let standing = posed.poseLocation(of: hand, in: frame)
+        let read = try #require(posed.poseTarget(at: standing, in: frame))
 
-        #expect(abs(standing.x - 500) < 0.01)
-        #expect(abs(standing.y - 50) < 0.01)
-        #expect(meets(SIMD3<Float>(looking.headTarget(at: standing, in: frame)), SIMD3<Float>(1, 0, 1)))
-        #expect(meets(SIMD3<Float>(looking.headTarget(at: SIMD2<Float>(400, 50), in: frame)), SIMD3<Float>(0, 0, 1)))
+        #expect(abs(standing.x - 248) < 0.01)
+        #expect(abs(standing.y - 400) < 0.01)
+        #expect(abs(read.x - hand.x) < 0.001)
+        #expect(abs(read.y - hand.y) < 0.001)
+    }
+
+    /// A mark for a pose target is laid down through the carriage the limb it poses is laid down through, so it stands on the hand and on the foot whatever the figure is turned toward and whatever it is rolled to. A mark laid through a flat mapping holds its frontal location, which the turned limb has left.
+    @Test(arguments: [(SIMD3<Float>(0, 0, 1), Float(0)), (SIMD3<Float>(1, 0, 1), Float(0)), (SIMD3<Float>(0, 0, 1), Float.pi / 2)])
+    func aPoseMarkStandsOnTheLimbItPoses(view: (target: SIMD3<Float>, roll: Float)) {
+        let posed = figure(sex: .male, heads: 8, target: view.target, roll: view.roll)
+        let mesh = posed.mesh(in: frame)
+        let marks = [(hand, UInt32(22)), (foot, UInt32(24))]
+
+        for (target, identity) in marks {
+            let mark = posed.poseLocation(of: target, in: frame)
+            let (least, most) = spans(locations(mesh, identity: identity))
+
+            #expect(mark.x >= least.x && mark.x <= most.x)
+            #expect(mark.y >= least.y && mark.y <= most.y)
+        }
+    }
+
+    /// A figure turned to a profile stands the plane its targets are posed on edge on, where one location on the preview stands for every target along the axis that vanished, so a drag carries nothing to read back.
+    @Test func aPoseTargetIsNotReadBackFromAProfile() {
+        let middle = SIMD2<Float>(400, 400)
+
+        #expect(figure(sex: .male, heads: 8, target: SIMD3<Float>(1, 0, 0)).poseTarget(at: middle, in: frame) == nil)
+        #expect(figure(sex: .male, heads: 8).poseTarget(at: middle, in: frame) != nil)
     }
 
     @Test func headBreakLinesSitAtTheFractionsTheHeightImplies() {
@@ -261,6 +291,7 @@ struct FigurePresetTests {
         let reaching = FigurePreset(sex: .male,
                                     heads: 8,
                                     target: frontal,
+                                    roll: 0,
                                     headTarget: frontal,
                                     leftHand: SIMD2<Float>(-4, -3),
                                     rightHand: SIMD2<Float>(6, 9),

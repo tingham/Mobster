@@ -6,7 +6,7 @@ struct HeadParameterView: View {
 
     var body: some View {
         HeadSexPickerView(sex: $parameters.headSex)
-        ParameterSliderView(title: "Roll", value: $parameters.headRoll, range: -180 ... 180)
+        ViewParameterView(target: $parameters.headTarget, roll: $parameters.headRoll)
         IntegerParameterSliderView(title: "Fit", value: $parameters.meshFit, range: 4 ... 48)
         ParameterSliderView(title: "Field Of View", value: $parameters.meshFieldOfView, range: MeshPerspective.range)
     }

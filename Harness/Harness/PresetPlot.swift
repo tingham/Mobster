@@ -105,7 +105,7 @@ struct PresetPlot {
     }
 
     private static func box(_ parameters: PresetParameters) -> CubeMesh {
-        CubeMesh(position: parameters.cubePosition, size: parameters.cubeSize, target: parameters.cubeTarget)
+        CubeMesh(position: parameters.cubePosition, size: parameters.cubeSize, target: parameters.cubeTarget, roll: roll(parameters.cubeRoll))
     }
 
     /// The figure the harness plots, which is also what carries the head target a handle stands on.
@@ -113,6 +113,7 @@ struct PresetPlot {
         FigurePreset(sex: parameters.figureSex,
                      heads: parameters.figureHeads,
                      target: parameters.figureTarget,
+                     roll: roll(parameters.figureRoll),
                      headTarget: parameters.figureHeadTarget,
                      leftHand: parameters.figureLeftHand,
                      rightHand: parameters.figureRightHand,

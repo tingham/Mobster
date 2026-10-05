@@ -56,6 +56,7 @@ struct PresetConfigurationTests {
         FigurePreset(sex: .male,
                      heads: 8,
                      target: frontal,
+                     roll: 0,
                      headTarget: frontal,
                      leftHand: SIMD2<Float>(0.1, 0.5),
                      rightHand: SIMD2<Float>(0.9, 0.5),
@@ -86,7 +87,7 @@ struct PresetConfigurationTests {
         case .figure:
             return FigureConfiguration(parameters: figure(headLines: true), context: context(device))
         case .cube:
-            return CubeConfiguration(parameters: CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal), context: context(device))
+            return CubeConfiguration(parameters: CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal, roll: 0), context: context(device))
         }
     }
 }

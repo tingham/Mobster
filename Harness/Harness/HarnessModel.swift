@@ -71,32 +71,31 @@ final class HarnessModel {
         identityVisible ? plot.raster : nil
     }
 
-    /// The locations the user places, which are dragged on the preview rather than typed into two numbers.
+    /// The locations the user places, which are dragged on the preview rather than typed into two numbers. A direction a construction is pointed in is not one of them and is dialled instead.
     var handles: [PresetHandle] {
         switch kind {
         case .figure: figureHandles
-        case .head: headHandles
-        case .goldenRatio, .thirds, .columns, .rows, .grid, .ruler, .curve, .cube: []
+        case .goldenRatio, .thirds, .columns, .rows, .grid, .ruler, .curve, .head, .cube: []
         }
     }
 
-    /// The four targets a figure is posed by, which it holds in design space, and the location its head points at, which the preset vends in the Frame and takes back in it as the head preset does.
+    /// The four targets a figure is posed by, which it holds in design space.
     private var figureHandles: [PresetHandle] {
-        let square = DesignSquare(frame: Self.frame)
         let figure = PresetPlot.construction(parameters)
 
-        return [PresetHandle(id: "Left Hand", location: square.location(parameters.figureLeftHand), move: { [self] in parameters.figureLeftHand = square.design($0) }),
-                PresetHandle(id: "Right Hand", location: square.location(parameters.figureRightHand), move: { [self] in parameters.figureRightHand = square.design($0) }),
-                PresetHandle(id: "Left Foot", location: square.location(parameters.figureLeftFoot), move: { [self] in parameters.figureLeftFoot = square.design($0) }),
-                PresetHandle(id: "Right Foot", location: square.location(parameters.figureRightFoot), move: { [self] in parameters.figureRightFoot = square.design($0) }),
-                PresetHandle(id: "Head Target", location: figure.headLocation(in: Self.frame), move: { [self] in parameters.figureHeadTarget = figure.headTarget(at: $0, in: Self.frame) })]
+        return [poseHandle("Left Hand", figure, parameters.figureLeftHand) { [self] in parameters.figureLeftHand = $0 },
+                poseHandle("Right Hand", figure, parameters.figureRightHand) { [self] in parameters.figureRightHand = $0 },
+                poseHandle("Left Foot", figure, parameters.figureLeftFoot) { [self] in parameters.figureLeftFoot = $0 },
+                poseHandle("Right Foot", figure, parameters.figureRightFoot) { [self] in parameters.figureRightFoot = $0 }]
     }
 
-    /// The location the head points at, which the preset vends in the Frame and takes back in it. Its depth is not on the preview and the drag keeps whatever it stood at.
-    private var headHandles: [PresetHandle] {
-        let head = HeadPreset(sex: parameters.headSex, target: parameters.headTarget, roll: PresetPlot.roll(parameters.headRoll))
+    /// A pose target laid down and read back through the carriage the limb it poses is laid down through, so the mark stays on the hand whatever the figure is turned toward. A drag the carriage cannot read back leaves the target standing.
+    private func poseHandle(_ id: String, _ figure: FigurePreset, _ target: SIMD2<Float>, _ place: @escaping (SIMD2<Float>) -> Void) -> PresetHandle {
+        PresetHandle(id: id, location: figure.poseLocation(of: target, in: Self.frame), move: { scene in
+            guard let design = figure.poseTarget(at: scene, in: Self.frame) else { return }
 
-        return [PresetHandle(id: "View Target", location: head.location(in: Self.frame), move: { [self] in parameters.headTarget = head.target(at: $0, in: Self.frame) })]
+            place(design)
+        })
     }
 
     init() {

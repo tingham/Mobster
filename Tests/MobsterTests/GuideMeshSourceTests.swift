@@ -10,7 +10,7 @@ struct GuideMeshSourceTests {
     /// A mesh source has its lines extracted from a projection of the mesh, which the box view puts at six.
     @Test func aMeshSourceIsExtractedIntoLines() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal).mesh(in: square)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal, roll: 0).mesh(in: square)
         let guide = Guide(frame: square)
 
         try guide.initialize(source: .mesh(mesh, device: device, fit: fit, perspective: MeshPerspective()), frame: square, adhesion: 1, duration: 1, settleEpsilon: 4, budget: .max)
@@ -22,7 +22,7 @@ struct GuideMeshSourceTests {
     /// Nothing keys a mesh, so the verts of an extracted line carry no identifier.
     @Test func anExtractedLineCarriesNoIdentifier() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal).mesh(in: square)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: diagonal, roll: 0).mesh(in: square)
         let guide = Guide(frame: square)
 
         try guide.initialize(source: .mesh(mesh, device: device, fit: fit, perspective: MeshPerspective()), frame: square, adhesion: 1, duration: 1, settleEpsilon: 4, budget: .max)

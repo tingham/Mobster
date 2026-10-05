@@ -9,15 +9,18 @@ public struct CubeMesh: Hashable, Sendable {
     public let size: Float
     /// The location the box points at, measured from its centre: x across, y downward, z out of the near face.
     public let target: SIMD3<Float>
+    /// Radians about forward. The box turns about the centre the position locates, so a roll leaves that placement where it stands.
+    public let roll: Float
 
-    public init(position: SIMD2<Float>, size: Float, target: SIMD3<Float>) {
+    public init(position: SIMD2<Float>, size: Float, target: SIMD3<Float>, roll: Float) {
         self.position = position
         self.size = size
         self.target = target
+        self.roll = roll
     }
 
     public func mesh(in frame: Frame) -> Mesh {
-        let space = SpaceProjection(basis: SpaceBasis(target: target, roll: 0))
+        let space = SpaceProjection(basis: SpaceBasis(target: target, roll: roll))
         let centre = frame.origin + position * frame.size
         let half = size * min(frame.size.x, frame.size.y) / 2
         let corners = (0 ..< 8).map { corner in

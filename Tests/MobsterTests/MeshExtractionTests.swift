@@ -35,7 +35,7 @@ struct MeshExtractionTests {
 
     private func extracted(_ target: SIMD3<Float>, _ perspective: MeshPerspective = MeshPerspective()) throws -> [[SIMD2<Float>]] {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: target).mesh(in: square)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: target, roll: 0).mesh(in: square)
 
         return try MeshExtraction(mesh: mesh, frame: square, fit: fit, perspective: perspective).paths(device: device).map { $0.verts.map(\.location) }
     }
@@ -109,7 +109,7 @@ struct MeshExtractionTests {
     /// The raster is vended at the lattice the Frame derives, one whole identity a fragment. Viewed along the axis the box shows its near face, which is the sixth of the six and the last emitted, and nothing else: the rest of the Frame covers no component and carries the background.
     @Test func theIdentityRasterIsVendedForDisplay() throws {
         let device = try #require(MTLCreateSystemDefaultDevice())
-        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: axis).mesh(in: square)
+        let mesh = CubeMesh(position: SIMD2<Float>(0.5, 0.5), size: 0.5, target: axis, roll: 0).mesh(in: square)
         let raster = try #require(try MeshExtraction(mesh: mesh, frame: square, fit: fit, perspective: MeshPerspective()).raster(device: device))
 
         #expect(raster.columns == 512)
