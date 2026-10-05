@@ -31,6 +31,8 @@ struct PresetParameters: Hashable, Sendable {
     var figureHeads: Float = 8
     /// Figure space, measured from the middle of the figure: x across, y downward, z out of the chest. Opening straight out of the chest, which is the frontal view.
     var figureTarget = SIMD3<Float>(0, 0, 1)
+    /// Degrees about forward.
+    var figureRoll: Float = 0
     /// Head space, measured from the centre of the figure's cranial mass in head heights. Opening straight out of the face, which leaves the figure looking the way it stands.
     var figureHeadTarget = SIMD3<Float>(0, 0, 1)
     var figurePose = PresetParameters.opening.name
@@ -49,6 +51,8 @@ struct PresetParameters: Hashable, Sendable {
     var cubeSize: Float = 0.5
     /// Box space, measured from its centre: x across, y downward, z out of the near face. Opening down the body diagonal, which is the view three faces read from.
     var cubeTarget = SIMD3<Float>(1, 1.7320508, 1.4142135)
+    /// Degrees about forward.
+    var cubeRoll: Float = 0
 
     /// A pose sets every target at once, which is the only way the four of them are set together.
     mutating func pose(_ pose: FigurePose) {
