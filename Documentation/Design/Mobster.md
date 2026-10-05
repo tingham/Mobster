@@ -263,9 +263,6 @@ A box plotted from a mesh. It is the box construction a figure or an object is b
 **mobster.preset.cube.place**
 The cube is positioned and sized within the Frame rather than filling it.
 
-**mobster.preset.cube.target**
-The cube points at a location, as the head does, so it can be turned to any view.
-
 **mobster.preset.figure**
 A human figure plotted as construction forms against the Frame. It was named Ashcan while it was a mugshot; it is a figure now.
 
@@ -308,17 +305,20 @@ The head fits inside the Frame with its proportions intact, for the reason the f
 **mobster.preset.head.sex**
 The head is proportioned as male or as female.
 
-**mobster.preset.head.target**
-The head points at a location. It is not rotated by an angle.
+**mobster.preset.view**
+Every guide type built from a mesh carries the same view, and carries it the same way: a location it points at and a roll about the direction it points. A consumer offers one set of controls and offers it for any of them, rather than learning which dials each type happens to have.
 
-**mobster.preset.head.basis**
-Forward runs from the head toward its target. Up and right are derived from it.
+**@renamed(mobster.preset.head.target, mobster.preset.cube.target) mobster.preset.view.target**
+The guide points at a location. It is not rotated by an angle.
 
-**mobster.preset.head.target.run**
-The target's horizontal run from the head is held above zero. A target directly above or below carries no direction to face, so the limit removes the case rather than answering it.
+**@renamed(mobster.preset.head.basis) mobster.preset.view.basis**
+Forward runs from the guide toward its target. Up and right are derived from it.
 
-**mobster.preset.head.tilt.limit**
-Forward is held within forty five degrees either side of level. Beyond that it approaches parallel with up and the derivation of a basis collapses, so the limit removes the case rather than answering it. A head tilted further is not a drawing reference anyway.
+**@renamed(mobster.preset.head.target.run) mobster.preset.view.target.run**
+The target's horizontal run from the guide is held above zero. A target directly above or below carries no direction to face, so the limit removes the case rather than answering it.
+
+**@renamed(mobster.preset.head.tilt.limit) mobster.preset.view.tilt.limit**
+Forward is held within forty five degrees either side of level. Beyond that it approaches parallel with up and the derivation of a basis collapses, so the limit removes the case rather than answering it. A guide tilted further is not a drawing reference anyway.
 
 **mobster.preset.head.chin**
 The chin block rises to the middle of the cranial mass, its top edge standing at the brow line so the face carries no gap between the brow and the jaw. It is as wide as the jaw angles where it meets them and as wide as the mouth at its base, which is a stronger taper than it looks: seven tenths of the head's breadth above and three and a half tenths below. The sexes differ by two hundredths of the breadth above and by less than half a hundredth below.
@@ -326,8 +326,8 @@ The chin block rises to the middle of the cranial mass, its top edge standing at
 **mobster.preset.head.chin.meet**
 The top corners of the chin block stand on the cranial surface at the breadth they meet it at, rather than at the full depth of the head. A corner carried forward to the full depth at a breadth the mass has already narrowed from emerges in front of the mass rather than meeting it, and a surface grazing another at a tangent produces boundaries that lengthen and shorten as the head turns.
 
-**mobster.preset.head.roll**
-A scalar turns the head about its forward axis.
+**@renamed(mobster.preset.head.roll) mobster.preset.view.roll**
+A scalar turns the guide about its forward axis. What the roll turns is the construction and not the view of it: a head rolls within a neck the roll does not carry, and whatever a guide type anchors stays anchored.
 
 **mobster.preset.ruler**
 Two circular degrees derive two locations on the edge of the Frame.
