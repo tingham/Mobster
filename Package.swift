@@ -1,18 +1,17 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 import PackageDescription
 
 let package = Package(
     name: "Mobster",
     platforms: [
-        .iOS(.v18),
-        .macOS(.v15),
+        .iOS(.v26),
+        .macOS(.v26),
     ],
     products: [
         .library(name: "Mobster", targets: ["Mobster"]),
         .library(name: "MobsterFixture", targets: ["MobsterFixture"]),
     ],
     dependencies: [
-        // Curve fitting and decimation, subscribed to rather than copied.
         .package(url: "git@github.com:tingham/Whiplash.git", from: "1.0.0"),
     ],
     targets: [
@@ -22,7 +21,6 @@ let package = Package(
             resources: [.process("Resources")],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
-        // The fixture mints identifiers, which Mobster is forbidden to do, so it sits in its own target rather than inside the library.
         .target(
             name: "MobsterFixture",
             dependencies: ["Mobster"],
